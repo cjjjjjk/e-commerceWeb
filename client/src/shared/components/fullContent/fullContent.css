@@ -1,0 +1,15 @@
+.content-container {
+    width: 85rem;
+    max-width: 100vw;
+    padding-left: 2rem;
+}
+.object-cover {
+    object-fit: cover;
+    object-position: center; 
+}
+
+.content__title {
+    font-size: 2rem;
+    color: white;
+    text-shadow: 2px 1px 2px rgba(0, 0, 0, 0.6);
+}

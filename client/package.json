@@ -14,10 +14,13 @@
     "ajv": "^8.17.1",
     "ajv-keywords": "^5.1.0",
     "bootstrap": "^5.3.3",
+    "firebase": "^11.4.0",
+    "jwt-decode": "^4.0.0",
     "primeicons": "^7.0.0",
     "react": "^19.0.0",
     "react-bootstrap": "^2.10.9",
     "react-dom": "^19.0.0",
+    "react-router-dom": "^7.2.0",
     "react-scripts": "^5.0.1",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"

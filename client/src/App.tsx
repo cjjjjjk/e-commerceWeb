@@ -1,21 +1,31 @@
-import React from 'react';
+import {Suspense, lazy } from 'react';
 import './App.css';
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+
+// Components
+import Header from './shared/header/Header';
+import Navigate from './shared/navi/Navigate';
+import { Loading } from './shared/components';
+// Pages - lazy loading.
+const Home = lazy(()=> import('./pages/Home/Home'))
+const Member = lazy(()=> import('./pages/Member/Member'))
+const SignIn = lazy(()=> import('./pages/Signin/Signin'))
 
 function App() {
-  const testENV = process.env.REACT_APP_API_URL;
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src="logo512.png" className="App-logo" alt="logo" />
-          <button className="btn btn-primary p-4">Bootstrap Button</button>
-      <div className='d-flex flex-row gap-4 bg-dark p-4'>
-          <span>Primeicon search: </span>
-          <i className='pi pi-search'></i>
-          <span>{'test ENV: '+ testENV}</span>
-      </div>
-      </header>
-    </div>
+    <Router>
+      <Header></Header>
+      <Suspense 
+        fallback={<Loading/>}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path='/member' element={<Member />} />
+          <Route path='/signin' element={<SignIn />} />
+        </Routes>
+      </Suspense>
+      <Navigate></Navigate>
+    </Router>
   );
 }
 

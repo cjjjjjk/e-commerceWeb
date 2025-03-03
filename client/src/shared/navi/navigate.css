@@ -1,0 +1,26 @@
+.navi-item {
+    height: 4rem;
+    aspect-ratio: 1;
+
+    border-radius: 100%;
+
+    background-color: white;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    box-shadow: 3px 2px 10px rgba(0, 0, 0, 0.1);
+    i {
+        font-weight: bold;
+        font-size: 1.25rem;
+    }
+
+    &.center {
+        height: 5rem;
+    }
+
+    &:hover {
+        cursor: pointer;
+    }
+}

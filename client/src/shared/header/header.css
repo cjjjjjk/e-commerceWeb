@@ -1,0 +1,24 @@
+.header-container {
+    width: 75rem;
+    max-width: 100vw;
+
+    border: none;
+    border-bottom: solid 1px lightgray;
+
+}
+
+
+.logo:hover, span:hover {
+    cursor: pointer;
+}
+
+.header-container-right {
+
+    .header-icon {
+        
+        &:hover {
+            color: red;
+            cursor: pointer;
+        }
+    }
+}
