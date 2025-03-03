@@ -2,10 +2,12 @@ import './signin.css'
 
 import { useState } from 'react';
 import {auth, provider, signInWithPopup, signOut} from '../../shared/services/auth'
+import {  useNavigate } from 'react-router-dom';
 
 
 function Signin() {
     const [user, setUser] = useState<any>(null);
+    const navigte = useNavigate()
 
     // SignIn with GG ====================================== author: Hai
     const GGSingIn = async () => {
@@ -13,15 +15,11 @@ function Signin() {
             const result = await signInWithPopup(auth, provider);
             setUser(result.user);
             localStorage.setItem('token', await result.user.getIdToken());
+            navigte("/member");
         } catch (error) {
           console.error("Login failed", error);
         }
       };
-
-    const GGSingout = async () => {
-        await signOut(auth);
-        setUser(null);
-    };
     // ================================================================
 
     return (

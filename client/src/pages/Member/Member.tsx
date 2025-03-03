@@ -2,7 +2,7 @@ import './member.css'
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { tokenDecoder } from "../../shared/services/auth";
+import { auth, signOut, tokenDecoder } from "../../shared/services/auth";
 
 
 interface MemberData {
@@ -17,7 +17,7 @@ function Member() {
     const [member, setMember] = useState<MemberData | null>(null);
 
     useEffect(() => {
-        const token = localStorage.getItem("accessToken");
+        const token = localStorage.getItem("token");
 
         if (!token) {
             navigate("/signin"); 
@@ -37,7 +37,15 @@ function Member() {
             localStorage.removeItem("token"); 
             navigate("/signin");
         }
-    }, [navigate]);
+    }, []);
+
+    // GG Signout ---------------------------
+    const GGSingout = async () => {
+        await signOut(auth);
+        localStorage.removeItem('token')
+        navigate("/")   
+    };
+    // --------------------------------------
     
     if (!member) return <p>Loading...</p>;
     return (
@@ -51,6 +59,7 @@ function Member() {
                     </div>
                     <button
                         className='mt-auto btn btn-danger'
+                        onClick={()=> GGSingout()}
                     >ĐĂNG XUẤT</button>
                 </div>
                 <div className='member-detail flex-grow-1 d-flex flex-column gap-2'>
