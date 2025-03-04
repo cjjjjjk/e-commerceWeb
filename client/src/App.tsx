@@ -4,7 +4,8 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from "react-route
 
 // Redux tollkit
 import { useDispatch } from 'react-redux';
-import { setHeaderTheme } from './shared/header/headerSlice';
+import { setHeaderTheme } from 'shared/header/headerSlice';
+import { setNaviToBackHome } from 'shared/navi/navigateSlice';
 
 // Components
 import Header from './shared/header/Header';
@@ -26,18 +27,23 @@ const RouteChangeHandler = () => {
     switch (location.pathname) {
       case "/member":
         dispatch(setHeaderTheme("light"));
+        dispatch(setNaviToBackHome(true));
         break;
       case "/cart":
         dispatch(setHeaderTheme("light"));
+        dispatch(setNaviToBackHome(false));
         break;
       case "/wishlist":
         dispatch(setHeaderTheme("light"));
+        dispatch(setNaviToBackHome(false));
         break;
       case "/signin":
         dispatch(setHeaderTheme("light"));
+        dispatch(setNaviToBackHome(true));
         break;
       default:
         dispatch(setHeaderTheme("dark"));
+        dispatch(setNaviToBackHome(false));
     }
   }, [location, dispatch]);
   return null;

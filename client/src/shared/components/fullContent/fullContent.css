@@ -9,6 +9,7 @@
 }
 
 .content__title {
+    padding-top: 5rem;
     font-size: 2rem;
     font-weight: 500;
     color: white;

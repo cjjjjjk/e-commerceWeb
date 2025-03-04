@@ -2,14 +2,10 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface HeaderState {
   theme: "light" | "dark",
-  title: string;
-  isVisible: boolean;
 }
 
 const initialState: HeaderState = {
   theme: "dark",
-  title: "Welcome",
-  isVisible: true,
 };
 
 const headerSlice = createSlice({
