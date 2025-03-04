@@ -46,10 +46,9 @@ function Member() {
         navigate("/")   
     };
     // --------------------------------------
-    
     if (!member) return <p>Loading...</p>;
     return (
-        <div className="h-100 w-100 d-flex justify-content-center align-items-center">
+        <div className="member-full-container h-100 w-100 d-flex justify-content-center align-items-center">
             <div className="member-container d-flex gap-5">
                 <div className='member-token d-flex flex-column gap-2'>
                     <img className='rounded-circle' src={member?.avatar || "https://imgur.com/aJKfWLf"} alt="" />

@@ -1,0 +1,21 @@
+.home-container {
+    overflow-y: auto;
+    border: none;
+
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
+    &::-webkit-scrollbar-track {
+        background: lightgray;
+        border-radius: 4px;
+    }
+    &::-webkit-scrollbar-thumb {
+        border-radius: 4px;
+        background-color: gray;
+        border-radius: 4px;
+    }
+    &::-webkit-scrollbar-thumb:hover {
+        background: #000;   
+    }
+    
+}

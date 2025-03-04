@@ -1,22 +1,34 @@
 import './header.css'
+import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { RootState } from '../../app/store';
+
 
 const Header = () => {
   const navigate = useNavigate();
+  const {theme} = useSelector((state: RootState) => state.header);
 
     return (
-      <div className='position-fixed w-100 d-flex justify-content-center z-3'>
-        <div className="header-container py-3 px-2 d-flex justify-content-between">
+      <div className='header-full-container position-fixed w-100 d-flex justify-content-center z-3'>
+        <div className={`${theme}-theme header-container py-3 px-2 d-flex justify-content-between`}>
           <div 
-            className="header-container-left d-flex align-items-center gap-3"
+            className={` header-container-left d-flex align-items-center gap-1`}
             onClick={()=> navigate('')}
             >
-              <img className='logo' src="logo32.png" alt="" />
-              <span className="fw-bold">E-Commerce</span>
+              <img className='logo' src="logoe32.png" alt="" />
+              <img className='logo' src='logoc32.png' />
           </div>
           <div className="header-container-mid d-flex justify-content-center align-items-center gap-4">
-            <span>NỮ</span>
-            <span>NAM</span>
+            <span
+              onClick={()=> {
+                navigate('women')
+              }}
+            >NỮ</span>
+            <span
+              onClick={()=> {
+                navigate('men')
+              }}
+            >NAM</span>
           </div>
           <div className="header-container-right gap-2 d-flex justify-content-center align-content-center">
                 <i 
