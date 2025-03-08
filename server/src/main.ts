@@ -10,9 +10,9 @@ async function bootstrap() {
   const port = configService.get<number>('PORT');
 
   app.setGlobalPrefix('api', { exclude: [''] }); 
-  //   app.useGlobalPipes(new ValidationPipe({
-  //   whitelist: true
-  // }));
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true
+  }));
 
   await app.listen(port);
   console.log(`Server running on port: ${port}`)

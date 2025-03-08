@@ -6,6 +6,9 @@ import { UsersModule } from './users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { APP_GUARD } from '@nestjs/core';
 import { CategoriesModule } from './categories/categories.module';
+import { ProductsModule } from './products/products.module';
+import { WishlistsModule } from './wishlists/wishlists.module';
+
 
 @Module({
   imports: [  
@@ -20,7 +23,9 @@ import { CategoriesModule } from './categories/categories.module';
       inject: [ConfigService],
     }), 
     UsersModule,
-    CategoriesModule
+    CategoriesModule,
+    ProductsModule,
+    WishlistsModule
   ],
   controllers: [AppController],
   providers: [AppService],
