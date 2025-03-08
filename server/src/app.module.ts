@@ -5,6 +5,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UsersModule } from './users/users.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { APP_GUARD } from '@nestjs/core';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
   imports: [  
@@ -18,7 +19,8 @@ import { APP_GUARD } from '@nestjs/core';
       },
       inject: [ConfigService],
     }), 
-    UsersModule
+    UsersModule,
+    CategoriesModule
   ],
   controllers: [AppController],
   providers: [AppService],
