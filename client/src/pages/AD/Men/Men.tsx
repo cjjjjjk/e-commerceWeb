@@ -1,5 +1,5 @@
 import './men.css'
-import { FullContent } from "../../shared/components"; 
+import { FullContent } from "../../../shared/components"; 
 
 
 

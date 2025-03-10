@@ -12,7 +12,7 @@ const FullContent= ({title,des,price, link,image }: FullContentProps)=> {
     const [imageURL, setImgaeURL] = useState(image || 'images/fullcontent-default.jpg')
 
     return (
-        <div className='position-relative w-100 h-100 d-flex justify-content-center'>
+        <div className='content-full-container position-relative w-100 h-100 d-flex justify-content-center align-items-center'>
             <img 
                 className='object-cover position-absolute z-0 h-100 w-100' 
                 src={imageURL} 

@@ -15,8 +15,8 @@ const Header = () => {
             className={` header-container-left d-flex align-items-center gap-1`}
             onClick={()=> navigate('')}
             >
-              <img className='logo' src="logoe32.png" alt="" />
-              <img className='logo' src='logoc32.png' />
+              <img className='logo' src="/logoe32.png" alt="" />
+              <img className='logo' src='/logoc32.png' />
           </div>
           <div className="header-container-mid d-flex justify-content-center align-items-center gap-4">
             <span

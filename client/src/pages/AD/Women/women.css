@@ -1,6 +1,7 @@
 .home-container {
     overflow-y: auto;
     border: none;
+    min-height: 100vh !important;
 
     &::-webkit-scrollbar {
         width: 4px;
