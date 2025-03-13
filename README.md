@@ -1,12 +1,11 @@
 # E-commerce Web
-Client: React  
-Server: Nest Js  
-Lang: Type Script  
+Client: React  - Typescript  
+Server: Express Js - Javascript  
 Database: MongoDB  
 
 ## Run:
-client p-3000: `npm start`  
-server p-3001: `npm run start`  
+client: `npm start`  
+server: `npm run dev`  
 
 ## Libs
 Client: Bootstrap, primeIcons, ...  
