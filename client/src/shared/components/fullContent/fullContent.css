@@ -31,7 +31,15 @@
 
 .content__price {
     font-weight: bold;
+    background-color: #E50046;
+    padding: 0.5rem 0.75rem;
+    align-self: flex-start;
     font-size: 1rem;
-    padding-left: 0.25rem;
     color: white;
+    width: auto !important;
+    margin-top: 0.5rem;
+
+    &:hover {
+        cursor: pointer;
+    };
 }

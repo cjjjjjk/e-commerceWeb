@@ -21,7 +21,9 @@ const FullContent= ({title,des,price, link,image }: FullContentProps)=> {
             <div className="position-relative z-2 content-container h-100 d-flex flex-column justify-content-center">
                 <div className='content__title'>{title?.toUpperCase()}</div>
                 <div className="content__des">{des}</div>
-                <div className='content__price'>{price}</div>
+                { price &&
+                    <div className='content__price'>{price}</div>
+                }
                 <div className='content__link'>{link}</div>
             </div>
         </div>

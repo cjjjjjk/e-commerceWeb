@@ -21,7 +21,7 @@ function SignIn() {
     // ================================================================
 
     return (
-        <div className='h-100 w-100 d-flex justify-content-center align-items-center'>
+        <div className='sigin-full-container h-100 w-100 d-flex justify-content-center align-items-center'>
             <div className="sigin-container d-flex flex-column align-items-baseline gap-4">
                 <h1>ĐĂNG NHẬP</h1>
                 <span>Sử dụng tài khoản Google để đăng nhập. </span>

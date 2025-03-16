@@ -59,6 +59,7 @@
         background-color: white;
 
         border-radius: 1rem;
+        border: solid 1px lightgray;
 
         .input-container{
             padding: 1.5rem;
