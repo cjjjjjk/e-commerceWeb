@@ -4,13 +4,21 @@ import React, { useEffect, useState } from 'react'
 import axios from 'axios';
 import { Loading } from 'shared/components';
 const API_URL = process.env.REACT_APP_API_URL
-
+  
 const Product: React.FC = function() {
     const [isLoading, SeIsLoading] = useState<boolean>(false);
+
     
     const { productId} = useParams();
-
     const [productInfo, SetProductInfo]= useState<any>({})
+    const [activeSizeIndex, SetActiveSizeIndex] = useState<number>(0);
+    const [activeColorIndex, SetActiveColorIndex] = useState<number>(0);
+    const [count, setCount] = useState(1);
+    const [isWishlist, SetIsWishlist] = useState<boolean>(false)
+
+    const onWishList= function() {
+        SetIsWishlist(!isWishlist);
+    }
 
     useEffect(()=>{
         SeIsLoading(true);
@@ -44,16 +52,92 @@ const Product: React.FC = function() {
                     )
                 }
                 </div>
-                <div className="container-content">
-                    <h2>{productInfo.name || "NAME"}</h2>
-                    <p><strong>Mô tả:</strong> {productInfo.description || "No description available"}</p>
-                    <p><strong>Giá:</strong> {productInfo.price?.toLocaleString()} VND</p>
-                    <p><strong>Đánh giá:</strong> {productInfo.ratingsAverage} ⭐ ({productInfo.ratingsCount} đánh giá)</p>
-                    <p><strong>Còn lại:</strong> {productInfo.stock} sản phẩm</p>
-                    <p><strong>Đã bán:</strong> {productInfo.sold}</p>
-                    <i><b>Ngày tạo:</b> {new Date(productInfo.createdAt).toLocaleDateString()}</i>
+                <div className="container-content d-flex gap-1 flex-column justify-content-start align-items-start">
+                    <div className="product-info">
+                        <h2>{productInfo.name || "NAME"}</h2>
+                        <p><strong>Mô tả:</strong> {productInfo.description || "No description available"}</p>
+                        <p className='btn btn-danger'><strong> {productInfo.price?.toLocaleString()} VND</strong></p>
+                        <p><strong>Đánh giá:</strong> {productInfo.ratingsAverage} ⭐ ({productInfo.ratingsCount} đánh giá)</p>
+                        <p><strong>Còn lại:</strong> {productInfo.stock} sản phẩm</p>
+                        <p><strong>Đã bán:</strong> {productInfo.sold}</p>
+                        <i><b>Ngày ra mắt:</b> {new Date(productInfo.createdAt).toLocaleDateString()}</i>
+                    </div>
+                    <div className="product-form d-flex flex-column gap-3">
+                        <div className="form-size-color d-flex justify-content-start align-items-center gap-3">
+                        {
+                            productInfo.size?.map((size: string, index: number) => 
+                                (<div
+                                    onClick={()=> {
+                                        SetActiveSizeIndex(index)} 
+                                    }
+                                    className={`btn btn-light ${index == activeSizeIndex ? "active" : ""}`}>{size}</div>)
+                            )
+                        }
+                        {
+                            // color: "Đen-#000"
+                            productInfo.colors?.map((color: string, index: number) => 
+                                (<div
+                                    onClick={()=> {
+                                        SetActiveColorIndex(index)} 
+                                    }
+                                    className={`${index == activeColorIndex ? "active" : ""} color-btn`}
+                                    style={{padding: "0.25rem"}}
+                                    >
+                                        <div
+                                        style={{ backgroundColor: `${color.split('-').pop()}`, width: "1.25rem", height: "1.25rem", border:"solid 1px gray" }}
+                                        >
+                                            &nbsp;
+                                        </div>
+                                    </div>)
+                            )
+                        }
+                        </div>
+                        <div className="form-number mb-2 flex-grow-1 d-flex align-items-center justify-content-between rounded-pill">
+                            <label><strong>Số lượng:</strong></label>
+                            <button
+                                className='pi pi-minus'
+                                onClick={() => setCount(count - 1)} disabled={count <= 1}>
+                            </button>
+                            <span className="text-xl font-bold">{count}</span>
+                            <button 
+                                className='pi pi-plus'
+                                onClick={() => setCount(count + 1)} disabled={count >= productInfo.stock}></button>
+                        </div>
+                    </div>
+                    <div className='product-control d-flex justify-content-center align-items-center gap-3'>
+                        <button 
+                            className='btn product-btn cart-btn d-flex flex-row gap-3 px-4 justify-content-center align-items-center rounded-pill'>
+                                <i className="pi pi-shopping-cart"></i>
+                                <span>THÊM VÀO GIỎ HÀNG</span>
+                        </button>
+                        <button 
+                            onClick={()=>{
+                                onWishList();
+                            }}
+                            className={`btn product-btn btn-wishlist pi ${isWishlist ? "pi-heart-fill" : "pi-heart"}`}>
+                        </button>
+                    </div>
                 </div>
             </div>
+            <br />
+            <span className='out-label'>HÌNH ẢNH SẢN PHẨM</span>
+            <div className="all-images-container">
+                {
+                    productInfo.images?.slice(0,10)
+                    .map((url: string, index: number) => 
+                        (<img key={index} src={url} alt={`Product Image ${index + 1}`} />)
+                )
+            }
+            </div>
+            <span className='out-label mt-3'>SẢN PHẨM TRONG DANH MỤC</span>
+            <div>
+                Đây là phần dành cho sản phẩm khác
+            </div>
+            <div className='w-100 bg-dark'>
+                <br /><br /><br />
+                <span className='w-100 text-white'>AUTHOR: HAIHV(cjjjjjk) - PRODUCT PAGE: {productId}</span>
+            </div>
+
         </div>
     )
 }
