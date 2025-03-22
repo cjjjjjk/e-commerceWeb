@@ -5,11 +5,14 @@ import App from './App';
 import { Provider } from 'react-redux';
 import { store } from './app/store';
 
+
 // Bootstrap 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap/dist/js/bootstrap.bundle.min.js';
-// PrimeIcons
+// Prime
 import 'primeicons/primeicons.css';
+import 'primereact/resources/themes/lara-light-blue/theme.css';  
+import 'primereact/resources/primereact.min.css';               
 
 
 

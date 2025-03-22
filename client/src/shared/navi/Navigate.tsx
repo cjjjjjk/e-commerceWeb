@@ -27,22 +27,28 @@ const Navigate = ()=>{
     const [isSearching, SetIsSearching]= useState<boolean>(false);
     const [categories, SetCategories] = useState<any[]>([]);
     const [categoriesShow, SetCategoriesShow] = useState<any[]>([]);
-    const [crrGender, SetCrrGender]= useState<string>('women')
+    const [crrGender, SetCrrGender]= useState<string>('women');
 
     // Call API 
     useEffect(()=> {
-        try {
-            axios
-            .get(`${API_URL}/categories`)
-            .then((res: any)=> {
-                if(res.data) {
-                        SetCategories(res.data);
-                        SetCategoriesShow(res.data);
-                    } else {console.log('No Categories !')}
+        axios.get(`${API_URL}/categories`, { timeout: 5000 }) // Timeout 5s
+            .then((res: any) => {
+                if (res.data) {
+                    SetCategories(res.data);
+                    SetCategoriesShow(res.data);
+                } else {
+                    console.log('No Categories!');
+                }
             })
-        } catch(err: any) {
-            console.log(err)
-        }
+            .catch((err: any) => {
+                if (err.code === "ECONNABORTED") {
+                    console.error("Request timeout! Server may be down.");
+                } else if (err.response) {
+                    console.error(`Error: ${err.response.status} - ${err.response.statusText}`);
+                } else {
+                    alert('Server NOT WORKING !')
+                }
+            });
     }, [])
     useEffect(()=>{
         if(categories.length > 0)
@@ -55,6 +61,16 @@ const Navigate = ()=>{
         setIsShowSearchBox(false);
         navigate(to);
     }
+
+    const normalizeStringToPath = (name: string): string => {
+        return name
+            .normalize("NFD") 
+            .replace(/[\u0300-\u036f]/g, "") 
+            .replace(/đ/g, "d")
+            .toLowerCase() 
+            .replace(/\s+/g, "-"); 
+    };    
+
     if(isBackHome) return (
         <div className="position-fixed z-2 bottom-0 w-100 d-flex justify-content-center align-items-center p-4 gap-5">
             <div
@@ -126,7 +142,9 @@ const Navigate = ()=>{
                                     <div className="cate-container flex-grow-1">
                                         {
                                             categoriesShow.map((cate: any, index: number)=> {
-                                                return (<div key={index} className='cate-item'>{cate.name || "Cate Name !"}</div>)
+                                                return (<div 
+                                                    onClick={()=>{naviHandler(`${crrGender}/${normalizeStringToPath(cate.name)}`)}}
+                                                    key={index} className='cate-item'>{cate.name || "Cate Name !"}</div>)
                                             })
                                         }
                                     </div>
