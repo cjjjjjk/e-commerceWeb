@@ -22,6 +22,7 @@ const Navigate = ()=>{
         setIsShowSearchBox(!isShowSearchBox ); 
     }
     // ---------------------------------------
+    const [searchValue, setSearchValue] = useState("");
 
     // States
     const [isSearching, SetIsSearching]= useState<boolean>(false);
@@ -57,7 +58,16 @@ const Navigate = ()=>{
             }))
     }, [crrGender, categories])
 
-    const naviHandler= function(to: string) {
+    useEffect(()=>{
+        if(searchValue !== "") {
+            SetIsSearching(true)
+        } else {
+            SetIsSearching(false)
+        }
+    }, [searchValue])
+
+    const naviHandler= function(to: string, cateId?: string) {
+        window.sessionStorage.setItem('crrCateId', cateId || "");
         setIsShowSearchBox(false);
         navigate(to);
     }
@@ -105,7 +115,8 @@ const Navigate = ()=>{
             <div className="search-full-container h-100 w-100 z-1 top-0 left-0 position-fixed d-flex justify-content-center align-items-center">
                 <div className="search-container d-flex flex-column justify-content-center align-items-stretch">
                     <div className="input-container d-flex justify-content-between align-items-center gap-3" >
-                        <input 
+                        <input
+                            onChange={(e) => setSearchValue(e.target.value)}
                             type="text" className="search-input flex-grow-1"
                             placeholder='Tìm kiếm theo tên sản phẩm' />
                         <button 
@@ -143,7 +154,7 @@ const Navigate = ()=>{
                                         {
                                             categoriesShow.map((cate: any, index: number)=> {
                                                 return (<div 
-                                                    onClick={()=>{naviHandler(`${crrGender}/${normalizeStringToPath(cate.name)}`)}}
+                                                    onClick={()=>{naviHandler(`${crrGender}/${normalizeStringToPath(cate.name)}`, cate._id)}}
                                                     key={index} className='cate-item'>{cate.name || "Cate Name !"}</div>)
                                             })
                                         }

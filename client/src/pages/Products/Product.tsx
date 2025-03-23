@@ -67,16 +67,21 @@ const Product: React.FC = function() {
                         {
                             productInfo.size?.map((size: string, index: number) => 
                                 (<div
+                                    key={index}
                                     onClick={()=> {
                                         SetActiveSizeIndex(index)} 
                                     }
                                     className={`btn btn-light ${index == activeSizeIndex ? "active" : ""}`}>{size}</div>)
                             )
                         }
+                        </div>
+
+                        <div className="form-size-color d-flex justify-content-start align-items-center gap-3" >
                         {
                             // color: "Đen-#000"
                             productInfo.colors?.map((color: string, index: number) => 
                                 (<div
+                                    key={index}
                                     onClick={()=> {
                                         SetActiveColorIndex(index)} 
                                     }
@@ -143,3 +148,29 @@ const Product: React.FC = function() {
 }
 
 export default Product;
+
+// Product Craw Image sscript :
+// console.log(JSON.stringify([...document.querySelectorAll("img")].map(img => img.src).filter(url=> url.split('?').pop()== "width=369")));
+// {
+//     "createdAt": "2025-03-22T07:55:13.022Z",
+//       "name": "Áo thun cho nữ tay ngắn",
+//     "description": "Looks like a skirt from the front and pants from the back, making it perfect for active wear.",
+//     "price": 293000,
+//     "ratingsAverage": 4.1,
+//     "ratingsCount": 24,
+//     "stock": 120,
+//     "sold": 22,
+//     "images":
+//     ["https://image.uniqlo.com/UQ/ST3/vn/imagesgoods/476602/item/vngoods_03_476602_3x4.jpg?width=369","https://image.uniqlo.com/UQ/ST3/vn/imagesgoods/476602/sub/vngoods_476602_sub7_3x4.jpg?width=369","https://image.uniqlo.com/UQ/ST3/AsianCommon/imagesgoods/476602/sub/goods_476602_sub13_3x4.jpg?width=369","https://image.uniqlo.com/UQ/ST3/AsianCommon/imagesgoods/476602/sub/goods_476602_sub14_3x4.jpg?width=369"]
+//     ,
+//     "categoryId": {"$oid": "67de762eb4f5401b6ba84e40"},
+//     "size": [
+//       "M",
+//         "S",
+//       "L"
+//     ],
+//     "colors": [
+//       "Đỏ-red",
+//       "Trắng-white"
+//     ]
+// }
