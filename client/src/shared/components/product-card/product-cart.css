@@ -1,0 +1,26 @@
+.item-container {
+    height:100%;
+    min-height: 15rem;
+
+    max-width: 100%;
+    &:hover {
+        cursor: pointer;
+        box-shadow: 1px 1px 4px lightgray;
+    }
+
+    .product-name {
+        overflow: hidden;
+        font-weight: 500;
+    }
+    .product-price {
+        padding: 0.25rem 0.5rem;
+        font-weight: bold;
+        width: fit-content !important;
+    }
+}
+
+.color-wishlist {
+    .rounded-circle {
+        border: solid 1px gray;
+    }
+}
