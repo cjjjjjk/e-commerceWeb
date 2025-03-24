@@ -9,12 +9,10 @@ router
   .get(orderController.getAllOrders)
   .post(orderController.createOrder);
 
-// router
-//   .route("/:id")
-//   .get(orderController.getOrder)
-//   .patch(orderController.updateOrder)
-//   .delete(orderController.deleteOrder);
-
-// router.route("/users/:userId").get(orderController.getAllOrdersByUser);
+router
+  .route("/:id")
+  .get(orderController.getOrder)
+  .patch(orderController.updateOrder)
+  .delete(orderController.deleteOrder);
 
 module.exports = router;
