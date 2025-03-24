@@ -107,3 +107,22 @@ exports.deleteOrder = async (req, res) => {
     });
   }
 };
+
+exports.getAllOrdersByUser = async (req, res) => {
+  try {
+    const orders = await Order.find({ userId: req.params.userId }).sort(
+      "-createdAt"
+    );
+
+    res.status(200).json({
+      status: "success",
+      numOfOrders: orders.length,
+      data: orders,
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: "fail",
+      message: err,
+    });
+  }
+};

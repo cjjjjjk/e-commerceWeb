@@ -15,4 +15,6 @@ router
   .patch(orderController.updateOrder)
   .delete(orderController.deleteOrder);
 
+router.route("/users/:userId").get(orderController.getAllOrdersByUser);
+
 module.exports = router;
