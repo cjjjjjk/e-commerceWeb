@@ -10,6 +10,10 @@ function SignIn() {
 
     // SignIn with GG ====================================== author: Hai
     const GGSingIn = async () => {
+        if(!auth || !provider) {
+            console.log("ERR: GG Firebse cofig Err!");
+            return;
+        }
         try {
             const result = await signInWithPopup(auth, provider);
             localStorage.setItem('token', await result.user.getIdToken());
