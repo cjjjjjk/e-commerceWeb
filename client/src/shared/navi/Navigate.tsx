@@ -27,6 +27,7 @@ const Navigate = ()=>{
     // States
     const [isSearching, SetIsSearching]= useState<boolean>(false);
     const [categories, SetCategories] = useState<any[]>([]);
+    const [items, SetItems] = useState<any[]>([]);
     const [categoriesShow, SetCategoriesShow] = useState<any[]>([]);
     const [crrGender, SetCrrGender]= useState<string>('women');
 
@@ -60,9 +61,32 @@ const Navigate = ()=>{
 
     useEffect(()=>{
         if(searchValue !== "") {
-            SetIsSearching(true)
-        } else {
-            SetIsSearching(false)
+            SetIsSearching(true);
+            axios.get(`${API_URL}/api/v1/products?query=${searchValue}`)
+            .then((res:any) => {
+                if (res.data) {
+                    SetItems(res.data);
+                    SetIsSearching(false);
+                }
+                else {
+                    console.log('No Result!');
+                }
+            })
+            .catch((err: any) => {
+                if (err.code === "ECONNABORTED") {
+                    console.error("Request timeout! Server may be down.");
+                } else if (err.response) {
+                    console.error(`Error: ${err.response.status} - ${err.response.statusText}`);
+                } else {
+                    alert('Server NOT WORKING !')
+                }
+                SetIsSearching(false);
+            });
+            
+        }
+        else {
+            SetItems([]);
+            SetIsSearching(false);
         }
     }, [searchValue])
 
@@ -163,10 +187,19 @@ const Navigate = ()=>{
                             </div>
                         }
                         { isSearching && 
-                            <div className='d-flex gap-4 justify-content-start align-items-center'>
-                                <i className="pi pi-spin pi-spinner"></i>
-                                Searching
-                            </div>
+                            <ul className='d-flex gap-4 justify-content-start align-items-center'>
+                                {/* <i className="pi pi-spin pi-spinner"></i>
+                                Searching */}
+                                {items.length > 0 ? (
+                                    items.map((item, index) => (
+                                        <li key={index}>
+                                            
+                                        </li>
+                                    ))
+                                ) : (
+                                    <li className="p-1 text-gray-500">No results found</li>
+                                )}
+                            </ul>
                         }  
                     </div>
                 </div>
