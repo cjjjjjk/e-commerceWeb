@@ -1,0 +1,61 @@
+.admin-full-container{
+    background-color: whitesmoke;
+}
+
+.admin-container{
+    width: 90rem ;
+    height: calc(100% - 14rem);
+    border: solid 1px black;
+    background-color: white;
+}
+
+.header-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    h4 {
+        margin-bottom: 0 !important;
+    }
+}
+
+.control-container {
+    max-height: calc(100% - 1.5rem) ;
+}
+
+.list-container {
+    display: flex;
+    flex-direction: column;
+
+    .list {
+        flex-grow: 1;
+        overflow: auto !important;
+        display: flex;
+        flex-direction: column;
+        gap: .25rem;
+    }
+}
+
+
+.cate-container {
+    height: 45% !important;
+}
+.product-container {
+    max-height: 50% !important;
+}
+
+.item {
+    flex-shrink: 0;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.5rem 1rem;
+
+    background-color: white;
+    font-weight: 400;
+
+    &:hover {
+        background-color: whitesmoke;
+        font-weight: 500;
+        cursor: pointer;
+    }
+}

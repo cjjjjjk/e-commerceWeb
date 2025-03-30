@@ -11,6 +11,7 @@ import { setNaviToBackHome } from "shared/navi/navigateSlice";
 import Header from "./shared/header/Header";
 import Navigation from "./shared/navi/Navigate";
 import { Loading } from "./shared/components";
+import Toast from "shared/components/toast/Toast";
 
 // Pages - lazy loading.
 const Women = lazy(() => import("./pages/AD/Women/Women"));
@@ -21,6 +22,7 @@ const Wishlist = lazy(() => import("./pages/Wishlist/Wishlist"));
 const Cart = lazy(() => import("./pages/Cart/Cart"));
 const Layout = lazy(() => import("./pages/Layout/Layout"));
 const Product = lazy(()=> import("./pages/Products/Product"));
+const Admin = lazy(()=> import("./pages/Admin/Admin"))
 
 const RouteChangeHandler = () => {
   const location = useLocation();
@@ -56,6 +58,7 @@ function App() {
   return (
     <Router>
       <Header />
+      <Toast />
       <RouteChangeHandler />
       <Suspense fallback={<Loading />}>
         <Routes>
@@ -64,6 +67,7 @@ function App() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/admin" element={<Admin />} />
 
           <Route path="/:section" element={<LayoutWraper />} />
           <Route path="/:section/:category" element={<LayoutWraper />} />

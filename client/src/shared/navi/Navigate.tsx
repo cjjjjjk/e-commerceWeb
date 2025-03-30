@@ -12,7 +12,7 @@ const API_URL = process.env.REACT_APP_API_URL
 const Navigate = ()=>{
     const navigate = useNavigate();
 
-    const {isBackHome} = useSelector((state: RootState) => state.navicom);
+    const {isBackHome, isReload} = useSelector((state: RootState) => state.navicom);
     
     // Search container handler --------------
     const [isShowSearchBox, setIsShowSearchBox] = useState(false);
@@ -50,7 +50,7 @@ const Navigate = ()=>{
                     alert('Server NOT WORKING !')
                 }
             });
-    }, [])
+    }, [,isReload])
     useEffect(()=>{
         if(categories.length > 0)
         SetCategoriesShow(categories.filter((cate)=> {
