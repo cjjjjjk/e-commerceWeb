@@ -17,7 +17,10 @@ const Navigate = ()=>{
     // Search container handler --------------
     const [isShowSearchBox, setIsShowSearchBox] = useState(false);
     const toggleSearchBox = (isClose?: boolean)=>{
-        if(isClose) setIsShowSearchBox(false);
+        if(isClose) {
+            setIsShowSearchBox(false);
+            SetIsSearching(false);
+        }
         else
         setIsShowSearchBox(!isShowSearchBox ); 
     }
@@ -62,11 +65,10 @@ const Navigate = ()=>{
     useEffect(()=>{
         if(searchValue !== "") {
             SetIsSearching(true);
-            axios.get(`${API_URL}/api/v1/products?query=${searchValue}`)
+            axios.get(`${API_URL}/search?query=${searchValue}`)
             .then((res:any) => {
                 if (res.data) {
                     SetItems(res.data);
-                    SetIsSearching(false);
                 }
                 else {
                     console.log('No Result!');
@@ -80,7 +82,6 @@ const Navigate = ()=>{
                 } else {
                     alert('Server NOT WORKING !')
                 }
-                SetIsSearching(false);
             });
             
         }
@@ -149,7 +150,7 @@ const Navigate = ()=>{
                     </div>
                     <hr style={{ margin: 0 }}/>
                     <div className="result-container flex-grow-1 p-4">
-                        {!isSearching && 
+                        {!isSearching &&
                             <div className="categories h-100 w-100 d-flex flex-column">
                                 <h2 style={{ fontSize: "1.5rem",fontWeight:'600', color: "black" }}>DANH MỤC SẢN PHẨM</h2>
                                 <div className='flex-grow-1 d-flex flex-row gap-4 py-3'>
@@ -193,7 +194,7 @@ const Navigate = ()=>{
                                 {items.length > 0 ? (
                                     items.map((item, index) => (
                                         <li key={index}>
-                                            
+                                            <a href={item.preloadHref}>{item.name}</a>
                                         </li>
                                     ))
                                 ) : (
