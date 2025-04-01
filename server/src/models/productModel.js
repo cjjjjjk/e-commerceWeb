@@ -9,10 +9,6 @@ const productSchema = mongoose.Schema({
     type: String,
     required: [true, "A product must have a description"],
   },
-  price: {
-    type: Number,
-    required: [true, "A product must have a price"],
-  },
   ratingsAverage: {
     type: Number,
     default: 0,
@@ -21,13 +17,17 @@ const productSchema = mongoose.Schema({
     type: Number,
     default: 0,
   },
-  stock: {
-    type: Number,
-    required: [true, "A product must have stock!"],
+  stockMap: {
+    S: { type: Number, min: 0 },
+    M: { type: Number, min: 0 },
+    L: { type: Number, min: 0 },
+    XL: { type: Number, min: 0 },
   },
-  sold: {
-    type: Number,
-    default: 0,
+  soldMap: {
+    S: { type: Number, min: 0 },
+    M: { type: Number, min: 0 },
+    L: { type: Number, min: 0 },
+    XL: { type: Number, min: 0 },
   },
   images: {
     type: [String], // Mảng chứa link ảnh
@@ -38,14 +38,28 @@ const productSchema = mongoose.Schema({
     default: Date.now(),
   },
   gender: {
-    type: Number,
+    type: String,
     required: [true, "A product must have a gender category!"],
-    enum: [0, 1, 2], // 0: Unisex, 1: Male, 2: Female
+    enum: ["Nam", "Nữ", "Tất cả"], // 0: Unisex, 1: Male, 2: Female
   },
   categoryId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Category",
     required: [true, "A product must have a category"],
+  },
+  sizes: {
+    type: [String],
+    default: ["S", "M", "L", "XL"],
+    required: [true, "A product must have available sizes!"],
+  },
+  priceMap: {
+    S: { type: Number, min: 0 },
+    M: { type: Number, min: 0 },
+    L: { type: Number, min: 0 },
+    XL: { type: Number, min: 0 },
+  },
+  colors: {
+    type: [String],
   },
 });
 
