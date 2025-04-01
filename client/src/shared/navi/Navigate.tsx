@@ -188,19 +188,20 @@ const Navigate = ()=>{
                             </div>
                         }
                         { isSearching && 
-                            <ul className='d-flex gap-4 justify-content-start align-items-center'>
+                            <div className='d-flex flex-column gap-4 justify-content-start'>
                                 {/* <i className="pi pi-spin pi-spinner"></i>
                                 Searching */}
                                 {items.length > 0 ? (
                                     items.map((item, index) => (
-                                        <li key={index}>
-                                            <a href={item.preloadHref}>{item.name}</a>
-                                        </li>
+                                        <div className="cate-item" key={index}>
+                                            <i className="pi pi-search"></i>
+                                            <a className="text-dark text-decoration-none" href={item.preloadHref}> {item.name}</a>
+                                        </div>
                                     ))
                                 ) : (
-                                    <li className="p-1 text-gray-500">No results found</li>
+                                    <div className="p-1 text-gray-500">No results found</div>
                                 )}
-                            </ul>
+                            </div>
                         }  
                     </div>
                 </div>

@@ -36,8 +36,7 @@ function getPreloadHref(path, query) {
     var href;
     var productReg = /product\/([\dA-Z\-]+)/;
     var productMatches = uri.match(productReg);
-
-        href = `${baseAPIUrl}cms?path=${encodeURIComponent(uri)}`;
+    href = `${path}`;
 
     return href;
 }
@@ -56,7 +55,7 @@ app.get("/api/v1/search", async (req, res) => {
         // 🔹 Modify results with `getPreloadHref`
         const modifiedResults = results.map(product => ({
             ...product._doc, // Spread product details
-            preloadHref: getPreloadHref(`/products/${product._id}`, searchTerm) // Construct dynamic URL
+            preloadHref: getPreloadHref(`/product/${product.id}`, searchTerm) // Construct dynamic URL
         }));
 
         res.json(modifiedResults);
