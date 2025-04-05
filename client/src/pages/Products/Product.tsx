@@ -6,7 +6,7 @@ import { Loading } from 'shared/components';
 const API_URL = process.env.REACT_APP_API_URL
   
 const Product: React.FC = function() {
-    const [isLoading, SeIsLoading] = useState<boolean>(false);
+    const [isLoading, SetIsLoading] = useState<boolean>(false);
 
     
     const { productId} = useParams();
@@ -21,11 +21,11 @@ const Product: React.FC = function() {
     }
 
     useEffect(()=>{
-        SeIsLoading(true);
+        SetIsLoading(true);
             axios
             .get(`${API_URL}/products/${productId}`, { timeout: 5000 })
             .then((res: any) => {
-                SeIsLoading(false);
+                SetIsLoading(false);
                 SetProductInfo(res.data);
             })
             .catch((err: any) => {

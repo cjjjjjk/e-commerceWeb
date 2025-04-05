@@ -41,6 +41,10 @@ function Member() {
 
     // GG Signout ---------------------------
     const GGSingout = async () => {
+        if(!auth){
+            console.log("ERR: GG Firebse config Err!");
+            return;
+        }
         await signOut(auth);
         localStorage.removeItem('token')
         navigate("/")   
