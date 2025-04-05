@@ -17,7 +17,10 @@ const Navigate = ()=>{
     // Search container handler --------------
     const [isShowSearchBox, setIsShowSearchBox] = useState(false);
     const toggleSearchBox = (isClose?: boolean)=>{
-        if(isClose) setIsShowSearchBox(false);
+        if(isClose) {
+            setIsShowSearchBox(false);
+            SetIsSearching(false);
+        }
         else
         setIsShowSearchBox(!isShowSearchBox ); 
     }
@@ -27,6 +30,7 @@ const Navigate = ()=>{
     // States
     const [isSearching, SetIsSearching]= useState<boolean>(false);
     const [categories, SetCategories] = useState<any[]>([]);
+    const [items, SetItems] = useState<any[]>([]);
     const [categoriesShow, SetCategoriesShow] = useState<any[]>([]);
     const [crrGender, SetCrrGender]= useState<string>('women');
 
@@ -60,9 +64,30 @@ const Navigate = ()=>{
 
     useEffect(()=>{
         if(searchValue !== "") {
-            SetIsSearching(true)
-        } else {
-            SetIsSearching(false)
+            SetIsSearching(true);
+            axios.get(`${API_URL}/search?query=${searchValue}`)
+            .then((res:any) => {
+                if (res.data) {
+                    SetItems(res.data);
+                }
+                else {
+                    console.log('No Result!');
+                }
+            })
+            .catch((err: any) => {
+                if (err.code === "ECONNABORTED") {
+                    console.error("Request timeout! Server may be down.");
+                } else if (err.response) {
+                    console.error(`Error: ${err.response.status} - ${err.response.statusText}`);
+                } else {
+                    alert('Server NOT WORKING !')
+                }
+            });
+            
+        }
+        else {
+            SetItems([]);
+            SetIsSearching(false);
         }
     }, [searchValue])
 
@@ -125,7 +150,7 @@ const Navigate = ()=>{
                     </div>
                     <hr style={{ margin: 0 }}/>
                     <div className="result-container flex-grow-1 p-4">
-                        {!isSearching && 
+                        {!isSearching &&
                             <div className="categories h-100 w-100 d-flex flex-column">
                                 <h2 style={{ fontSize: "1.5rem",fontWeight:'600', color: "black" }}>DANH MỤC SẢN PHẨM</h2>
                                 <div className='flex-grow-1 d-flex flex-row gap-4 py-3'>
@@ -163,9 +188,19 @@ const Navigate = ()=>{
                             </div>
                         }
                         { isSearching && 
-                            <div className='d-flex gap-4 justify-content-start align-items-center'>
-                                <i className="pi pi-spin pi-spinner"></i>
-                                Searching
+                            <div className='d-flex flex-column gap-4 justify-content-start'>
+                                {/* <i className="pi pi-spin pi-spinner"></i>
+                                Searching */}
+                                {items.length > 0 ? (
+                                    items.map((item, index) => (
+                                        <div className="cate-item" key={index}>
+                                            <i className="pi pi-search"></i>
+                                            <a className="text-dark text-decoration-none" href={item.preloadHref}> {item.name}</a>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="p-1 text-gray-500">No results found</div>
+                                )}
                             </div>
                         }  
                     </div>
