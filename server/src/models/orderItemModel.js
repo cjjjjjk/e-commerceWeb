@@ -10,6 +10,14 @@ const orderItemSchema = mongoose.Schema({
     ref: "Product",
     required: [true, "An order item must have a product Id!"],
   },
+  size: {
+    type: String,
+    required: [true, "An order item must have a size!"],
+  },
+  color: {
+    type: String,
+    required: [true, "An order item must have a color!"],
+  },
   price: {
     type: Number,
     required: [true, "An order item must have a price!"],
