@@ -1,5 +1,13 @@
 const User = require("../models/userModel");
 
+const filterObj = (obj, ...allowedFields) => {
+  const newObj = {};
+  Object.keys(obj).forEach((el) => {
+    if (allowedFields.includes(el)) newObj[el] = obj[el];
+  });
+  return newObj;
+};
+
 exports.getUsers = async (req, res) => {
   console.log("hello");
   try {
@@ -10,6 +18,38 @@ exports.getUsers = async (req, res) => {
       result: users.length,
       data: {
         users,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Internal error from server" });
+  }
+};
+
+exports.updateMe = async (req, res) => {
+  try {
+    if (req.body.password || req.body.passwordConfirm) {
+      return res.status(404).json({
+        status: "fail",
+        message:
+          "This route is not for password update. Please use /updateMyPassword",
+      });
+    }
+
+    const filteredBody = filterObj(req.body, "displayName", "email");
+    console.log(filteredBody);
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user.id,
+      filteredBody,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        user: updatedUser,
       },
     });
   } catch (error) {
