@@ -12,7 +12,11 @@ router
     // authController.restrictTo("admin"),
     productController.getAllProducts
   )
-  .post(productController.createProduct);
+  .post(
+    authController.protect,
+    authController.restrictTo("admin"),
+    productController.createProduct
+  );
 
 router
   .route(`/:id`)

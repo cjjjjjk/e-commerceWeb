@@ -1,13 +1,18 @@
 const express = require(`express`);
 
 const categoryController = require(`../controllers/categoryController`);
+const authController = require("../controllers/authController");
 
 const router = express.Router();
 
 router
   .route(`/`)
   .get(categoryController.getAllCategories)
-  .post(categoryController.createCategory);
+  .post(
+    authController.protect,
+    authController.restrictTo("admin"),
+    categoryController.createCategory
+  );
 
 router
   .route(`/:id`)
