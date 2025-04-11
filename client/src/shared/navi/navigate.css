@@ -86,7 +86,12 @@
             }
         }
     }
-
+    .result-container {
+        width: 72rem;
+        max-width: 90vw;
+        height: 40rem;
+        max-height: 90vh;
+    }
 } 
 .cate-option-item {
     padding-left: 1rem;

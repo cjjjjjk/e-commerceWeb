@@ -25,10 +25,12 @@ const Navigate = ()=>{
         setIsShowSearchBox(!isShowSearchBox ); 
     }
     // ---------------------------------------
+    const [inputValue, setInputValue] = useState("");
     const [searchValue, setSearchValue] = useState("");
 
     // States
     const [isSearching, SetIsSearching]= useState<boolean>(false);
+    const [delay, SetDelay] = useState<boolean>(false);
     const [categories, SetCategories] = useState<any[]>([]);
     const [items, SetItems] = useState<any[]>([]);
     const [categoriesShow, SetCategoriesShow] = useState<any[]>([]);
@@ -62,16 +64,29 @@ const Navigate = ()=>{
             }))
     }, [crrGender, categories])
 
+    useEffect(() => {
+        SetDelay(true);
+        const timeOutId = setTimeout(() => {
+            setSearchValue(inputValue);
+        }, 500);
+        return () => {
+            console.log(delay);
+            clearTimeout(timeOutId);
+        }
+      }, [inputValue]);
+
     useEffect(()=>{
         if(searchValue !== "") {
             SetIsSearching(true);
-            axios.get(`${API_URL}/search?query=${searchValue}`)
+            axios.get(`${API_URL}/products?keyword=${searchValue}`)
             .then((res:any) => {
                 if (res.data) {
-                    SetItems(res.data);
+                    SetItems(res.data.data.products);
+                    SetDelay(false);
                 }
                 else {
                     console.log('No Result!');
+                    SetDelay(false);
                 }
             })
             .catch((err: any) => {
@@ -104,7 +119,12 @@ const Navigate = ()=>{
             .replace(/đ/g, "d")
             .toLowerCase() 
             .replace(/\s+/g, "-"); 
-    };    
+    };
+    
+    const getPreloadHref = (id: string) => {
+        const href = `/product/${id}`;
+        return href;
+    }
 
     if(isBackHome) return (
         <div className="position-fixed z-2 bottom-0 w-100 d-flex justify-content-center align-items-center p-4 gap-5">
@@ -141,7 +161,7 @@ const Navigate = ()=>{
                 <div className="search-container d-flex flex-column justify-content-center align-items-stretch">
                     <div className="input-container d-flex justify-content-between align-items-center gap-3" >
                         <input
-                            onChange={(e) => setSearchValue(e.target.value)}
+                            onChange={(e) => setInputValue(e.target.value)}
                             type="text" className="search-input flex-grow-1"
                             placeholder='Tìm kiếm theo tên sản phẩm' />
                         <button 
@@ -188,14 +208,19 @@ const Navigate = ()=>{
                             </div>
                         }
                         { isSearching && 
-                            <div className='d-flex flex-column gap-4 justify-content-start'>
-                                {/* <i className="pi pi-spin pi-spinner"></i>
-                                Searching */}
+                            <div className='result-container d-flex flex-column gap-4 justify-content-start overflow-auto'>
+                                <div>{ delay && (
+                                    <div>
+                                        <i className="pi pi-spin pi-spinner"></i>
+                                        Searching
+                                    </div>
+                                )
+                                }</div>
                                 {items.length > 0 ? (
                                     items.map((item, index) => (
                                         <div className="cate-item" key={index}>
                                             <i className="pi pi-search"></i>
-                                            <a className="text-dark text-decoration-none" href={item.preloadHref}> {item.name}</a>
+                                            <a className="text-dark text-decoration-none" href={getPreloadHref(item._id)} > {item.name}</a>
                                         </div>
                                     ))
                                 ) : (
