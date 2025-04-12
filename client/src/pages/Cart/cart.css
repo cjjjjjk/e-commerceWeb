@@ -1,0 +1,10 @@
+.cart-full-container {
+    min-height: 100vh;
+    overflow-y: auto;
+}
+.cart-container {
+    width: 75rem;
+    max-width: 100vw;
+
+    padding-top: 4rem;
+}
