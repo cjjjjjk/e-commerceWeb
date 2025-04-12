@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { addToast } from 'shared/components/toast/toastSlice';
 import {SetLoadingNaviBar} from 'shared/navi/navigateSlice'
+import adminService  from './adminService';
 
 const API_URL = process.env.REACT_APP_API_URL
 
@@ -35,10 +36,22 @@ const JsonCraw = ({type, object, onClose, isCreate }: {type:string, object: any,
             console.log("Saved JSON:", JSON.parse(tempValue));
 
             if(isCreate) {
-                axios.post(`${API_URL}/${type}`,JSON.parse(tempValue)).then((res:any)=> {
-                    showToast(res.statusText || "Không biết", res.data.status || "info");
-                    onClose();
-                })
+                if(type === "products") {
+                    adminService.createProduct(JSON.parse(tempValue)).then((res:any)=> {
+                        showToast("Tạo mới sản phẩm thành công", res.data.status || "info");
+                        onClose();
+                    }).catch((error) => {
+                        showToast("Tạo mới không thành công", "error");
+                    });
+                } 
+                else if(type === "categories") {
+                    adminService.createCategory(JSON.parse(tempValue)).then((res:any)=> {
+                        showToast("Tạo mới danh mục thành công", res.data.status || "info");
+                        onClose();
+                    }).catch((error) => {
+                        showToast("Tạo mới không thành công", "error");
+                    });
+                }
             }
 
         } catch (error) {
@@ -114,7 +127,7 @@ export default function Admin() {
         if(type === "categories") {
             SetSelectedObject(emptyObject);
             
-        } else if (type === "product") {
+        } else if (type === "products") {
             SetSelectedObject(emptyObject);
         }
         else {
@@ -200,13 +213,13 @@ export default function Admin() {
                                 <h4>SẢN PHẨM</h4>
                                 <input type="text" placeholder='Tìm kiếm' />
                                 <button 
-                                    onClick={()=>{handleCreate('product')}}
+                                    onClick={()=>{handleCreate('products')}}
                                     className="btn btn-success pi pi-plus">
                                 </button>
                             </div>
                             <div className='list'>
                                 {
-                                    productList && productList.map((obj, index) => <Item onSelect={(obj: any)=>{handleSelect('product', obj)}} key={index} object={obj} />)
+                                    productList && productList.map((obj, index) => <Item onSelect={(obj: any)=>{handleSelect('products', obj)}} key={index} object={obj} />)
                                 }
                             </div>
                         </div>
