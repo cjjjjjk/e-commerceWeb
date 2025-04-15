@@ -61,17 +61,32 @@ function SignIn() {
 
     return ( 
         <div className='sigin-full-container h-100 w-100 d-flex justify-content-center align-items-center'>
-            <div className="sigin-container d-flex flex-column align-items-baseline gap-4">
-                <h1>ĐĂNG NHẬP</h1>
-                <span>Sử dụng tài khoản Google để đăng nhập. </span>
-                <button
-                    className="gg-signin p-4 d-flex gap-3 justify-content-center align-items-center border-0"
-                    onClick={() => GGSingIn()} 
-                >
-                    <i className="pi pi-google"></i>
-                    Đăng nhập với Google
-                </button>
-            </div>
+            <form>
+                <div className="sigin-container d-flex flex-column align-items-baseline gap-4">
+                    <h1>ĐĂNG NHẬP</h1>
+                    <fieldset>
+                        <input className="input" type="text" placeholder="" />
+                        <span className="label">Email/Số điện thoại</span>
+                    </fieldset>
+                    <fieldset>
+                        <input className="input" type="password" placeholder="" />
+                        <span className="label">Mật khẩu</span>
+                        <p className="mt-4">Mật khẩu phải có từ 8 đến 20 kí tự bao gồm cả chữ và số.</p>
+                    </fieldset>
+                    <button 
+                        type="submit"
+                        className="signin p-4 d-flex gap-3 justify-content-center align-items-center border-0"
+                    >Đăng nhập</button>
+                    <span>Sử dụng tài khoản Google để đăng nhập. </span>
+                    <button
+                        className="signin p-4 d-flex gap-3 justify-content-center align-items-center border-0"
+                        onClick={() => GGSingIn()} 
+                    >
+                        <i className="pi pi-google"></i>
+                        Đăng nhập với Google
+                    </button>
+                </div>
+            </form>
         </div>
     )
 }
