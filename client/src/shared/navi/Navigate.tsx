@@ -218,9 +218,13 @@ const Navigate = ()=>{
                                 }</div>
                                 {items.length > 0 ? (
                                     items.map((item, index) => (
-                                        <div className="cate-item" key={index}>
-                                            <i className="pi pi-search"></i>
-                                            <a className="text-dark text-decoration-none" href={getPreloadHref(item._id)} > {item.name}</a>
+                                        <div className="product-item" key={index}>
+                                            <a className="text-dark text-decoration-none" href={getPreloadHref(item._id)} >
+                                                <img className="product-item-img" src={item.images[0]} alt="No Image" />
+                                                <div className="product-item-name">{item.name}</div>
+                                                <div className="product-item-price">{item.priceMap[0]}</div>
+                                                <div className="product-item-rating">{item.ratingsAverage}⭐</div>
+                                            </a>
                                         </div>
                                     ))
                                 ) : (
