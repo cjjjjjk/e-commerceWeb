@@ -3,6 +3,8 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const morgan = require("morgan");
 const connectDB = require("./config/db");
+const cookieParser = require("cookie-parser");
+require("./config/passport");
 
 const userRoutes = require("./routes/userRoutes");
 const productRoutes = require("./routes/productRoutes");
@@ -18,6 +20,8 @@ connectDB();
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
+
 app.use(cors());
 app.use(morgan("dev"));
 
