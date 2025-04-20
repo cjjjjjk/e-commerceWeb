@@ -31,7 +31,9 @@ exports.getAllProducts = async (req, res) => {
 exports.getProduct = async (req, res) => {
   try {
     const id = req.params.id;
-    const product = await Product.findById(id);
+    const product = await Product.findById(id)
+      .populate("reviews")
+      .populate("categoryId");
 
     // HaiHv: return product only
     res.status(200).json(product);

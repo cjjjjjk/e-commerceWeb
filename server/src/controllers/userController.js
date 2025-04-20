@@ -78,11 +78,26 @@ exports.updateUser = (req, res) => {
   });
 };
 
-exports.deleteUser = (req, res) => {
-  res.status(500).json({
-    status: "fail",
-    message: "This route is not defined!",
-  });
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+
+    if (!user) {
+      return res.status(404).json({
+        status: "fail",
+        message: "The user belong to this ID doesn't exist!",
+      });
+    }
+    res.status(204).json({
+      status: "fail",
+      data: null,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "fail",
+      message: err.message,
+    });
+  }
 };
 
 exports.googleSignIn = async (req, res) => {
@@ -140,8 +155,7 @@ exports.googleSignIn = async (req, res) => {
       await user.save();
     }
 
-    res.json({code: 'success', user });
-
+    res.json({ code: "success", user });
   } catch (error) {
     console.error("Google Sign-In err: ", error);
     res.status(500).json({ message: "Server Err!" });
