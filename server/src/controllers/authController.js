@@ -25,13 +25,9 @@ const createSendToken = (user, statusCode, res) => {
   res.cookie("jwt", token, cookieOptions);
   user.password = undefined;
 
-  res.status(statusCode).json({
-    status: "success",
-    token,
-    data: {
-      user,
-    },
-  });
+  const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+  const authClient = `${clientUrl}/auth?token=${token}`;
+  res.redirect(authClient);
 };
 
 exports.signup = async (req, res, next) => {

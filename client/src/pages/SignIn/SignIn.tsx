@@ -46,38 +46,10 @@ function SignIn() {
     }
 
     // SignIn with GG ====================================== author: Hai
-    const GGSignIn = async () => {
-        if(!auth || !provider) {
-            console.log("ERR: GG Firebse config Err!");
-            return;
-        }
-        try {
-            const result = (await signInWithPopup(auth, provider)) as AuthUserCredential;
-            console.log("SIGNIN SUCCESS: ", result);
-        
-            // const isNewUser = result._tokenResponse?.isNewUser;
-            // if(isNewUser){
-            // console.log("NEW USER SIGNIN -> CREATE:");
-            const userData = { 
-                uid: result.user.uid,
-                email: result.user.email,
-                displayName: result.user.displayName,
-                photoUrl: result.user.photoURL,
-                emailVerified: result.user.emailVerified,
-            }; 
-            const res = await axios.post(`${API_URL}/users/google-signin`, userData);
-            console.log("GG SigIn RES:", res.data);
-            // }
-
-            localStorage.setItem('token', await result.user.getIdToken());
-            showToast(`${res.data.code === "success" ?"Đăng nhập thành công": "Oops...!"}`, res.data.code);
-            if(res.data.user.role === "admin") showToast("Bạn là ADMIN", "info", '/admin');
-            navigate("/member");
-        } catch (error) {
-          console.error("Login failed", error);
-          showToast('Đăng nhập thất bại', "error");
-        }
-      };
+    const GGSignIn = () => {
+      const googleLoginUrl = `${API_URL}/users/google`; 
+      window.open(googleLoginUrl, '_blank');
+    };
     // ================================================================
 
     return ( 

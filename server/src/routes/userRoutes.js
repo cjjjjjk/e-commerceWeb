@@ -20,7 +20,6 @@ router.get(
   authController.googleLogin
 );
 
-router.post("/google-signin", userController.googleSignIn);
 router.post("/signup", authController.signup);
 router.post("/login", authController.login);
 router.post("/logout", authController.logout);

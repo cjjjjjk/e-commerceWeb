@@ -12,6 +12,7 @@ import Header from "./shared/header/Header";
 import Navigation from "./shared/navi/Navigate";
 import { Loading } from "./shared/components";
 import Toast from "shared/components/toast/Toast";
+import Auth from "pages/SignIn/Auth";
 
 // Pages - lazy loading.
 const Women = lazy(() => import("./pages/AD/Women/Women"));
@@ -73,6 +74,7 @@ function App() {
           <Route path="/:section/:category" element={<LayoutWraper />} />
 
           <Route path="/product/:productId" element={<Product/>} />
+          <Route path="/auth" element={<Auth />} /> 
 
           <Route path="*" element={<Navigate to="/women" />} />
         </Routes>
