@@ -2,7 +2,7 @@ import './member.css'
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth, signOut, tokenDecoder } from "../../shared/services/auth";
+import { tokenDecoder } from "../../shared/services";
 
 
 interface MemberData {
@@ -41,11 +41,6 @@ function Member() {
 
     // GG Signout ---------------------------
     const GGSingout = async () => {
-        if(!auth){
-            console.log("ERR: GG Firebse config Err!");
-            return;
-        }
-        await signOut(auth);
         localStorage.removeItem('token')
         navigate("/")   
     };

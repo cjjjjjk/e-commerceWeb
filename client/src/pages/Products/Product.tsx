@@ -3,12 +3,15 @@ import './product.css'
 import React, { useEffect, useState } from 'react'
 import axios from 'axios';
 import { Loading } from 'shared/components';
+import { addToCart, CartItem } from 'shared/services';
+import { useDispatch } from 'react-redux';
+import { addToast } from 'shared/components/toast/toastSlice';
 const API_URL = process.env.REACT_APP_API_URL
   
 const Product: React.FC = function() {
     const [isLoading, SetIsLoading] = useState<boolean>(false);
 
-    
+    const dispatch = useDispatch();
     const { productId} = useParams();
     const [productInfo, SetProductInfo]= useState<any>({})
     const [activeSizeIndex, SetActiveSizeIndex] = useState<number>(0);
@@ -19,6 +22,10 @@ const Product: React.FC = function() {
     const onWishList= function() {
         SetIsWishlist(!isWishlist);
     }
+
+    const showToast = (message: string, type: "success" | "error" | "info", link?: string) => {
+        dispatch(addToast({ message, type , link}));
+    };
 
     useEffect(()=>{
         SetIsLoading(true);
@@ -45,6 +52,18 @@ const Product: React.FC = function() {
         }
     }, [productInfo.name]);
 
+    const handlerAddToCart = function(){
+        const cartItem: CartItem = {
+            id: String(productId),
+            name: productInfo.name,
+            price: productInfo.priceMap?.[Object.keys(productInfo.priceMap || {})[activeSizeIndex]], 
+            quantity: count,
+            image: productInfo.images[0],
+        }
+        showToast("Thêm vào giỏ hàng thành công", 'success')
+        addToCart(cartItem);
+    }
+    
     if(isLoading) {
         return <Loading message='Product '/>
     }
@@ -121,7 +140,9 @@ const Product: React.FC = function() {
                     </div>
                     <div className='product-control d-flex justify-content-center align-items-center gap-3'>
                         <button 
-                            className='btn product-btn cart-btn d-flex flex-row gap-3 px-4 justify-content-center align-items-center rounded-pill'>
+                            className='btn product-btn cart-btn d-flex flex-row gap-3 px-4 justify-content-center align-items-center rounded-pill'
+                            onClick={()=> {handlerAddToCart()}}
+                            >
                                 <i className="pi pi-shopping-cart"></i>
                                 <span>THÊM VÀO GIỎ HÀNG</span>
                         </button>

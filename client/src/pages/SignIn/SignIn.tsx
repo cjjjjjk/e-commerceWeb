@@ -1,7 +1,6 @@
 import './signin.css'
 
 import { useState } from 'react';
-import {auth, provider, signInWithPopup} from '../../shared/services/auth'
 import {  useNavigate } from 'react-router-dom';
 import { UserCredential } from 'firebase/auth';
 import axios from 'axios';
@@ -10,11 +9,6 @@ import { addToast } from 'shared/components/toast/toastSlice';
 
 const API_URL = process.env.REACT_APP_API_URL
 
-interface AuthUserCredential extends UserCredential {
-    _tokenResponse?: {
-      isNewUser: boolean;
-    };
-  }
 
 function SignIn() {
     const navigate = useNavigate();

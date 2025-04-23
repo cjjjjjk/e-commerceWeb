@@ -6,61 +6,17 @@ export default function Cart() {
     const [cartItems, setCartItems] = useState<any[]>([]);
 
     useEffect(() => {
-        // Items fakes
-        const generateRandomId = () => Math.random().toString(36).substr(2, 9);
-        const fakeCartItems = [
-            {
-            id: generateRandomId(),
-            name: 'Product 1',
-            price: 100000,
-            quantity: 1,
-            image: 'https://image.uniqlo.com/UQ/ST3/vn/imagesgoods/477613/item/vngoods_01_477613_3x4.jpg?width=369'
-            },
-            {
-            id: generateRandomId(),
-            name: 'Product 1',
-            price: 100000,
-            quantity: 1,
-            image: 'https://image.uniqlo.com/UQ/ST3/vn/imagesgoods/477613/item/vngoods_01_477613_3x4.jpg?width=369'
-            },
-            {
-            id: generateRandomId(),
-            name: 'Product 1',
-            price: 100000,
-            quantity: 1,
-            image: 'https://image.uniqlo.com/UQ/ST3/vn/imagesgoods/477613/item/vngoods_01_477613_3x4.jpg?width=369'
-            },
-            {
-            id: generateRandomId(),
-            name: 'Product 1',
-            price: 100000,
-            quantity: 1,
-            image: 'https://image.uniqlo.com/UQ/ST3/vn/imagesgoods/477613/item/vngoods_01_477613_3x4.jpg?width=369'
-            },
-            {
-            id: generateRandomId(),
-            name: 'Product 1',
-            price: 100000,
-            quantity: 1,
-            image: 'https://image.uniqlo.com/UQ/ST3/vn/imagesgoods/477613/item/vngoods_01_477613_3x4.jpg?width=369'
-            },
-            {
-            id: generateRandomId(),
-            name: 'Product 1',
-            price: 100000,
-            quantity: 1,
-            image: 'https://image.uniqlo.com/UQ/ST3/vn/imagesgoods/477613/item/vngoods_01_477613_3x4.jpg?width=369'
-            },
-            {
-            id: generateRandomId(),
-            name: 'Product 1',
-            price: 100000,
-            quantity: 1,
-            image: 'https://image.uniqlo.com/UQ/ST3/vn/imagesgoods/477613/item/vngoods_01_477613_3x4.jpg?width=369'
-            }
-        ];
-        setCartItems(fakeCartItems);
-    }, []);
+        const saved = localStorage.getItem(process.env.REACT_APP_CART_KEY||"guess_cart");
+        if (saved) {
+            setCartItems(JSON.parse(saved));
+        }
+      }, []);
+
+    useEffect(() => {
+        if(cartItems.length > 0) {
+            localStorage.setItem(process.env.REACT_APP_CART_KEY||"guess_cart", JSON.stringify(cartItems));
+        }
+      }, [cartItems]);
 
     const handleRemove = (id: string) => {
         setCartItems(cartItems.filter(item => item.id !== id));
