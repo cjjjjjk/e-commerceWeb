@@ -59,6 +59,8 @@ const Product: React.FC = function() {
             price: productInfo.priceMap?.[Object.keys(productInfo.priceMap || {})[activeSizeIndex]], 
             quantity: count,
             image: productInfo.images[0],
+            size: productInfo.sizes[activeSizeIndex],
+            color: productInfo.colors[activeColorIndex]
         }
         showToast("Thêm vào giỏ hàng thành công", 'success')
         addToCart(cartItem);

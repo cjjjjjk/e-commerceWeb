@@ -9,8 +9,10 @@ type CartItemProps = {
         price: number;
         quantity: number;
         image: string;
+        size: string;
+        color: string;
     };
-    handleRemove: (id: string) => void;
+    handleRemove: (item: any) => void;
     handleUpdateQuantity: (id: string, quantity: number) => void;
 };
 
@@ -24,13 +26,19 @@ const CartItem: React.FC<CartItemProps> = ({ item, handleRemove, handleUpdateQua
             />
             <div className="item-details">
             <h4>{item.name}</h4>
-            <p>Price: {item.price.toLocaleString()} VND</p>
-            <p>Quantity: {item.quantity}</p>
+            <p>Price: {" "} 
+                <button className='btn btn-danger' disabled>
+                    <strong>{item.price.toLocaleString()} VND</strong>
+                    </button>
+            </p>
+            <p>Số lượng: {item.quantity}</p>
+            <p>Size: {item.size ?? "S"}</p>
+            <p>Color: {item.color ?? "L"}</p>
             </div>
             <div className="item-actions d-flex gap-2 ms-auto">
             <button className="quantity-btn" onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}>+</button>
             <button className="quantity-btn" onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1}>-</button>
-            <button className="remove-btn btn btn-danger" onClick={() => handleRemove(item.id)}>Xóa</button>
+            <button className="remove-btn btn btn-danger" onClick={() => handleRemove(item)}>Xóa</button>
             </div>
         </div>
     );

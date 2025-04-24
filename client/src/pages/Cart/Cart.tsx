@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import './cart.css'
 import CartItem from "./CartItem";
+import { removeFromCart } from 'shared/services';
 
 export default function Cart() {
     const [cartItems, setCartItems] = useState<any[]>([]);
@@ -18,8 +19,9 @@ export default function Cart() {
         }
       }, [cartItems]);
 
-    const handleRemove = (id: string) => {
-        setCartItems(cartItems.filter(item => item.id !== id));
+    const handleRemove = (item: any) => {
+        removeFromCart(item);
+        setCartItems(cartItems.filter(i => i !== item));
     };
 
     const handleUpdateQuantity = (id: string, quantity: number) => {
@@ -33,7 +35,7 @@ export default function Cart() {
     };
 
     return (
-        <div className="cart-full-container w-100 h-100 d-flex justify-content-center align-items-center">
+        <div className="cart-full-container w-100 h-100 d-flex flex-column justify-content-center align-items-center mb-5">
             <div className='cart-container h-100 mt-3'>
                 <div className="cart-list-container d-flex flex-column justify-content-start align-items-center">
                     <h1 className="list-label align-self-start">{"giỏ hàng".toUpperCase()}</h1>
@@ -47,7 +49,11 @@ export default function Cart() {
                                 <CartItem 
                                     key={item.id} 
                                     item={item} 
-                                    handleRemove={handleRemove} 
+                                    handleRemove={
+                                        (item)=>{
+                                            handleRemove(item)
+                                        }
+                                    }
                                     handleUpdateQuantity={handleUpdateQuantity} 
                                 />
                             ))
@@ -55,7 +61,7 @@ export default function Cart() {
                     }  
                 </div>
                 {   cartItems.length > 0 &&
-                    <div className="cart-action d-flex flex-column align-items-start mt-3 border-top-3">
+                    <div className="cart-action d-flex flex-column align-items-start mt-3 border-top-3 mb-5 py-5C">
                         <div className="cart-action-left d-flex justify-content-start align-items-center">
                             <h2>Tổng cộng:&nbsp;<strong>{calculateTotal()} VND</strong>
                             </h2>
@@ -65,6 +71,10 @@ export default function Cart() {
                         </div>
                     </div>
                 }
+            </div>
+            <div className='w-100 bg-dark'>
+                <br /><br /><br />
+                <span className='w-100 text-white'>AUTHOR: HAIHV(cjjjjjk) - cart-page</span>
             </div>
         </div>
     )
