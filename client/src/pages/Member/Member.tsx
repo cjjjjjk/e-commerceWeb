@@ -3,6 +3,7 @@ import './member.css'
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { tokenDecoder } from "../../shared/services";
+import axios from 'axios';
 
 
 interface MemberData {
@@ -25,12 +26,13 @@ function Member() {
         }
 
         try {
-            const ressultMember: any = tokenDecoder(token); 
+            const ressultMember: any = tokenDecoder(token);            
+
             setMember({
                 uid: ressultMember.user_id,
                 email: ressultMember.email,
-                name: ressultMember.name,
-                avatar: ressultMember.picture,
+                name: ressultMember.displayName,
+                avatar: ressultMember.photoUrl,
             });
         } catch (error) {
             console.error("Invalid token:", error);

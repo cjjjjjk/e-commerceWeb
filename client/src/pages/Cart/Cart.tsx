@@ -2,9 +2,18 @@ import { useState, useEffect } from 'react';
 import './cart.css'
 import CartItem from "./CartItem";
 import { removeFromCart } from 'shared/services';
+import { addToast } from 'shared/components/toast/toastSlice';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 
 export default function Cart() {
+    const navigate = useNavigate();
     const [cartItems, setCartItems] = useState<any[]>([]);
+    const dispatch = useDispatch() 
+
+    const showToast = (message: string, type: "success" | "error" | "info", link?: string) => {
+        dispatch(addToast({ message, type , link}));
+    };
 
     useEffect(() => {
         const saved = localStorage.getItem(process.env.REACT_APP_CART_KEY||"guess_cart");
@@ -33,6 +42,16 @@ export default function Cart() {
     const calculateTotal = () => {
         return cartItems.reduce((total, item) => total + item.price * item.quantity, 0).toLocaleString();
     };
+
+
+    const handleCheckout = ()=>{
+        const token = localStorage.getItem('token');
+        if(!token) {
+            showToast('Yêu cầu đăng nhập để thực hiện đặt hàng', "info");
+            navigate('/signin')
+        }
+        
+    }
 
     return (
         <div className="cart-full-container w-100 h-100 d-flex flex-column justify-content-center align-items-center mb-5">
@@ -67,7 +86,11 @@ export default function Cart() {
                             </h2>
                         </div>    
                         <div className="cart-action-right">
-                            <button className="btn btn-danger">Thanh toán</button>
+                            <button className="btn btn-danger"
+                            onClick={()=>{
+                                handleCheckout();
+                            }}
+                            >Thanh toán</button>
                         </div>
                     </div>
                 }
