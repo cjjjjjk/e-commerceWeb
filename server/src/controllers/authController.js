@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
 const User = require("./../models/userModel");
+const Cart = require("./../models/cartModel");
 const Email = require("./../utils/email");
 const crypto = require("crypto");
 
@@ -25,9 +26,16 @@ const createSendToken = (user, statusCode, res) => {
   res.cookie("jwt", token, cookieOptions);
   user.password = undefined;
 
-  const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
-  const authClient = `${clientUrl}/auth?token=${token}`;
-  res.redirect(authClient);
+  // const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+  // const authClient = `${clientUrl}/auth?token=${token}`;
+  // res.redirect(authClient);
+  res.status(statusCode).json({
+    status: "success",
+    token,
+    data: {
+      user,
+    },
+  });
 };
 
 exports.signup = async (req, res, next) => {
@@ -38,6 +46,14 @@ exports.signup = async (req, res, next) => {
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,
     });
+    // console.log(newUser);
+
+    const cart = await Cart.create({
+      userId: newUser._id,
+      items: [],
+    });
+
+    await cart.save();
 
     createSendToken(newUser, 201, res);
   } catch (err) {
@@ -257,5 +273,25 @@ exports.logout = (req, res) => {
 
 exports.googleLogin = (req, res) => {
   const user = req.user;
-  createSendToken(user, 201, res);
+  const token = signToken(user._id);
+
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+
+  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+
+  res.cookie("jwt", token, cookieOptions);
+  user.password = undefined;
+
+  // const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+  // const authClient = `${clientUrl}/auth?token=${token}`;
+  // res.redirect(authClient);
+  // if (user.role == "user")
+  //   return res.redirect(`${process.env.FRONTEND_URL}/member`);
+  // else return res.redirect(`${process.env.FRONTEND_URL}/admin`);
+  return res.redirect(`${process.env.FRONTEND_URL}/auth?token=${token}`);
 };

@@ -23,6 +23,20 @@ const orderSchema = mongoose.Schema({
     default: Date.now,
   },
   items: [orderItemSchema],
+  shippingAddress: {
+    name: {
+      type: String,
+      required: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
+    address: {
+      type: String,
+      required: true,
+    },
+  },
 });
 
 orderSchema.pre("save", function (next) {

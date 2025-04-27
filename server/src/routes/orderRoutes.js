@@ -15,7 +15,7 @@ router
 router
   .route("/:id")
   .get(orderController.getOrder)
-  .patch(orderController.updateOrder)
+  .patch(orderController.updateOrderStatus)
   .delete(orderController.deleteOrder);
 
 router.route("/users/:userId").get(orderController.getAllOrdersByUser);
