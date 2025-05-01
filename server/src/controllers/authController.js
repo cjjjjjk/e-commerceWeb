@@ -38,9 +38,9 @@ const createSendToken = (user, statusCode, res) => {
   });
 
   user.refreshToken = refreshToken;
-  user.save();
+  user.save({ validateBeforeSave: false })
 
-  user.password = undefined;
+  const {password, ...userData}= user;
 
   // const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
   // const authClient = `${clientUrl}/auth?token=${token}`;
@@ -50,7 +50,7 @@ const createSendToken = (user, statusCode, res) => {
     token,
     refreshToken,
     data: {
-      user,
+      ...userData
     },
   });
 };

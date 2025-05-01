@@ -46,8 +46,13 @@ function Member() {
 
     // GG Signout ---------------------------
     const GGSingout = async () => {
-        localStorage.removeItem('token')
-        navigate("/")   
+        try{
+            const res = userService.logOut();
+            localStorage.removeItem('token')
+            navigate("/")   
+        } catch (e){
+
+        }
     };
     // --------------------------------------
     if (!member) return <p>Loading...</p>;

@@ -56,6 +56,9 @@ const userService = {
   getMe: async () => {
     return api.get("/users/me");
   },
+  logOut:async ()=>{
+    return api.post("/users/logout");
+  }
 };
 
 export default userService;
