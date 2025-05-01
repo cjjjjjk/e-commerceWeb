@@ -27,8 +27,11 @@ router.post("/logout", authController.logout);
 router.post("/forgotPassword", authController.forgotPassword);
 router.patch("/resetPassword/:token", authController.resetPassword);
 
+router.post("/refresh-token", authController.refreshToken);
+
 router.use(authController.protect);
 
+router.get("/me", userController.getMe, userController.getUser); 
 router.patch("/updateMe", userController.updateMe);
 router.patch("/updateMyPassword", authController.updatePassword);
 

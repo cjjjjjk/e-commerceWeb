@@ -2,8 +2,8 @@ import './member.css'
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { tokenDecoder } from "../../shared/services";
-import axios from 'axios';
+
+import userService from 'shared/services/auth/userService';
 
 
 interface MemberData {
@@ -19,32 +19,40 @@ function Member() {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-
+    
         if (!token) {
-            navigate("/signin"); 
-            return;
+          navigate("/signin");
+          return;
         }
-
-        try {
-            const ressultMember: any = tokenDecoder(token);            
-
+    
+        const fetchUser = async () => {
+          try {
+            const response = await userService.getMe();
+            const user = response.data.data.user;
+    
             setMember({
-                uid: ressultMember.user_id,
-                email: ressultMember.email,
-                name: ressultMember.displayName,
-                avatar: ressultMember.photoUrl,
+              uid: user.uid,
+              email: user.email,
+              name: user.displayName,
+              avatar: user.photoUrl,
             });
-        } catch (error) {
-            console.error("Invalid token:", error);
-            localStorage.removeItem("token"); 
-            navigate("/signin");
-        }
-    }, []);
+          } catch (error) {
+            console.error("Failed to fetch user:", error);
+          }
+        };
+    
+        fetchUser();
+      }, [navigate]);
 
     // GG Signout ---------------------------
     const GGSingout = async () => {
-        localStorage.removeItem('token')
-        navigate("/")   
+        try{
+            const res = userService.logOut();
+            localStorage.removeItem('token')
+            navigate("/")   
+        } catch (e){
+
+        }
     };
     // --------------------------------------
     if (!member) return <p>Loading...</p>;

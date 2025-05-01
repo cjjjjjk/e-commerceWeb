@@ -48,9 +48,13 @@ const userSchema = new mongoose.Schema({
     default: true,
     select: false,
   },
+  refreshToken: { type: String, default: "" },
 });
 
 userSchema.pre("save", async function (next) {
+  if (this.isModified("refreshToken")) {
+    return next();
+  }
   if (!this.isModified("password")) return next();
 
   this.password = await bcrypt.hash(this.password, 12);
@@ -59,6 +63,9 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.pre("save", async function (next) {
+  if (this.isModified("refreshToken")) {
+    return next();
+  }
   if (!this.isModified("password") || this.isNew) return next();
 
   this.passwordChangeAt = Date.now() - 1000;
