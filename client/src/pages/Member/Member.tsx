@@ -2,10 +2,9 @@ import './member.css'
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { tokenDecoder } from "../../shared/services";
-import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL
+import userService from 'shared/services/auth/userService';
+
 
 interface MemberData {
     uid: string;
@@ -28,12 +27,7 @@ function Member() {
     
         const fetchUser = async () => {
           try {
-            const response = await axios.get(`${API_URL}/users/me`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-    
+            const response = await userService.getMe();
             const user = response.data.data.user;
     
             setMember({
@@ -44,8 +38,6 @@ function Member() {
             });
           } catch (error) {
             console.error("Failed to fetch user:", error);
-            localStorage.removeItem("token");
-            navigate("/signin");
           }
         };
     

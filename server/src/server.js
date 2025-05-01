@@ -23,7 +23,11 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(cors());
+
+app.use(cors({
+  origin: `${process.env.FRONTEND_URL ?? 'http://localhost:4000'}`,
+  credentials: true
+}));
 app.use(morgan("dev"));
 
 app.use("/api/v1/users", userRoutes);

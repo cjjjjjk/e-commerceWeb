@@ -11,8 +11,15 @@ const signToken = (id) => {
   });
 };
 
+const signRefreshToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: '7d', 
+  });
+};
+
 const createSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
+  const refreshToken = signRefreshToken(user._id)
 
   const cookieOptions = {
     expires: new Date(
@@ -24,6 +31,15 @@ const createSendToken = (user, statusCode, res) => {
   if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
 
   res.cookie("jwt", token, cookieOptions);
+  res.cookie("refresh_token", refreshToken, {
+    expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production"
+  });
+
+  user.refreshToken = refreshToken;
+  user.save();
+
   user.password = undefined;
 
   // const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
@@ -32,6 +48,7 @@ const createSendToken = (user, statusCode, res) => {
   res.status(statusCode).json({
     status: "success",
     token,
+    refreshToken,
     data: {
       user,
     },
@@ -274,6 +291,7 @@ exports.logout = (req, res) => {
 exports.googleLogin = (req, res) => {
   const user = req.user;
   const token = signToken(user._id);
+  const refreshToken = signRefreshToken(user._id);
 
   const cookieOptions = {
     expires: new Date(
@@ -285,6 +303,11 @@ exports.googleLogin = (req, res) => {
   if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
 
   res.cookie("jwt", token, cookieOptions);
+  res.cookie("refresh_token", refreshToken, cookieOptions);
+
+  user.refreshToken = refreshToken;
+  user.save();
+
   user.password = undefined;
 
   // const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
@@ -294,4 +317,45 @@ exports.googleLogin = (req, res) => {
   //   return res.redirect(`${process.env.FRONTEND_URL}/member`);
   // else return res.redirect(`${process.env.FRONTEND_URL}/admin`);
   return res.redirect(`${process.env.FRONTEND_URL}/auth?token=${token}`);
+};
+
+// refresh Token:
+exports.refreshToken = async (req, res) => {
+  const refreshToken = req.cookies.refresh_token;
+
+  if (!refreshToken) {
+    return res.status(401).json({
+      status: "fail",
+      message: "Refresh token not found. Please log in again.",
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) {
+      return res.status(401).json({
+        status: "fail",
+        message: "User not found. Please log in again.",
+      });
+    }
+
+    const newAccessToken = jwt.sign(
+      { id: currentUser._id },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN } 
+    );
+
+    res.status(200).json({
+      status: "success",
+      token: newAccessToken,
+    });
+  } catch (error) {
+    console.log(error)
+    return res.status(401).json({
+      status: "fail",
+      message: "Invalid refresh token. Please log in again.",
+    });
+  }
 };
