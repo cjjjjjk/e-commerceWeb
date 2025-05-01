@@ -1,6 +1,6 @@
 import { jwtDecode } from "jwt-decode";
 
-export default function tokenDecoder(token: string) {
+export function tokenDecoder(token: string) {
     if(token) {
         const decoded = jwtDecode(token);
 
