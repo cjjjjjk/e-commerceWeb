@@ -208,8 +208,8 @@ const Navigate = ()=>{
                             </div>
                         }
                         { isSearching && 
-                            <div className='result-container d-flex flex-column gap-4 justify-content-start overflow-auto'>
-                                <div>{ delay && (
+                            <div className='result-container d-flex flex-row flex-wrap gap-4 justify-content-between overflow-auto'>
+                                <div className="w-100">{ delay && (
                                     <div>
                                         <i className="pi pi-spin pi-spinner"></i>
                                         Searching
@@ -218,11 +218,11 @@ const Navigate = ()=>{
                                 }</div>
                                 {items.length > 0 ? (
                                     items.map((item, index) => (
-                                        <div className="product-item" key={index}>
+                                        <div className="product-item m-0" key={index}>
                                             <a className="text-dark text-decoration-none" href={getPreloadHref(item._id)} >
                                                 <img className="product-item-img" src={item.images[0]} alt="No Image" />
                                                 <div className="product-item-name">{item.name}</div>
-                                                <div className="product-item-price">{item.priceMap[0]}</div>
+                                                <div className="product-item-price btn btn-danger">{item.priceMap.S}đ</div>
                                                 <div className="product-item-rating">{item.ratingsAverage}⭐</div>
                                             </a>
                                         </div>
