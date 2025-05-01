@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { tokenDecoder } from "../../shared/services";
 import axios from 'axios';
 
+const API_URL = process.env.REACT_APP_API_URL
 
 interface MemberData {
     uid: string;
@@ -19,27 +20,37 @@ function Member() {
 
     useEffect(() => {
         const token = localStorage.getItem("token");
-
+    
         if (!token) {
-            navigate("/signin"); 
-            return;
+          navigate("/signin");
+          return;
         }
-
-        try {
-            const ressultMember: any = tokenDecoder(token);            
-
-            setMember({
-                uid: ressultMember.user_id,
-                email: ressultMember.email,
-                name: ressultMember.displayName,
-                avatar: ressultMember.photoUrl,
+    
+        const fetchUser = async () => {
+          try {
+            const response = await axios.get(`${API_URL}/users/me`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
             });
-        } catch (error) {
-            console.error("Invalid token:", error);
-            localStorage.removeItem("token"); 
+    
+            const user = response.data.data.user;
+    
+            setMember({
+              uid: user.uid,
+              email: user.email,
+              name: user.displayName,
+              avatar: user.photoUrl,
+            });
+          } catch (error) {
+            console.error("Failed to fetch user:", error);
+            localStorage.removeItem("token");
             navigate("/signin");
-        }
-    }, []);
+          }
+        };
+    
+        fetchUser();
+      }, [navigate]);
 
     // GG Signout ---------------------------
     const GGSingout = async () => {

@@ -57,11 +57,31 @@ exports.updateMe = async (req, res) => {
   }
 };
 
-exports.getUser = (req, res) => {
-  res.status(500).json({
-    status: "fail",
-    message: "This route is not defined!",
-  });
+// Get User data to display.
+exports.getUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({
+        status: "fail",
+        message: "User not found",
+      });
+    }
+    res.status(200).json({
+      status: "success",
+      data: { user },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
+};
+
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next(); 
 };
 
 exports.createUser = (req, res) => {
