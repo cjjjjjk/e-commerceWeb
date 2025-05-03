@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux';
 import { addToast } from 'shared/components/toast/toastSlice';
 import {SetLoadingNaviBar} from 'shared/navi/navigateSlice'
 import adminService  from './adminService';
+import { useNavigate } from 'react-router-dom';
 
 const API_URL = process.env.REACT_APP_API_URL
 
@@ -96,6 +97,7 @@ const JsonCraw = ({type, object, onClose, isCreate }: {type:string, object: any,
     );
 };
 export default function Admin() {
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const showToast = (message: string, type: "success" | "error" | "info", link?: string) => {
       dispatch(addToast({ message, type , link}));
@@ -139,6 +141,16 @@ export default function Admin() {
         dispatch(SetLoadingNaviBar())
         SetIsUpdate(!isUpdate);
     }
+    useEffect(()=>{
+        const guardCheck = async ()=>{
+            if(!(await adminService.checkAdmin())){
+                showToast('Bạn không có quyền truy cập trang này', 'error')
+                navigate('/member')   
+            }
+        }
+        guardCheck();
+    },[])
+
     // FETCH DATAS ================================================================
     const fetchData = async (url: string, setter: (data: any) => void) => {
         try {
