@@ -49,6 +49,24 @@ exports.getOrder = async (req, res) => {
   }
 };
 
+exports.getMyOrders = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const orders = await Order.find({ userId: userId });
+
+    res.status(200).json({
+      status: "success",
+      results: orders.length,
+      data: { orders },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "fail",
+      message: "Không thể lấy danh sách đơn hàng của bạn.",
+    });
+  }
+};
+
 exports.createOrder = async (req, res) => {
   try {
     const { items, shippingAddress, discountPrice } = req.body;

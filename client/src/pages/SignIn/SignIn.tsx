@@ -97,7 +97,6 @@ function SignIn() {
           >
             Đăng nhập
           </button>
-          <span>Sử dụng tài khoản Google để đăng nhập. </span>
           <button
             type="button"
             className="signin mt-1 p-4 d-flex gap-3 justify-content-center align-items-center border-0"

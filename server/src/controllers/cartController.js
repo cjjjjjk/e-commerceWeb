@@ -50,7 +50,7 @@ exports.addToCart = async (req, res) => {
 
 exports.removeFromCart = async (req, res) => {
   try {
-    const { id } = req.body;
+    const id = req.body._id;
     const userId = req.user._id;
 
     const cart = await Cart.findOne({ userId });

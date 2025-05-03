@@ -1,21 +1,21 @@
-import axios, { AxiosError, AxiosRequestConfig } from "axios";
+import axios from "axios";
+
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL,
-  withCredentials: true
+    baseURL: `${process.env.REACT_APP_API_URL}`,
+    withCredentials: true,
 });
-
+  
 api.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem("token"); 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    } else {
-      delete config.headers.Authorization; 
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
+    (config) => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        config.headers = config.headers || {};
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
 );
 
 api.interceptors.response.use(
@@ -51,18 +51,16 @@ api.interceptors.response.use(
   
       return Promise.reject(error);
     }
-  );
+);
 
-const userService = {
-  getMe: async () => {
-    return api.get("/users/me");
-  },
-  logOut:async ()=>{
-    return api.post("/users/logout");
-  },
-  updateInfor: async(userData: any)=>{
-    return api.patch('/users/updateMe', userData)
-  }
-};
+const orderService = {
+    createOrder: async (order: any)=>{
+      return api.post("/orders/", order)
+    },
+    getMyOrders: async () => {
+      const res = await api.get('/orders/my-orders');
+      return res.data;
+    }
+}
 
-export default userService;
+export default orderService;

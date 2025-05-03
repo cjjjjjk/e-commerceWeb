@@ -32,3 +32,16 @@
     background-color: #cccccc;
     cursor: not-allowed;
 }
+
+
+@media (max-width: 768px) {
+    .cart-item {
+        gap: 0.5rem !important;
+    }
+
+    .item-details {
+        p {
+            margin-bottom: 0 !important;
+        }
+    }
+}
