@@ -58,6 +58,9 @@ const userService = {
   },
   logOut:async ()=>{
     return api.post("/users/logout");
+  },
+  updateInfor: async(userData: any)=>{
+    return api.patch('/users/updateMe', userData)
   }
 };
 

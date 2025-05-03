@@ -38,7 +38,7 @@ export const ProductCard = (productInfo:any| ProductCardProps)=>{
                 <i className="ms-auto pi pi-heart"></i>
             </div>
             <span className="product-name px-2">{productInfo.name}</span>
-            <span className="product-price mx-2 mb-2 btn btn-danger">{productInfo.price}</span>
+            <span className="product-price mx-2 mb-2 btn btn-danger">{productInfo.price + " VNĐ"}</span>
         </div>
     )
 }

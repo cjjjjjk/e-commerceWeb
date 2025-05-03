@@ -5,16 +5,42 @@ import { getCart, removeFromCart, updateQuantity } from 'shared/services/cartSer
 import { addToast } from 'shared/components/toast/toastSlice';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import orderService from 'shared/services/orderService';
+import userService from 'shared/services/auth/userService';
 
 export default function Cart() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
     const [cartItems, setCartItems] = useState<any[]>([]);
+    const [orderItem, setOrderItem] = useState<any>({});
+    const [showModal, setShowModal] = useState(false);
+    const [userData, setuserData] = useState<any>({})
+    const [name, setName]= useState<string>('');
+    const [address, setAddress] = useState('');
+    const [phone, setPhone] = useState('');
 
     const showToast = (message: string, type: "success" | "error" | "info", link?: string) => {
         dispatch(addToast({ message, type, link }));
     };
+
+    useEffect(()=>{
+        const fetchUser = async() =>{
+            try {
+                const user = await userService.getMe();
+                if(user) {
+                    setAddress(user.data.data.user.address ?? "");
+                    setPhone(user.data.data.user.phone ?? "")
+                    setName(user.data.data.user.displayName?? "")
+                    setuserData(user.data.data.user ?? {});
+                }
+            }
+            catch (err){
+            }
+        }
+
+        fetchUser();
+    }, [])
 
     useEffect(() => {
         const fetchCart = async () => {
@@ -23,6 +49,7 @@ export default function Cart() {
                 const cartshow = Array.isArray(cart) ? cart : cart.items;
                 if (cart) {
                     setCartItems(cartshow);
+                    if (cart.items) setOrderItem(cart);
                 } else {
                     setCartItems([]);
                 }
@@ -31,7 +58,6 @@ export default function Cart() {
                 showToast("Không thể tải giỏ hàng", "error");
             }
         };
-    
         fetchCart();
     }, []);
 
@@ -60,7 +86,7 @@ export default function Cart() {
     const handleUpdateQuantity = async (id: string, quantity: number) => {
         const updated = cartItems.map(item =>
             item.id === id ? { ...item, quantity: Math.max(1, quantity) } : item
-        );        
+        );
         setCartItems(updated);
 
         const token = localStorage.getItem("token");
@@ -86,8 +112,32 @@ export default function Cart() {
             showToast('Yêu cầu đăng nhập để thực hiện đặt hàng', "info");
             navigate('/signin');
         } else {
-            // TODO: Điều hướng tới trang checkout khi đã có token
-            navigate('/checkout');
+            setShowModal(true);
+        }
+    };
+
+    const handleConfirmOrder = async () => {
+        if (!address.trim() || !phone.trim()) {
+            showToast("Vui lòng nhập đầy đủ địa chỉ và số điện thoại", "error");
+            return;
+        }
+
+        try {
+            const finalOrder = {
+                ...orderItem,
+                shippingAddress: {
+                    name: name,
+                    address: address.trim(),
+                    phone:phone.trim()
+                }
+            };
+            await userService.updateInfor({...userData, address, phone})
+            await orderService.createOrder(finalOrder);
+            showToast("Đặt hàng thành công!", "success");
+            setShowModal(false);
+            setCartItems([]);
+        } catch (error:any) {
+            showToast(`${error.response.data?.message??"Lỗi khi tạo đơn hàng"}`, "error");
         }
     };
 
@@ -115,7 +165,7 @@ export default function Cart() {
                 </div>
                 {
                     cartItems.length > 0 &&
-                    <div className="cart-action d-flex flex-column align-items-start mt-3 border-top-3 mb-5 py-5C">
+                    <div className="cart-action d-flex flex-column align-items-start mt-3 border-top-3 mb-5 py-5">
                         <div className="cart-action-left d-flex justify-content-start align-items-center">
                             <h2>Tổng cộng:&nbsp;<strong>{calculateTotal()} VND</strong></h2>
                         </div>
@@ -127,6 +177,57 @@ export default function Cart() {
                     </div>
                 }
             </div>
+
+            {/* Modal */}
+            {showModal &&
+                <div className="modal d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                            <div className="modal-header">
+                                <h5 className="modal-title">Xác nhận đơn hàng</h5>
+                                <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+                            </div>
+                            <div className="modal-body">
+                                <div className="mb-3">
+                                    <label className="form-label">Tên</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={name}
+                                        onChange={(e) => setAddress(e.target.value)}
+                                        placeholder="Nhập địa chỉ giao hàng"
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label">Địa chỉ</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={address}
+                                        onChange={(e) => setAddress(e.target.value)}
+                                        placeholder="Nhập địa chỉ giao hàng"
+                                    />
+                                </div>
+                                <div className="mb-3">
+                                    <label className="form-label">Số điện thoại</label>
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
+                                        placeholder="Nhập số điện thoại"
+                                    />
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Đóng</button>
+                                <button type="button" className="btn btn-primary" onClick={handleConfirmOrder}>Xác nhận</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
             <div className='w-100 bg-dark'>
                 <br /><br /><br />
                 <span className='w-100 text-white'>AUTHOR: HAIHV(cjjjjjk) - cart-page</span>

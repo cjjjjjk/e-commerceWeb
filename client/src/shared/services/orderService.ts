@@ -2,7 +2,7 @@ import axios from "axios";
 
 
 const api = axios.create({
-    baseURL: process.env.REACT_APP_API_URL,
+    baseURL: `${process.env.REACT_APP_API_URL}`,
     withCredentials: true,
 });
   
@@ -54,7 +54,9 @@ api.interceptors.response.use(
 );
 
 const orderService = {
-    createOrder: async ()=>{
-
+    createOrder: async (order: any)=>{
+      return api.post("/orders/", order)
     },
 }
+
+export default orderService;
