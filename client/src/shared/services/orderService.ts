@@ -57,6 +57,10 @@ const orderService = {
     createOrder: async (order: any)=>{
       return api.post("/orders/", order)
     },
+    getMyOrders: async () => {
+      const res = await api.get('/orders/my-orders');
+      return res.data;
+    }
 }
 
 export default orderService;

@@ -56,7 +56,15 @@
 }
 .member-token img {
     height: 154px ;
+    width: 154px;
     aspect-ratio: 1;
+}
+
+.member-email {
+    width: 154px;
+    overflow: hidden;  
+    white-space: nowrap;
+    text-overflow: ellipsis !important;
 }
 
 @media (max-width: 768px) {
@@ -71,6 +79,7 @@
 
     .member-token img {
         height: 64px !important;
+        width: 64px !important;
         aspect-ratio: 1;
     }
 

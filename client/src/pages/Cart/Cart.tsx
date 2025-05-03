@@ -15,7 +15,7 @@ export default function Cart() {
     const [cartItems, setCartItems] = useState<any[]>([]);
     const [orderItem, setOrderItem] = useState<any>({});
     const [showModal, setShowModal] = useState(false);
-    const [userData, setuserData] = useState<any>({})
+    const [userData, setuserData] = useState<any>(null)
     const [name, setName]= useState<string>('');
     const [address, setAddress] = useState('');
     const [phone, setPhone] = useState('');
@@ -23,6 +23,23 @@ export default function Cart() {
     const showToast = (message: string, type: "success" | "error" | "info", link?: string) => {
         dispatch(addToast({ message, type, link }));
     };
+
+    const [myOrders, setMyOrders] = useState<any[]>([]);
+    useEffect(() => {
+        const fetchOrders = async () => {
+            try {
+                const orders = await orderService.getMyOrders();
+                console.log(orders)
+                setMyOrders(orders.data.orders ??[]);
+            } catch (error) {
+                console.error("Không thể tải đơn hàng:", error);
+            }
+        };
+    
+        if (userData) {
+            fetchOrders();
+        }
+    }, [userData,cartItems]);
 
     useEffect(()=>{
         const fetchUser = async() =>{
@@ -141,10 +158,91 @@ export default function Cart() {
         }
     };
 
+    const getStatusMeta = (status: string): { label: string, style: string } => {
+        switch (status) {
+            case "pending":
+                return { label: "Chờ xử lý", style: "btn-outline-secondary" };
+            case "confirmed":
+                return { label: "Đã xác nhận", style: "btn-outline-primary" };
+            case "shipped":
+                return { label: "Đã gửi hàng", style: "btn-outline-warning" };
+            case "delivered":
+                return { label: "Đã giao", style: "btn-outline-success" };
+            case "cancelled":
+                return { label: "Đã hủy", style: "btn-outline-danger" };
+            default:
+                return { label: "Không rõ", style: "btn-outline-dark" };
+        }
+    };
+
     return (
         <div className="cart-full-container w-100 h-100 d-flex flex-column justify-content-center align-items-center mb-5">
             <div className='cart-container h-100 mt-3'>
                 <div className="cart-list-container d-flex flex-column justify-content-start align-items-center">
+                    <h1 className="list-label align-self-start">{"đơn đã đặt".toUpperCase()}</h1>
+                    {userData && (
+                        <div className="accordion w-100" id="ordersAccordion">
+                            {Array.isArray(myOrders) && myOrders.length > 0 ? (
+                            myOrders.map((order: any, index: number) => {
+                                const statusMeta = getStatusMeta(order.status);
+                                return (
+                                <div className="accordion-item" key={order._id || index}>
+                                    <h2 className="accordion-header" id={`heading-${index}`}>
+                                    <button
+                                        className="accordion-button collapsed d-flex justify-content-between align-items-center"
+                                        type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target={`#collapse-${index}`}
+                                        aria-expanded="false"
+                                        aria-controls={`collapse-${index}`}
+                                    >
+                                        <div className="me-1">
+                                        <span className="fw-bold">Đơn hàng #{order._id}</span>
+                                        <div className="small text-muted">
+                                            Ngày: {new Date(order.createdAt).toLocaleString()}
+                                        </div>
+                                        </div>
+                                        <button
+                                        type="button"
+                                        className={`btn btn-sm fw-bolder text-nowrap ${statusMeta.style}`}
+                                        disabled
+                                        >
+                                        {statusMeta.label}
+                                        </button>
+                                    </button>
+                                    </h2>
+                                    <div
+                                    id={`collapse-${index}`}
+                                    className="accordion-collapse collapse"
+                                    aria-labelledby={`heading-${index}`}
+                                    data-bs-parent="#ordersAccordion"
+                                    >
+                                    <div className="accordion-body bg-light">
+                                        <div><strong>Địa chỉ:</strong> {order.shippingAddress?.address}</div>
+                                        <div><strong>Điện thoại:</strong> {order.shippingAddress?.phone}</div>
+                                        <div><strong>Tổng tiền:</strong> {order.totalPrice?.toLocaleString()} VND</div>
+                                        <div className="mt-2">
+                                        <strong>Sản phẩm:</strong>
+                                        <ul className="ps-3">
+                                            {order.items.map((item: any, idx: number) => (
+                                            <li key={idx}>
+                                                {item.name} - {item.quantity} x {item.price.toLocaleString()} VND
+                                            </li>
+                                            ))}
+                                        </ul>
+                                        </div>
+                                    </div>
+                                    </div>
+                                </div>
+                                );
+                            })
+                            ) : (
+                            <div className="text-muted">Bạn chưa có đơn hàng nào</div>
+                            )}
+                        </div>
+                        )}
+                </div>
+                <div className="mt-3 cart-list-container d-flex flex-column justify-content-start align-items-center">
                     <h1 className="list-label align-self-start">{"giỏ hàng".toUpperCase()}</h1>
                     {
                         Array.isArray(cartItems) && cartItems.length > 0 ? (

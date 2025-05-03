@@ -34,14 +34,14 @@ const CartItem: React.FC<CartItemProps> = ({ item, handleRemove, handleUpdateQua
                 }}
             >
             <h4>{item.name}</h4>
-            <p>Price: {" "} 
+            <p> 
                 <button className='btn btn-danger' disabled>
                     <strong>{item.price.toLocaleString()} VND</strong>
                     </button>
             </p>
             <p>Số lượng: {item.quantity}</p>
             <p>Size: {item.size ?? "S"}</p>
-            <p>Color: {item.color ?? "L"}</p>
+             <p>Color: {item.color ?? "L"}</p>
             </div>
             <div className="item-actions d-flex gap-2 ms-auto">
             <button className="quantity-btn" onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}>+</button>
