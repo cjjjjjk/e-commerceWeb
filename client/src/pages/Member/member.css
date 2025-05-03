@@ -58,14 +58,26 @@
 @media (max-width: 768px) {
     .member-container {
         flex-direction: column;
+    }
 
-        .member-token {
-            flex-direction: row !important;
-            gap: 2rem !important;
-            img {
-                height: 64px;
-                aspect-ratio: 1 ;
-            }
-        }
+    .member-token {
+        flex-direction: row !important;
+        gap: 1rem !important;
+    }
+
+    .member-token img {
+        height: 64px !important;
+        aspect-ratio: 1;
+    }
+
+    .member-info {
+        max-width: 50% !important;
+    }
+
+    .member-email {
+        overflow: hidden;  
+        white-space: nowrap;
+        width: 100%;
+        text-overflow: ellipsis !important;
     }
 }

@@ -35,7 +35,7 @@ exports.updateMe = async (req, res) => {
       });
     }
 
-    const filteredBody = filterObj(req.body, "displayName", "email");
+    const filteredBody = filterObj(req.body, "displayName", "email", "address", "phone");
     console.log(filteredBody);
     const updatedUser = await User.findByIdAndUpdate(
       req.user.id,
