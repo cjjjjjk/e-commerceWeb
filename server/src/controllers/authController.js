@@ -57,11 +57,22 @@ const createSendToken = (user, statusCode, res) => {
 
 exports.signup = async (req, res, next) => {
   try {
+    const avatars = [
+      "https://i.imgur.com/VAhQIqV.png",
+      "https://i.imgur.com/btiIFHP.png",
+      "https://i.imgur.com/aJKfWLf.png",
+      "https://i.imgur.com/padyuTG.png",
+      "https://i.imgur.com/Sb3bqmw.png",
+      "https://i.imgur.com/Aoja6dx.png"
+    ];
+    const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
+
     const newUser = await User.create({
       name: req.body.name,
       email: req.body.email,
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,
+      photoUrl: randomAvatar
     });
     // console.log(newUser);
 

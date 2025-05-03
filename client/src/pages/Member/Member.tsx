@@ -50,8 +50,9 @@ function Member() {
   }, [navigate]);
 
   // GG Signout ---------------------------
-  const GGSingout = async () => {
+  const logOut = async () => {
     try {
+      await userService.logOut();
       localStorage.removeItem('token');
       navigate("/");   
     } catch (e) {
@@ -111,7 +112,7 @@ function Member() {
           </div>
           <button
             className='mt-auto btn btn-danger'
-            onClick={GGSingout}
+            onClick={logOut}
           >ĐĂNG XUẤT</button>
         </div>
 

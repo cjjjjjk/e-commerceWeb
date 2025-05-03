@@ -54,6 +54,10 @@
         }
     }
 }
+.member-token img {
+    height: 154px ;
+    aspect-ratio: 1;
+}
 
 @media (max-width: 768px) {
     .member-container {

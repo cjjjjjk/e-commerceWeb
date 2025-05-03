@@ -131,7 +131,7 @@ export default function Cart() {
                     phone:phone.trim()
                 }
             };
-            await userService.updateInfor({...userData, address, phone})
+            await userService.updateInfor({...userData,displayName:name, address, phone})
             await orderService.createOrder(finalOrder);
             showToast("Đặt hàng thành công!", "success");
             setShowModal(false);
@@ -194,8 +194,8 @@ export default function Cart() {
                                         type="text"
                                         className="form-control"
                                         value={name}
-                                        onChange={(e) => setAddress(e.target.value)}
-                                        placeholder="Nhập địa chỉ giao hàng"
+                                        onChange={(e) => setName(e.target.value)}
+                                        placeholder="Nhập tên của bạn"
                                     />
                                 </div>
                                 <div className="mb-3">

@@ -12,7 +12,7 @@ const API_URL = process.env.REACT_APP_API_URL
 const Item = ({ object, onSelect, index }: { object: any, onSelect: (obj: any) => void, index: number }) => {
     const name = object.name ?? object.shippingAddress?.name ?? "";
     const status: string | undefined = object.status;
-    const idText = object._id ? ` Id: ${object._id}` : "";
+    const idText = object._id ? ` ID: ${object._id}` : "";
 
     const getStatusMeta = (status: string): { label: string, style: string } => {
         switch (status) {
