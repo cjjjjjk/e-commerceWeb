@@ -1,10 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import './CartItem.css';
+import { useNavigate } from 'react-router-dom';
 
 type CartItemProps = {
     item: {
+        _id?: string;
         id: string;
+        productId: string;
         name: string;
         price: number;
         quantity: number;
@@ -17,14 +20,19 @@ type CartItemProps = {
 };
 
 const CartItem: React.FC<CartItemProps> = ({ item, handleRemove, handleUpdateQuantity }) => {
+    const navigate = useNavigate();
     return (
-        <div className="cart-item w-100 d-flex align-items-start gap-3">
+        <div className="cart-item w-100 d-flex align-items-start gap-3" >
             <img 
             src={item.image} 
             alt={item.name} 
             className="cart-item-image" 
             />
-            <div className="item-details">
+            <div className="item-details"
+                onClick={()=>{
+                    navigate(`/product/${item.productId ?? item.id}`)
+                }}
+            >
             <h4>{item.name}</h4>
             <p>Price: {" "} 
                 <button className='btn btn-danger' disabled>

@@ -45,7 +45,13 @@ export default function Cart() {
     const handleRemove = async (item: any) => {
         try {
             await removeFromCart(item);
-            setCartItems((prev) => prev.filter(i => !(i.id === item.id && i.size === item.size && i.color === item.color)));
+            const cart = await getCart();
+            const cartshow = Array.isArray(cart) ? cart : cart.items;
+            if (cart) {
+                setCartItems(cartshow);
+            } else {
+                setCartItems([]);
+            }
         } catch (err) {
             showToast("Lỗi khi xóa sản phẩm", "error");
         }
