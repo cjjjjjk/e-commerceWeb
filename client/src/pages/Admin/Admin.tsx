@@ -271,14 +271,18 @@ export default function Admin() {
         Promise.all([
             fetchData(`${API_URL}/products?page=1&limit=15`, SetProductList),
             fetchData(`${API_URL}/categories`, SetCateList)
-        ]).catch(() => showToast("Lỗi gì đấy không biết", "error"));
+        ]).catch(() => showToast("Lỗi", "error"));
 
         const fetchOrder= async ()=>{
+        try {
             const orderRes = await adminService.getAllOrder({page: 1, limit: 20})
             SetOrderList(orderRes.data.data.orders??[]);
+        } catch(err){
+            showToast("Lỗi", "error")
+        }
         }
         fetchOrder();
-    }, [isUpdate, ]);
+    }, [isUpdate ]);
     // =============================================================================
 
     return (
