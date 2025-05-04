@@ -1,115 +1,216 @@
-import './signin.css'
+import "./signin.css";
 
 import { useState } from 'react';
-import {auth, provider, signInWithPopup} from '../../shared/services/auth'
 import {  useNavigate } from 'react-router-dom';
-import { UserCredential } from 'firebase/auth';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { addToast } from 'shared/components/toast/toastSlice';
 
-const API_URL = process.env.REACT_APP_API_URL
+const API_URL = process.env.REACT_APP_API_URL;
 
-interface AuthUserCredential extends UserCredential {
-    _tokenResponse?: {
-      isNewUser: boolean;
-    };
-  }
 
 function SignIn() {
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   
-    const showToast = (message: string, type: "success" | "error" | "info", link?: string) => {
-      dispatch(addToast({ message, type , link}));
-    };
-    const handleLogin = async (e: { preventDefault: () => void; }) => {
-        e.preventDefault();
-        try {
-            const res = await axios.post(`${API_URL}/users/login`, { email, password });
-            const { token, data } = res.data;
-            console.log("SIGNIN RES:", res.data);
-            if (res.data.code === "success") {
-                localStorage.setItem('token', token);
-                showToast("Đăng nhập thành công", "success");
-                if(data.role === "admin") showToast("Bạn là ADMIN", "info", '/admin');
-                navigate("/member");
-            } else {
-                showToast("Đăng nhập thất bại", "error");
-            }
-        } catch (err) {
-            console.error(err);
-            showToast("Đăng nhập thất bại", "error");
-        }
+  const [newEmail, setNewEmail] = useState("");
+  const [newName, setNewName] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+
+  const showToast = (
+    message: string,
+    type: "success" | "error" | "info",
+    link?: string
+  ) => {
+    dispatch(addToast({ message, type, link }));
+  };
+  const handleLogin = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post(`${API_URL}/users/login`, {
+        email,
+        password,
+      });
+      const { token, data } = res.data;
+      console.log(res.data);
+      console.log("SIGNIN RES:", res.data);
+      if (res.data.status === "success") {
+        localStorage.setItem("token", token);
+        showToast("Đăng nhập thành công", "success");
+        if (data.role === "admin") showToast("Bạn là ADMIN", "info", "/admin");
+        navigate("/member");
+      } else {
+        showToast("Đăng nhập thất bại", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Đăng nhập thất bại", "error");
     }
+  };
 
-    // SignIn with GG ====================================== author: Hai
-    const GGSignIn = async () => {
-        if(!auth || !provider) {
-            console.log("ERR: GG Firebse config Err!");
-            return;
-        }
-        try {
-            const result = (await signInWithPopup(auth, provider)) as AuthUserCredential;
-            console.log("SIGNIN SUCCESS: ", result);
-        
-            // const isNewUser = result._tokenResponse?.isNewUser;
-            // if(isNewUser){
-            // console.log("NEW USER SIGNIN -> CREATE:");
-            const userData = { 
-                uid: result.user.uid,
-                email: result.user.email,
-                displayName: result.user.displayName,
-                photoUrl: result.user.photoURL,
-                emailVerified: result.user.emailVerified,
-            }; 
-            const res = await axios.post(`${API_URL}/users/google-signin`, userData);
-            console.log("GG SigIn RES:", res.data);
-            // }
+  const handleSignup = async (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post(`${API_URL}/users/signup`, {
+        name: newName,
+        email:newEmail,
+        password:newPassword,
+        passwordConfirm,
+      });
+      const { token, data } = res.data;
+      console.log(res.data);
+      console.log("SIGNIN RES:", res.data);
+      if (res.data.status === "success") {
+        localStorage.setItem("token", token);
+        showToast("Đăng nhập thành công", "success");
+        if (data.role === "admin") showToast("Bạn là ADMIN", "info", "/admin");
+        navigate("/member");
+      } else {
+        showToast("Đăng ký thất bại", "error");
+      }
+    } catch (err) {
+      console.error(err);
+      showToast("Đăng ký thất bại", "error");
+    }
+  };
 
-            localStorage.setItem('token', await result.user.getIdToken());
-            showToast(`${res.data.code === "success" ?"Đăng nhập thành công": "Oops...!"}`, res.data.code);
-            if(res.data.user.role === "admin") showToast("Bạn là ADMIN", "info", '/admin');
-            navigate("/member");
-        } catch (error) {
-          console.error("Login failed", error);
-          showToast('Đăng nhập thất bại', "error");
-        }
-      };
-    // ================================================================
+  // SignIn with GG ====================================== author: Hai
+  const GGSignIn = () => {
+    console.log("GGSignIn clicked");
+    const googleLoginUrl = `${API_URL}/users/google`;
+    //window.open(googleLoginUrl, "_blank");
+    window.location.href = googleLoginUrl;
+  };
+  // ================================================================
 
-    return ( 
-        <div className='sigin-full-container h-100 w-100 d-flex justify-content-center align-items-center'>
-            <form className="signin-form" >
-                <div className="sigin-container d-flex flex-column align-items-baseline gap-4">
-                    <h1 className="mt-4">ĐĂNG NHẬP</h1>
-                    <fieldset>
-                        <input className="input email" type="text" placeholder="" />
-                        <span className="label">Email/Số điện thoại</span>
-                    </fieldset>
-                    <fieldset>
-                        <input className="input password" type="password" placeholder="" />
-                        <span className="label">Mật khẩu</span>
-                        <p className="mt-4">Mật khẩu phải có từ 8 đến 20 kí tự bao gồm cả chữ và số.</p>
-                    </fieldset>
-                    <button 
-                        className="signin p-4 d-flex gap-3 justify-content-center align-items-center border-0"
-                        onClick={handleLogin}
-                    >Đăng nhập</button>
-                    <span >Sử dụng tài khoản Google để đăng nhập. </span>
-                    <button
-                        className="signin mt-1 p-4 d-flex gap-3 justify-content-center align-items-center border-0"
-                        onClick={() => GGSignIn()}
-                    >
-                        <i className="pi pi-google"></i>
-                        Đăng nhập với Google
-                    </button>
-                </div>
-            </form>
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setEmail(e.target.value);
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPassword(e.target.value);
+  };
+
+  const handleNewEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewEmail(e.target.value);
+  };
+
+  const handleNewNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewName(e.target.value);
+  };
+
+  const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewPassword(e.target.value);
+  };
+
+  const handlePasswordConfirmChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPasswordConfirm(e.target.value);
+  };
+
+  return (
+    <div className="signin-full-container h-100 w-100 p-5 d-flex flex-wrap justify-content-center align-items-center">
+      <form className="signin-form">
+        <div className="signin-container d-flex flex-column align-items-baseline gap-4">
+          <h1 className="mt-4">ĐĂNG NHẬP</h1>
+          <fieldset>
+            <input
+              className="input email"
+              type="text"
+              placeholder=""
+              value={email}
+              onChange={handleEmailChange}
+            />
+            <span className="label">Email/Số điện thoại</span>
+          </fieldset>
+          <fieldset>
+            <input
+              className="input password"
+              type="password"
+              placeholder=""
+              value={password}
+              onChange={handlePasswordChange}
+            />
+            <span className="label">Mật khẩu</span>
+            <p className="mt-4">
+              Mật khẩu phải có từ 8 đến 20 kí tự bao gồm cả chữ và số.
+            </p>
+          </fieldset>
+          <button
+            className="signin p-4 d-flex gap-3 justify-content-center align-items-center border-0"
+            onClick={handleLogin}
+          >
+            Đăng nhập
+          </button>
+          <button
+            type="button"
+            className="signin mt-1 p-4 d-flex gap-3 justify-content-center align-items-center border-0"
+            onClick={GGSignIn}
+          >
+            <i className="pi pi-google"></i>
+            Đăng nhập với Google
+          </button>
         </div>
-    )
+      </form>
+      <form className="signin-form">
+        <div className="signin-container d-flex flex-column align-items-baseline gap-4">
+          <p>Chưa có tài khoản?</p>
+          <h1 className="head-space">ĐĂNG KÝ NGAY</h1>
+          <fieldset className="head-space">
+            <input
+              className="input name"
+              type="text"
+              placeholder=""
+              value={newName}
+              onChange={handleNewNameChange}
+            />
+            <span className="label">Tên đăng nhập</span>
+          </fieldset>
+          <fieldset>
+            <input
+              className="input email"
+              type="text"
+              placeholder=""
+              value={newEmail}
+              onChange={handleNewEmailChange}
+            />
+            <span className="label">Email/Số điện thoại</span>
+          </fieldset>
+          <fieldset>
+            <input
+              className="input password"
+              type="password"
+              placeholder=""
+              value={newPassword}
+              onChange={handleNewPasswordChange}
+            />
+            <span className="label">Mật khẩu</span>
+            <p className="mt-4">
+              Mật khẩu phải có từ 8 đến 20 kí tự bao gồm cả chữ và số.
+            </p>
+          </fieldset>
+          <fieldset className="head-space">
+            <input
+              className="input password"
+              type="password"
+              placeholder=""
+              value={passwordConfirm}
+              onChange={handlePasswordConfirmChange}
+            />
+            <span className="label">Nhập lại mật khẩu</span>
+          </fieldset>
+          <button
+            className="signin p-4 d-flex gap-3 justify-content-center align-items-center border-0"
+            onClick={handleSignup}
+          >
+            Đăng ký
+          </button>
+        </div>
+      </form>
+    </div>
+  );
 }
 
-export default SignIn
+export default SignIn;
