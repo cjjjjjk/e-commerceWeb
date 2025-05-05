@@ -289,7 +289,16 @@ export default function Admin() {
         <div className='admin-full-container w-100 h-100 d-flex justify-content-center align-items-center'>
             {selectedObject &&crrType&& <JsonCraw type={crrType} object={selectedObject} onClose={handleExit} isCreate={Object.keys(selectedObject).length === 0}/>}
             <div className="admin-container d-flex flex-column">
-                <div className="back-container">{"ADMIN CONTROL"    }</div>
+                <div className="back-container">{"ADMIN CONTROL"    } 
+                    <button className='btn btn-link'
+                        onClick={()=> {
+                            navigate('statistic')
+                        }
+                        }
+                    >
+                        THỐNG KÊ
+                    </button>
+                </div>
                 <div className='control-container flex-grow-1 d-flex w-100'>
                     <div className='list-container orders-container w-50'>
                         <div

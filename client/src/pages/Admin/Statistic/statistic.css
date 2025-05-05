@@ -1,0 +1,6 @@
+.static-container {
+    height: fit-content;
+    width: 90rem;
+    padding-top: 120px !important;
+    padding-bottom: 120px !important;
+}

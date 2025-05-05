@@ -74,6 +74,34 @@ const adminService = {
   
   updateOrderStatus: async(orderId: string,status: "pending"|"confirmed"|"shipped"|"delivered"|"cancelled")=>{
     return api.patch(`/orders/${orderId}`, {status});
+  },
+
+  getRevenueStats(from: string, to: string) {
+    return api.get(`/statistics/revenue`, {
+      params: { from, to },
+    });
+  },
+  
+  getOrderStats(from: string, to: string) {
+    return api.get(`/statistics/orders`, {
+      params: { from, to },
+    });
+  },
+
+  getMonthlyStats: async () => {
+    return api.get("/statistics/monthly");
+  },
+
+  getBestSellers: async () => {
+    return api.get("/statistics/best-sellers");
+  },
+
+  getMostStock: async () => {
+    return api.get("/statistics/most-stock");
+  },
+
+  getMostReturned: async () => {
+    return api.get("/statistics/most-returned");
   }
 };
   

@@ -1,0 +1,296 @@
+import { useEffect, useState } from "react";
+import adminService from "../adminService";
+import './statistic.css';
+
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend,
+} from "chart.js";
+import { Line, Bar, Pie } from "react-chartjs-2";
+import { useNavigate } from "react-router-dom";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Tooltip,
+  Legend
+);
+
+export default function Statistic() {
+  const [loading, setLoading] = useState(true);
+  const [revenueStats, setRevenueStats] = useState<any>(null);
+  const [orderStats, setOrderStats] = useState<any>(null);
+  const [bestSellers, setBestSellers] = useState<any[]>([]);
+  const [mostStock, setMostStock] = useState<any[]>([]);
+  const [mostReturned, setMostReturned] = useState<any[]>([]);
+
+  const [fromDate, setFromDate] = useState<string>("");
+  const [toDate, setToDate] = useState<string>("");
+
+  const navigate = useNavigate();
+
+  const fetchStats = async (from: string, to: string) => {
+    setLoading(true);
+    try {
+      const [revenue, orders, best, stock, returned] = await Promise.all([
+        adminService.getRevenueStats(from, to),
+        adminService.getOrderStats(from, to),
+        adminService.getBestSellers(),
+        adminService.getMostStock(),
+        adminService.getMostReturned(),
+      ]);
+
+      setRevenueStats(revenue.data);
+      setOrderStats(orders.data);
+      setBestSellers(best.data);
+      setMostStock(stock.data);
+      setMostReturned(returned.data);
+    } catch (err) {
+      console.error("Fetch statistic failed", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const today = new Date();
+    const last7Days = new Date();
+    last7Days.setDate(today.getDate() - 7);
+
+    const formatDate = (d: Date) => d.toISOString().split("T")[0];
+    const from = formatDate(last7Days);
+    const to = formatDate(today);
+
+    setFromDate(from);
+    setToDate(to);
+
+    fetchStats(from, to);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="text-center mt-5">
+        <div className="spinner-border text-primary" role="status"></div>
+        <p className="mt-3">Đang tải thống kê...</p>
+      </div>
+    );
+  }
+
+  const dailyRevenueChart =
+    revenueStats?.dailyRevenue?.length > 0
+      ? {
+          labels: revenueStats.dailyRevenue.map((d: any) => d.date),
+          datasets: [
+            {
+              label: "Doanh thu (VND)",
+              data: revenueStats.dailyRevenue.map((d: any) => d.revenue),
+              fill: true,
+              backgroundColor: "rgba(54, 162, 235, 0.2)",
+              borderColor: "rgba(54, 162, 235, 1)",
+            },
+          ],
+        }
+      : null;
+
+  const dailyOrdersChart =
+    orderStats?.dailyOrders?.length > 0
+      ? {
+          labels: orderStats.dailyOrders.map((d: any) => d.date),
+          datasets: [
+            {
+              label: "Số đơn hàng",
+              data: orderStats.dailyOrders.map((d: any) => d.count),
+              backgroundColor: "rgba(255, 206, 86, 0.6)",
+            },
+          ],
+        }
+      : null;
+
+      const orderStatusChart = orderStats
+      ? {
+          labels: [
+            "Đã hoàn thành",
+            "Chờ xử lý",
+            "Đã hủy",
+            "Đã xác nhận",
+            "Đã giao",
+            "Đang vận chuyển"
+          ],
+          datasets: [
+            {
+              label: "Trạng thái đơn hàng",
+              data: [
+                orderStats.completed ?? 0,
+                orderStats.pending ?? 0,
+                orderStats.cancelled ?? 0,
+                orderStats.confirmed ?? 0,
+                orderStats.delivered ?? 0,
+                orderStats.shipped ?? 0,
+              ],
+              backgroundColor: [
+                "#198754", // completed
+                "#ffc107", // pending
+                "#dc3545", // cancelled
+                "#0d6efd", // confirmed
+                "#20c997", // delivered
+                "#6f42c1", // shipped
+              ],
+            },
+          ],
+        }
+      : null;
+    
+
+  return (
+    <div className="container static-container">
+      <h2 className="mb-4 fw-bold">
+        {"Thống kê hệ thống".toUpperCase()}{" "}
+        <button className="btn btn-link" onClick={() => navigate("/admin")}>
+          Quay lại
+        </button>
+      </h2>
+
+      <div className="row mb-4">
+        <div className="col-md-6">
+          <div className="card border-primary">
+            <div className="card-body">
+              <h5 className="card-title">Tổng doanh thu</h5>
+              <p className="card-text fs-4 text-success">
+                {revenueStats?.totalRevenue?.toLocaleString() ?? "0"} VND
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-6">
+          <div className="card border-info">
+            <div className="card-body">
+              <h5 className="card-title">Số đơn hàng trong doanh thu:</h5>
+              <p className="card-text fs-4">
+                {revenueStats?.ordersCount ?? 0}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="row mb-4">
+        <div className="col-md-3">
+          <label>Từ ngày</label>
+          <input
+            type="date"
+            className="form-control"
+            value={fromDate}
+            onChange={(e) => setFromDate(e.target.value)}
+          />
+        </div>
+        <div className="col-md-3">
+          <label>Đến ngày</label>
+          <input
+            type="date"
+            className="form-control"
+            value={toDate}
+            onChange={(e) => setToDate(e.target.value)}
+          />
+        </div>
+        <div className="col-md-3 d-flex align-items-end">
+          <button
+            className="btn btn-primary w-100"
+            onClick={() => fetchStats(fromDate, toDate)}
+            disabled={!fromDate || !toDate}
+          >
+            Lọc thống kê
+          </button>
+        </div>
+      </div>
+
+      <div className="row mb-4">
+        <div className="col-md-6">
+          <h5>Biểu đồ doanh thu theo ngày</h5>
+          {dailyRevenueChart ? (
+            <Line data={dailyRevenueChart} />
+          ) : (
+            <p>Không có dữ liệu doanh thu.</p>
+          )}
+        </div>
+        <div className="col-md-6">
+          <h5>Biểu đồ số đơn hàng theo ngày</h5>
+          {dailyOrdersChart ? (
+            <Bar data={dailyOrdersChart} />
+          ) : (
+            <p>Không có dữ liệu đơn hàng.</p>
+          )}
+        </div>
+      </div>
+
+      <div className="row mb-4">
+        <div className="col-md-6">
+          <h5>Biểu đồ trạng thái đơn hàng</h5>
+          {orderStatusChart ? (
+            <Pie data={orderStatusChart} />
+          ) : (
+            <p>Không có dữ liệu trạng thái đơn hàng.</p>
+          )}
+        </div>
+      </div>
+
+      <div className="row">
+        <div className="col-md-4">
+          <h5>Bán chạy nhất:</h5>
+          <ul className="list-group">
+            {bestSellers.map((product) => (
+              <li
+                key={product._id}
+                className="list-group-item d-flex justify-content-between"
+              >
+                {product.name}
+                <span className="badge bg-success">{product.sold}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="col-md-4">
+          <h5>Tồn kho nhiều nhất:</h5>
+          <ul className="list-group">
+            {mostStock.map((product) => (
+              <li
+                key={product._id}
+                className="list-group-item d-flex justify-content-between"
+              >
+                {product.name}
+                <span className="badge bg-warning text-dark">
+                  {product.stock}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="col-md-4">
+          <h5>Trả lại nhiều nhất:</h5>
+          <ul className="list-group">
+            {mostReturned.map((product) => (
+              <li
+                key={product._id}
+                className="list-group-item d-flex justify-content-between"
+              >
+                {product.name}
+                <span className="badge bg-danger">{product.returned}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    </div>
+  );
+}
