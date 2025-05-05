@@ -20,13 +20,17 @@ const userSchema = new mongoose.Schema({
   address: { type: String, required: false },
   password: {
     type: String,
-    required: [true, "Please provide a password!"],
+    required: function () {
+      return !this.uid;
+    },
     minlength: 8,
     select: false,
   },
   passwordConfirm: {
     type: String,
-    required: [true, "Please confirm your password"],
+    required: function () {
+      return !this.uid;
+    },
     validate: {
       validator: function (el) {
         return this.password === el;
@@ -44,9 +48,13 @@ const userSchema = new mongoose.Schema({
     default: true,
     select: false,
   },
+  refreshToken: { type: String, default: "" },
 });
 
 userSchema.pre("save", async function (next) {
+  if (this.isModified("refreshToken")) {
+    return next();
+  }
   if (!this.isModified("password")) return next();
 
   this.password = await bcrypt.hash(this.password, 12);
@@ -55,6 +63,9 @@ userSchema.pre("save", async function (next) {
 });
 
 userSchema.pre("save", async function (next) {
+  if (this.isModified("refreshToken")) {
+    return next();
+  }
   if (!this.isModified("password") || this.isNew) return next();
 
   this.passwordChangeAt = Date.now() - 1000;

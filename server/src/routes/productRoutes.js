@@ -1,5 +1,6 @@
 const express = require(`express`);
 
+const reviewRouter = require("../routes/reviewRoutes");
 const productController = require(`../controllers/productController`);
 const authController = require("../controllers/authController");
 
@@ -21,7 +22,17 @@ router
 router
   .route(`/:id`)
   .get(productController.getProduct)
-  .patch(productController.updateProduct)
-  .delete(productController.deleteProduct);
+  .patch(
+    authController.protect,
+    authController.restrictTo("admin"),
+    productController.updateProduct
+  )
+  .delete(
+    authController.protect,
+    authController.restrictTo("admin"),
+    productController.deleteProduct
+  );
+
+router.use("/:productId/reviews", reviewRouter);
 
 module.exports = router;

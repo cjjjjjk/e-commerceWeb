@@ -86,7 +86,12 @@
             }
         }
     }
-
+    .result-container {
+        width: 72rem;
+        max-width: 90vw;
+        height: 40rem;
+        max-height: 90vh;
+    }
 } 
 .cate-option-item {
     padding-left: 1rem;
@@ -128,6 +133,39 @@
         font-weight: bold;
     }
 }
+
+.product-item {
+    align-self: self-start;
+    height: fit-content !important;
+    width: 48%;
+    padding: 0.5rem 1rem;
+    text-align: start;
+    border-left: solid 4px gray;
+
+    transition: all 0.1s ease-in-out;
+
+    &:hover {
+        cursor: pointer;
+        background-color: whitesmoke;
+        border-left:solid 4px red;
+        color: black;
+        font-weight: bold;
+    }
+} 
+.product-item-img {
+    height: 20rem;
+    margin-right: 1rem;
+    float : left;
+    max-height: 20rem;
+    object-fit: contain;
+    border-radius: 0.5rem;
+    box-shadow: 3px 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.card-info {
+    float: left;
+}
+
 @media (max-width: 768px) {
     .navi-full-container {
         z-index: 50 !important;

@@ -79,7 +79,7 @@ const Layout: React.FC = function() {
                                     colors: product.colors || [],
                                     isWishlist: false || false,
                                     name: product.name || "NAMENAME",
-                                    price: String(product.price) || "999,999",
+                                    price: String(product.priceMap?.[Object.keys(product.priceMap || {})[0]]?.toLocaleString()) || "999,999",
                                     id: product._id || "NOTFOUND",
                                 }
 

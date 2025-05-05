@@ -17,7 +17,15 @@ router
 router
   .route(`/:id`)
   .get(categoryController.getCategory)
-  .patch(categoryController.updateCategory)
-  .delete(categoryController.deleteCategory);
+  .patch(
+    authController.protect,
+    authController.restrictTo("admin"),
+    categoryController.updateCategory
+  )
+  .delete(
+    authController.protect,
+    authController.restrictTo("admin"),
+    categoryController.deleteCategory
+  );
 
 module.exports = router;

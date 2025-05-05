@@ -35,7 +35,7 @@ exports.updateMe = async (req, res) => {
       });
     }
 
-    const filteredBody = filterObj(req.body, "displayName", "email");
+    const filteredBody = filterObj(req.body, "displayName", "email", "address", "phone");
     console.log(filteredBody);
     const updatedUser = await User.findByIdAndUpdate(
       req.user.id,
@@ -57,11 +57,31 @@ exports.updateMe = async (req, res) => {
   }
 };
 
-exports.getUser = (req, res) => {
-  res.status(500).json({
-    status: "fail",
-    message: "This route is not defined!",
-  });
+// Get User data to display.
+exports.getUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({
+        status: "fail",
+        message: "User not found",
+      });
+    }
+    res.status(200).json({
+      status: "success",
+      data: { user },
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "Internal server error",
+    });
+  }
+};
+
+exports.getMe = (req, res, next) => {
+  req.params.id = req.user.id;
+  next(); 
 };
 
 exports.createUser = (req, res) => {
@@ -78,72 +98,24 @@ exports.updateUser = (req, res) => {
   });
 };
 
-exports.deleteUser = (req, res) => {
-  res.status(500).json({
-    status: "fail",
-    message: "This route is not defined!",
-  });
-};
-
-exports.googleSignIn = async (req, res) => {
+exports.deleteUser = async (req, res) => {
   try {
-    const { uid, email, displayName, photoUrl, emailVerified } = req.body;
-
-    if (!uid || !email) {
-      return res.status(400).json({ message: "Props Missing ?" });
-    }
-
-    let user = await User.findOne({ email });
+    const user = await User.findByIdAndDelete(req.params.id);
 
     if (!user) {
-      user = new User({
-        authProvider: "google",
-        uid,
-        email,
-        emailVerified,
-        displayName,
-        photoUrl,
-        role: "user",
+      return res.status(404).json({
+        status: "fail",
+        message: "The user belong to this ID doesn't exist!",
       });
-
-      await user.save();
     }
-
-    res.json({ code: "success", user });
-  } catch (error) {
-    console.error("Google Sign-In err: ", error);
-    res.status(500).json({ message: "Server Err!" });
-  }
-};
-
-exports.googleSignIn = async (req, res) => {
-  try {
-    const { uid, email, displayName, photoUrl, emailVerified } = req.body;
-
-    if (!uid || !email) {
-      return res.status(400).json({ message: "Props Missing ?" });
-    }
-
-    let user = await User.findOne({ email });
-
-    if (!user) {
-      user = new User({
-        authProvider: "google",
-        uid,
-        email,
-        emailVerified,
-        displayName,
-        photoUrl,
-        role: "user",
-      });
-
-      await user.save();
-    }
-
-    res.json({code: 'success', user });
-
-  } catch (error) {
-    console.error("Google Sign-In err: ", error);
-    res.status(500).json({ message: "Server Err!" });
+    res.status(204).json({
+      status: "fail",
+      data: null,
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "fail",
+      message: err.message,
+    });
   }
 };

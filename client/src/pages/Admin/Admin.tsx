@@ -4,17 +4,54 @@ import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { addToast } from 'shared/components/toast/toastSlice';
 import {SetLoadingNaviBar} from 'shared/navi/navigateSlice'
+import adminService  from './adminService';
+import { useNavigate } from 'react-router-dom';
 
 const API_URL = process.env.REACT_APP_API_URL
 
-const Item = ({ object, onSelect }: { object: any, onSelect: (obj: any) => void }) => (
-    <div 
-        onClick={() => onSelect(object)}
-        className='item'
-    >
-        {object.name + (object._id ? ` Id:${object._id}` : "")}
-    </div>
-);
+const Item = ({ object, onSelect, index }: { object: any, onSelect: (obj: any) => void, index: number }) => {
+    const name = object.name ?? object.shippingAddress?.name ?? "";
+    const status: string | undefined = object.status;
+    const idText = object._id ? ` ID: ${object._id}` : "";
+
+    const getStatusMeta = (status: string): { label: string, style: string } => {
+        switch (status) {
+            case "pending":
+                return { label: "Chờ xử lý", style: "btn-outline-secondary" };
+            case "confirmed":
+                return { label: "Đã xác nhận", style: "btn-outline-primary" };
+            case "shipped":
+                return { label: "Đã gửi hàng", style: "btn-outline-warning" };
+            case "delivered":
+                return { label: "Đã giao", style: "btn-outline-success" };
+            case "cancelled":
+                return { label: "Đã hủy", style: "btn-outline-danger" };
+            default:
+                return { label: "Không rõ", style: "btn-outline-dark" };
+        }
+    };
+
+    return (
+        <div onClick={() => onSelect(object)} className='item d-flex justify-content-between align-items-center'>
+            <div>
+                <strong>{`${index + 1}. ${name}`}</strong>
+                <span>{idText}</span>
+            </div>
+            {
+                status && (() => {
+                    const { label, style } = getStatusMeta(status);
+                    return (
+                        <button className={`btn btn-sm fw-bold ${style}`} disabled>
+                            {label}
+                        </button>
+                    );
+                })()
+            }
+        </div>
+    );
+};
+
+
 
 const JsonCraw = ({type, object, onClose, isCreate }: {type:string, object: any, onClose: ()=>void, isCreate: boolean }) => {
     // Toast
@@ -25,20 +62,64 @@ const JsonCraw = ({type, object, onClose, isCreate }: {type:string, object: any,
     // Json
     const cleanedObject = { ...object };
     delete cleanedObject._id;
+    // 
+    const [orderStatus, setOrderStatus] = useState(object.status ?? "pending");
+    const statusOptions = ["pending", "confirmed", "shipped", "delivered", "cancelled"];
 
     const [jsonValue, setJsonValue] = useState(JSON.stringify(cleanedObject, null, 2));
     const [tempValue, setTempValue] = useState(jsonValue);
+
+    const getStatusMeta = (status: string): { label: string, style: string } => {
+        switch (status) {
+            case "pending":
+                return { label: "Chờ xử lý", style: "btn-outline-secondary" };
+            case "confirmed":
+                return { label: "Đã xác nhận", style: "btn-outline-primary" };
+            case "shipped":
+                return { label: "Đã gửi hàng", style: "btn-outline-warning" };
+            case "delivered":
+                return { label: "Đã giao", style: "btn-outline-success" };
+            case "cancelled":
+                return { label: "Đã hủy", style: "btn-outline-danger" };
+            default:
+                return { label: "Không rõ", style: "btn-outline-dark" };
+        }
+    };
+
 
     const handleSave = () => { // Save or Create
         try {
             setJsonValue(tempValue);
             console.log("Saved JSON:", JSON.parse(tempValue));
+            if (type === "orders") {
+                adminService.updateOrderStatus(object._id, orderStatus as any)
+                    .then(() => {
+                        showToast("Cập nhật trạng thái đơn hàng thành công", "success");
+                        onClose();
+                    })
+                    .catch(() => {
+                        showToast("Cập nhật trạng thái đơn hàng thất bại", "error");
+                    });
+                return;
+            }
 
             if(isCreate) {
-                axios.post(`${API_URL}/${type}`,JSON.parse(tempValue)).then((res:any)=> {
-                    showToast(res.statusText || "Không biết", res.data.status || "info");
-                    onClose();
-                })
+                if(type === "products") {
+                    adminService.createProduct(JSON.parse(tempValue)).then((res:any)=> {
+                        showToast("Tạo mới sản phẩm thành công", res.data.status || "info");
+                        onClose();
+                    }).catch((error) => {
+                        showToast("Tạo mới không thành công", "error");
+                    });
+                } 
+                else if(type === "categories") {
+                    adminService.createCategory(JSON.parse(tempValue)).then((res:any)=> {
+                        showToast("Tạo mới danh mục thành công", res.data.status || "info");
+                        onClose();
+                    }).catch((error) => {
+                        showToast("Tạo mới không thành công", "error");
+                    });
+                }
             }
 
         } catch (error) {
@@ -67,14 +148,45 @@ const JsonCraw = ({type, object, onClose, isCreate }: {type:string, object: any,
     };
 
     return (
-        <div className="position-fixed top-50 start-50 translate-middle p-4 bg-white shadow-lg rounded border d-flex flex-column" style={{ width: "1200px", height:'700px' }}>
+        <div className="position-fixed z-3 top-50 start-50 translate-middle p-4 bg-white shadow-lg rounded border d-flex flex-column" style={{ width: "1200px", height:'700px' }}>
+            <div className="mb-3">
+                <h5>
+                    {isCreate 
+                        ? "TẠO MỚI" 
+                        : type === "orders" 
+                        ? "CẬP NHẬT TRẠNG THÁI" 
+                        : "CHỈNH SỬA"}: {type.toUpperCase()}
+                    {" - "}
+                    {object.name ?? object.shippingAddress?.name ?? object._id ?? "Không rõ"}
+                </h5>
+            </div>
             <textarea
                 className="form-control mb-3 flex-grow-1"
                 rows={6}
                 value={tempValue}
                 onChange={(e) => setTempValue(e.target.value)}
+                disabled={type === 'orders'}
             />
             <div className="d-flex justify-content-end gap-3">
+                {type === "orders" && 
+                    <div className="d-flex align-items-center me-auto gap-1">
+                        <button  className={"text-nowrap btn "+ getStatusMeta(orderStatus).style} disabled>Trạng thái:</button>
+                        <select
+                            className="form-select"
+                            value={orderStatus}
+                            onChange={(e) => setOrderStatus(e.target.value)}
+                        >
+                            {statusOptions.map((status) => {
+                                const { label, style } = getStatusMeta(status);
+                                return (
+                                    <option key={status} value={status}>
+                                        {label}
+                                    </option>
+                                );
+                            })}
+                        </select>
+                    </div>
+                }   
                 <button className="btn btn-danger" onClick={handleDelete}>Xóa</button>
                 <button className="btn btn-secondary" onClick={handleExit}>Hủy</button>
                 <button className="btn btn-primary" onClick={handleSave}>Lưu</button>
@@ -83,6 +195,7 @@ const JsonCraw = ({type, object, onClose, isCreate }: {type:string, object: any,
     );
 };
 export default function Admin() {
+    const navigate = useNavigate();
     const dispatch = useDispatch();
     const showToast = (message: string, type: "success" | "error" | "info", link?: string) => {
       dispatch(addToast({ message, type , link}));
@@ -114,7 +227,7 @@ export default function Admin() {
         if(type === "categories") {
             SetSelectedObject(emptyObject);
             
-        } else if (type === "product") {
+        } else if (type === "products") {
             SetSelectedObject(emptyObject);
         }
         else {
@@ -126,6 +239,16 @@ export default function Admin() {
         dispatch(SetLoadingNaviBar())
         SetIsUpdate(!isUpdate);
     }
+    useEffect(()=>{
+        const guardCheck = async ()=>{
+            if(!(await adminService.checkAdmin())){
+                showToast('Bạn không có quyền truy cập trang này', 'error')
+                navigate('/member')   
+            }
+        }
+        guardCheck();
+    },[])
+
     // FETCH DATAS ================================================================
     const fetchData = async (url: string, setter: (data: any) => void) => {
         try {
@@ -147,10 +270,19 @@ export default function Admin() {
     useEffect(() => {
         Promise.all([
             fetchData(`${API_URL}/products?page=1&limit=15`, SetProductList),
-            fetchData(`${API_URL}/orders?page=1&limit=20`,SetOrderList ),
             fetchData(`${API_URL}/categories`, SetCateList)
-        ]).catch(() => showToast("Lỗi gì đấy không biết", "error"));
-    }, [isUpdate, ]);
+        ]).catch(() => showToast("Lỗi", "error"));
+
+        const fetchOrder= async ()=>{
+        try {
+            const orderRes = await adminService.getAllOrder({page: 1, limit: 20})
+            SetOrderList(orderRes.data.data.orders??[]);
+        } catch(err){
+            showToast("Lỗi", "error")
+        }
+        }
+        fetchOrder();
+    }, [isUpdate ]);
     // =============================================================================
 
     return (
@@ -170,8 +302,12 @@ export default function Admin() {
                         {
                             orderList && orderList.map((obj, index) => 
                                 <Item
-                                    onSelect={(obj: any)=>{handleSelect('order', obj)}}
-                                    key={index} object={obj} />)
+                                    onSelect={(obj: any)=>{handleSelect('orders', obj)}}
+                                    key={index}
+                                    object={obj}
+                                    index={index}
+                                />
+                            )
                         }
                         </div>
                     </div>
@@ -189,7 +325,14 @@ export default function Admin() {
                             </div>
                             <div className='list'>
                                 {
-                                    cateList && cateList.map((obj, index) => <Item onSelect={(obj: any)=>{handleSelect('categories', obj)}} key={index} object={obj} />)
+                                    cateList && cateList.map((obj, index) => 
+                                        <Item
+                                            onSelect={(obj: any)=>{handleSelect('categories', obj)}}
+                                            key={index}
+                                            object={obj}
+                                            index={index}
+                                        />
+                                    )
                                 }
                             </div>
                         </div>
@@ -200,13 +343,20 @@ export default function Admin() {
                                 <h4>SẢN PHẨM</h4>
                                 <input type="text" placeholder='Tìm kiếm' />
                                 <button 
-                                    onClick={()=>{handleCreate('product')}}
+                                    onClick={()=>{handleCreate('products')}}
                                     className="btn btn-success pi pi-plus">
                                 </button>
                             </div>
                             <div className='list'>
                                 {
-                                    productList && productList.map((obj, index) => <Item onSelect={(obj: any)=>{handleSelect('product', obj)}} key={index} object={obj} />)
+                                    productList && productList.map((obj, index) => 
+                                        <Item
+                                            onSelect={(obj: any)=>{handleSelect('products', obj)}}
+                                            key={index}
+                                            object={obj}
+                                            index={index}
+                                        />
+                                    )
                                 }
                             </div>
                         </div>

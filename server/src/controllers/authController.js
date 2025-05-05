@@ -1,7 +1,8 @@
 const jwt = require("jsonwebtoken");
 const { promisify } = require("util");
 const User = require("./../models/userModel");
-const sendEmail = require("./../utils/email");
+const Cart = require("./../models/cartModel");
+const Email = require("./../utils/email");
 const crypto = require("crypto");
 
 const signToken = (id) => {
@@ -10,8 +11,15 @@ const signToken = (id) => {
   });
 };
 
+const signRefreshToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: '7d', 
+  });
+};
+
 const createSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
+  const refreshToken = signRefreshToken(user._id)
 
   const cookieOptions = {
     expires: new Date(
@@ -23,25 +31,57 @@ const createSendToken = (user, statusCode, res) => {
   if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
 
   res.cookie("jwt", token, cookieOptions);
-  user.password = undefined;
+  res.cookie("refresh_token", refreshToken, {
+    expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production"
+  });
 
+  user.refreshToken = refreshToken;
+  user.save({ validateBeforeSave: false })
+
+  const {password, ...userData}= user;
+
+  // const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+  // const authClient = `${clientUrl}/auth?token=${token}`;
+  // res.redirect(authClient);
   res.status(statusCode).json({
     status: "success",
     token,
+    refreshToken,
     data: {
-      user,
+      ...userData
     },
   });
 };
 
 exports.signup = async (req, res, next) => {
   try {
+    const avatars = [
+      "https://i.imgur.com/VAhQIqV.png",
+      "https://i.imgur.com/btiIFHP.png",
+      "https://i.imgur.com/aJKfWLf.png",
+      "https://i.imgur.com/padyuTG.png",
+      "https://i.imgur.com/Sb3bqmw.png",
+      "https://i.imgur.com/Aoja6dx.png"
+    ];
+    const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
+
     const newUser = await User.create({
       name: req.body.name,
       email: req.body.email,
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,
+      photoUrl: randomAvatar
     });
+    // console.log(newUser);
+
+    const cart = await Cart.create({
+      userId: newUser._id,
+      items: [],
+    });
+
+    await cart.save();
 
     createSendToken(newUser, 201, res);
   } catch (err) {
@@ -64,9 +104,7 @@ exports.login = async (req, res) => {
     }
 
     // Check if user exist and password is correct
-    console.log(email);
     const user = await User.findOne({ email: email }).select("+password");
-    console.log(user);
 
     if (!user || !(await user.correctPassword(password, user.password))) {
       return res.status(401).json({
@@ -94,6 +132,8 @@ exports.protect = async (req, res, next) => {
       req.headers.authorization.startsWith("Bearer")
     ) {
       token = req.headers.authorization.split(" ")[1];
+    } else if (req.cookies.jwt) {
+      token = req.cookies.jwt;
     }
 
     if (!token) {
@@ -161,18 +201,12 @@ exports.forgotPassword = async (req, res, next) => {
     const resetToken = user.createResetPasswordToken();
     await user.save({ validateBeforeSave: false });
 
-    const resetURL = `${req.protocol}://${req.get(
-      "host"
-    )}/api/v1/users/resetPassword/${resetToken}`;
-    const message = `Forgot your password? Submit a PATCH request with your password and
-  passwordConfirm to ${resetURL}.\n If you didn't forget your password, please ignore this email!`;
-
     try {
-      await sendEmail({
-        email: user.email,
-        subject: "Your password reset token (valid in 10 mins)",
-        message,
-      });
+      const resetURL = `${req.protocol}://${req.get(
+        "host"
+      )}/api/v1/users/resetPassword/${resetToken}`;
+
+      await new Email(user, resetURL).sendPasswordReset();
 
       res.status(200).json({
         status: "success",
@@ -253,6 +287,86 @@ exports.updatePassword = async (req, res, next) => {
     res.status(500).json({
       status: "fail",
       message: err.message,
+    });
+  }
+};
+
+exports.logout = (req, res) => {
+  res.cookie("jwt", "loggedout", {
+    expires: new Date(Date.now() + 10 * 1000),
+    httpOnly: true,
+  });
+  res.status(200).json({ status: "success" });
+};
+
+exports.googleLogin = (req, res) => {
+  const user = req.user;
+  const token = signToken(user._id);
+  const refreshToken = signRefreshToken(user._id);
+
+  const cookieOptions = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+
+  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+
+  res.cookie("jwt", token, cookieOptions);
+  res.cookie("refresh_token", refreshToken, cookieOptions);
+
+  user.refreshToken = refreshToken;
+  user.save();
+
+  user.password = undefined;
+
+  // const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
+  // const authClient = `${clientUrl}/auth?token=${token}`;
+  // res.redirect(authClient);
+  // if (user.role == "user")
+  //   return res.redirect(`${process.env.FRONTEND_URL}/member`);
+  // else return res.redirect(`${process.env.FRONTEND_URL}/admin`);
+  return res.redirect(`${process.env.FRONTEND_URL}/auth?token=${token}`);
+};
+
+// refresh Token:
+exports.refreshToken = async (req, res) => {
+  const refreshToken = req.cookies.refresh_token;
+
+  if (!refreshToken) {
+    return res.status(401).json({
+      status: "fail",
+      message: "Refresh token not found. Please log in again.",
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.JWT_SECRET);
+
+    const currentUser = await User.findById(decoded.id);
+    if (!currentUser) {
+      return res.status(401).json({
+        status: "fail",
+        message: "User not found. Please log in again.",
+      });
+    }
+
+    const newAccessToken = jwt.sign(
+      { id: currentUser._id },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN } 
+    );
+
+    res.status(200).json({
+      status: "success",
+      token: newAccessToken,
+    });
+  } catch (error) {
+    console.log(error)
+    return res.status(401).json({
+      status: "fail",
+      message: "Invalid refresh token. Please log in again.",
     });
   }
 };
