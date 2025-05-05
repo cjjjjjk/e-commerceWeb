@@ -24,7 +24,7 @@ const Cart = lazy(() => import("./pages/Cart/Cart"));
 const Layout = lazy(() => import("./pages/Layout/Layout"));
 const Product = lazy(()=> import("./pages/Products/Product"));
 const Admin = lazy(()=> import("./pages/Admin/Admin"))
-const Statistic = lazy(()=> import('./pages/Admin/Statistic/Statistic'))
+const Statistic = lazy(()=> import('./pages/Admin/statistic/Statistic'))
 
 const RouteChangeHandler = () => {
   const location = useLocation();

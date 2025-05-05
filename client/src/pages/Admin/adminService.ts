@@ -64,8 +64,20 @@ const adminService = {
     return api.post("/products", data);
   },
 
+  deleteProduct: async(id: string) =>{
+    return api.delete(`/products/${id}`)
+  },
+
   createCategory: async (data: any) => {
     return api.post("/categories", data);
+  },
+
+  deleteCategory: async (id: string)=>{
+  return api.delete(`/categories/${id}`);
+  },
+
+  getAllProducts: async(req:{page: number, limit: number} ) =>{
+    return api.get(`/products?page=${req.page}&limit=${req.limit}`);
   },
 
   getAllOrder: async(req: {page: number, limit: number})=>{

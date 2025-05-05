@@ -56,12 +56,24 @@ class APIFeatures {
     return this;
   }
 
+
   paginate() {
     const page = this.queryString.page * 1 || 1;
     const limit = this.queryString.limit * 1 || 20;
     const skip = (page - 1) * limit;
     this.query = this.query.skip(skip).limit(limit);
+
+    this.totalCountQuery = this.query.model.countDocuments();  
+    this.totalPages = 0;
     return this;
+  }
+  async getTotalPages() {
+    if (this.totalCountQuery) {
+      const totalCount = await this.totalCountQuery;
+      const limit = this.queryString.limit * 1 || 20;
+      this.totalPages = Math.ceil(totalCount / limit);
+    }
+    return this.totalPages;
   }
 }
 

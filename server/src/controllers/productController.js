@@ -12,10 +12,12 @@ exports.getAllProducts = async (req, res) => {
       .limitFields()
       .paginate();
     const products = await features.query;
+    const totalPages = await features.getTotalPages();
 
     res.status(200).json({
       status: "success",
       numOfProducts: products.length,
+      totalPages,
       data: {
         products,
       },

@@ -51,6 +51,7 @@ export default function Statistic() {
         adminService.getMostReturned(),
       ]);
 
+      console.log(orders)
       setRevenueStats(revenue.data);
       setOrderStats(orders.data);
       setBestSellers(best.data);
@@ -64,20 +65,18 @@ export default function Statistic() {
   };
 
   useEffect(() => {
-    const today = new Date();
-    const last7Days = new Date();
-    last7Days.setDate(today.getDate() - 7);
-
     const formatDate = (d: Date) => d.toISOString().split("T")[0];
-    const from = formatDate(last7Days);
-    const to = formatDate(today);
-
+  
+    const today = new Date();
+    const from = formatDate(new Date(today.setDate(today.getDate() - 7)));
+    const to = formatDate(new Date(Date.now() + 86400000));
+  
     setFromDate(from);
     setToDate(to);
-
+  
     fetchStats(from, to);
   }, []);
-
+  
   if (loading) {
     return (
       <div className="text-center mt-5">
@@ -120,7 +119,6 @@ export default function Statistic() {
       const orderStatusChart = orderStats
       ? {
           labels: [
-            "Đã hoàn thành",
             "Chờ xử lý",
             "Đã hủy",
             "Đã xác nhận",
@@ -131,7 +129,6 @@ export default function Statistic() {
             {
               label: "Trạng thái đơn hàng",
               data: [
-                orderStats.completed ?? 0,
                 orderStats.pending ?? 0,
                 orderStats.cancelled ?? 0,
                 orderStats.confirmed ?? 0,
@@ -139,18 +136,46 @@ export default function Statistic() {
                 orderStats.shipped ?? 0,
               ],
               backgroundColor: [
-                "#198754", // completed
-                "#ffc107", // pending
-                "#dc3545", // cancelled
-                "#0d6efd", // confirmed
-                "#20c997", // delivered
-                "#6f42c1", // shipped
+                "#ffc107",
+                "#dc3545",
+                "#0d6efd",
+                "#20c997",
+                "#6f42c1",
               ],
             },
           ],
         }
       : null;
-    
+      const orderStatusBarChart = orderStats
+      ? {
+          labels: [
+            "Chờ xử lý",
+            "Đã hủy",
+            "Đã xác nhận",
+            "Đã giao",
+            "Đang vận chuyển"
+          ],
+          datasets: [
+            {
+              label: "Số lượng đơn hàng",
+              data: [
+                orderStats.pending ?? 0,
+                orderStats.cancelled ?? 0,
+                orderStats.confirmed ?? 0,
+                orderStats.delivered ?? 0,
+                orderStats.shipped ?? 0,
+              ],
+              backgroundColor: [
+                "#ffc107",
+                "#dc3545",
+                "#0d6efd",
+                "#20c997",
+                "#6f42c1",
+              ],
+            },
+          ],
+        }
+      : null;
 
   return (
     <div className="container static-container">
@@ -165,7 +190,7 @@ export default function Statistic() {
         <div className="col-md-6">
           <div className="card border-primary">
             <div className="card-body">
-              <h5 className="card-title">Tổng doanh thu</h5>
+              <h4 className="card-title">Tổng doanh thu</h4>
               <p className="card-text fs-4 text-success">
                 {revenueStats?.totalRevenue?.toLocaleString() ?? "0"} VND
               </p>
@@ -175,9 +200,11 @@ export default function Statistic() {
         <div className="col-md-6">
           <div className="card border-info">
             <div className="card-body">
-              <h5 className="card-title">Số đơn hàng trong doanh thu:</h5>
+              <h4 className="card-title">Đã giao:</h4>
               <p className="card-text fs-4">
-                {revenueStats?.ordersCount ?? 0}
+                <strong>
+                {String(revenueStats?.ordersCount ?? 0)+" Đơn hàng"}
+                </strong>
               </p>
             </div>
           </div>
@@ -215,7 +242,7 @@ export default function Statistic() {
 
       <div className="row mb-4">
         <div className="col-md-6">
-          <h5>Biểu đồ doanh thu theo ngày</h5>
+          <h4>Biểu đồ doanh thu theo ngày</h4>
           {dailyRevenueChart ? (
             <Line data={dailyRevenueChart} />
           ) : (
@@ -223,7 +250,7 @@ export default function Statistic() {
           )}
         </div>
         <div className="col-md-6">
-          <h5>Biểu đồ số đơn hàng theo ngày</h5>
+          <h4>Biểu đồ số đơn hàng theo ngày</h4>
           {dailyOrdersChart ? (
             <Bar data={dailyOrdersChart} />
           ) : (
@@ -232,20 +259,30 @@ export default function Statistic() {
         </div>
       </div>
 
-      <div className="row mb-4">
-        <div className="col-md-6">
-          <h5>Biểu đồ trạng thái đơn hàng</h5>
-          {orderStatusChart ? (
-            <Pie data={orderStatusChart} />
-          ) : (
-            <p>Không có dữ liệu trạng thái đơn hàng.</p>
-          )}
-        </div>
-      </div>
+  <hr />
+  <div className="row mb-4">
+    <div className="col-md-4">
+      <h4>Thống kê trạng thái: <strong>{`${orderStats.totalOrders} đơn hàng`}</strong></h4>
+      {orderStatusChart ? (
+        <Pie data={orderStatusChart} />
+      ) : (
+        <p>Không có dữ liệu trạng thái đơn hàng.</p>
+      )}
+    </div>
+    <div className="col-md-8">
+      <h4></h4>
+      {orderStatusBarChart ? (
+        <Bar data={orderStatusBarChart} options={{ responsive: true }} />
+      ) : (
+        <p>Không có dữ liệu đơn hàng theo tháng.</p>
+      )}
+    </div>
+  </div>
+  <hr />
 
       <div className="row">
         <div className="col-md-4">
-          <h5>Bán chạy nhất:</h5>
+          <h4>Bán chạy nhất:</h4>
           <ul className="list-group">
             {bestSellers.map((product) => (
               <li
@@ -260,7 +297,7 @@ export default function Statistic() {
         </div>
 
         <div className="col-md-4">
-          <h5>Tồn kho nhiều nhất:</h5>
+          <h4>Tồn kho nhiều nhất:</h4>
           <ul className="list-group">
             {mostStock.map((product) => (
               <li
@@ -277,7 +314,7 @@ export default function Statistic() {
         </div>
 
         <div className="col-md-4">
-          <h5>Trả lại nhiều nhất:</h5>
+          <h4>Trả lại nhiều nhất:</h4>
           <ul className="list-group">
             {mostReturned.map((product) => (
               <li

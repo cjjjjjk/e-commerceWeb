@@ -102,9 +102,11 @@ exports.getOrderStats = async (req, res) => {
     });
 
     const statusCount = {
-      completed: 0,
       pending: 0,
       cancelled: 0,
+      shipped: 0,
+      confirmed: 0,
+      delivered:0,
     };
 
     const dailyOrders = {};
