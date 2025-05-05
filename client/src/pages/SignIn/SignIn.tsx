@@ -1,17 +1,19 @@
 import "./signin.css";
-import "./signin.css";
 
 import { useState } from 'react';
 import {  useNavigate } from 'react-router-dom';
+import { useMediaQuery } from 'react-responsive'
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { addToast } from 'shared/components/toast/toastSlice';
 
 const API_URL = process.env.REACT_APP_API_URL;
-const API_URL = process.env.REACT_APP_API_URL;
 
 
 function SignIn() {
+  const isSmallScreen = useMediaQuery({ query: '(max-width: 992px)' });
+  const [smallScreenSwitch, setSmallScreenSwitch] = useState(false);
+
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
@@ -29,6 +31,13 @@ function SignIn() {
   ) => {
     dispatch(addToast({ message, type, link }));
   };
+
+  const handleSwitch = (e: { preventDefault: () => void }) => {
+    e.preventDefault();
+    if (!smallScreenSwitch) setSmallScreenSwitch(true);
+    else setSmallScreenSwitch(false);
+  }
+ 
   const handleLogin = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
@@ -78,41 +87,6 @@ function SignIn() {
       showToast("Đăng ký thất bại", "error");
     }
   };
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  const showToast = (
-    message: string,
-    type: "success" | "error" | "info",
-    link?: string
-  ) => {
-    dispatch(addToast({ message, type, link }));
-  };
-  const handleLogin = async (e: { preventDefault: () => void }) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post(`${API_URL}/users/login`, {
-        email,
-        password,
-      });
-      const { token, data } = res.data;
-      console.log(res.data);
-      console.log("SIGNIN RES:", res.data);
-      if (res.data.status === "success") {
-        localStorage.setItem("token", token);
-        showToast("Đăng nhập thành công", "success");
-        if (data.role === "admin") showToast("Bạn là ADMIN", "info", "/admin");
-        navigate("/member");
-      } else {
-        showToast("Đăng nhập thất bại", "error");
-      }
-    } catch (err) {
-      console.error(err);
-      showToast("Đăng nhập thất bại", "error");
-    }
-  };
 
   // SignIn with GG ====================================== author: Hai
   const GGSignIn = () => {
@@ -149,9 +123,10 @@ function SignIn() {
 
   return (
     <div className="signin-full-container h-100 w-100 p-5 d-flex flex-wrap justify-content-center align-items-center">
+      {(!isSmallScreen || !smallScreenSwitch )&&
       <form className="signin-form">
         <div className="signin-container d-flex flex-column align-items-baseline gap-4">
-          <h1 className="mt-4">ĐĂNG NHẬP</h1>
+          <h1 className="header mt-4">ĐĂNG NHẬP</h1>
           <fieldset>
             <input
               className="input email"
@@ -191,10 +166,13 @@ function SignIn() {
           </button>
         </div>
       </form>
+      }
+      {/*  */}
+      {(!isSmallScreen || smallScreenSwitch )&&
       <form className="signin-form">
         <div className="signin-container d-flex flex-column align-items-baseline gap-4">
           <p>Chưa có tài khoản?</p>
-          <h1 className="head-space">ĐĂNG KÝ NGAY</h1>
+          <h1 className="header head-space">ĐĂNG KÝ NGAY</h1>
           <fieldset className="head-space">
             <input
               className="input name"
@@ -205,7 +183,7 @@ function SignIn() {
             />
             <span className="label">Tên đăng nhập</span>
           </fieldset>
-          <fieldset>
+          <fieldset className="head-space">
             <input
               className="input email"
               type="text"
@@ -215,7 +193,7 @@ function SignIn() {
             />
             <span className="label">Email/Số điện thoại</span>
           </fieldset>
-          <fieldset>
+          <fieldset className="head-space">
             <input
               className="input password"
               type="password"
@@ -228,7 +206,7 @@ function SignIn() {
               Mật khẩu phải có từ 8 đến 20 kí tự bao gồm cả chữ và số.
             </p>
           </fieldset>
-          <fieldset className="head-space">
+          <fieldset className="extra-head-space">
             <input
               className="input password"
               type="password"
@@ -246,6 +224,13 @@ function SignIn() {
           </button>
         </div>
       </form>
+      }
+      {(isSmallScreen && !smallScreenSwitch )&&
+        <button className="switch-button p-1 extra-head-space" onClick={handleSwitch}>Chưa có tài khoản?<br></br> Đăng ký ngay</button>
+      }
+      {(isSmallScreen && smallScreenSwitch )&&
+        <button className="switch-button p-1 extra-head-space" onClick={handleSwitch}>Quay lại đăng nhập</button>
+      }
     </div>
   );
 }

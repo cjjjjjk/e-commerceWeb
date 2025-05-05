@@ -19,6 +19,10 @@
     }
 }
 
+.header {
+    color: #d0c937;
+}
+
 .signin {
     margin-top: -1.5rem;
     font-weight: bold;
@@ -32,7 +36,11 @@
 }
 
 .head-space {
-    margin-top: -2rem;
+    margin-top: -1rem;
+}
+
+.extra-head-space {
+    margin-top: -2.5rem;
 }
 
 fieldset {
@@ -76,5 +84,24 @@ fieldset {
             }
         }
     }
+}
+
+.switch-button {
+    position: relative;
+    align-self:first baseline;
+    display:inline-block;
+    background-color:transparent;
+    padding:0.35em 1.2em;
+    border:0.1em solid #000000;
+    margin:0 0.3em 0.3em 0;
+    border-radius:0.12em;
+    box-sizing: border-box;
+    color:#000000;
+    text-align:center;
+    transition: all 0.2s;
+}   
+.switch-button:hover{
+color:#000000;
+background-color:#FFFFFF;
 }
   
