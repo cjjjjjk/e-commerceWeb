@@ -4,6 +4,9 @@ const cors = require("cors");
 const morgan = require("morgan");
 const connectDB = require("./config/db");
 const cookieParser = require("cookie-parser");
+const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
+const xss = require("xss-clean");
 require("./config/passport");
 
 const userRoutes = require("./routes/userRoutes");
@@ -12,6 +15,7 @@ const categoryRoutes = require("./routes/categoryRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const cartRoutes = require("./routes/cartRoutes");
+const statisticRoutes = require("./routes/statisticRoutes");
 
 const Product = require(`./models/productModel`);
 
@@ -20,14 +24,22 @@ connectDB();
 
 const app = express();
 
+app.use(helmet());
+
 app.use(express.json());
+
+app.use(mongoSanitize());
+
+app.use(xss());
+
 app.use(cookieParser());
 
-
-app.use(cors({
-  origin: `${process.env.FRONTEND_URL ?? 'http://localhost:4000'}`,
-  credentials: true
-}));
+app.use(
+  cors({
+    origin: `${process.env.FRONTEND_URL ?? "http://localhost:4000"}`,
+    credentials: true,
+  })
+);
 app.use(morgan("dev"));
 
 app.use("/api/v1/users", userRoutes);
@@ -36,6 +48,7 @@ app.use("/api/v1/products", productRoutes);
 app.use("/api/v1/orders", orderRoutes);
 app.use("/api/v1/reviews", reviewRoutes);
 app.use("/api/v1/carts", cartRoutes);
+app.use("/api/v1/statistics", statisticRoutes);
 
 function getPreloadHref(path, query) {
   var reg = new RegExp(`([A-Za-z0-9\\-\\/]+)?`);
