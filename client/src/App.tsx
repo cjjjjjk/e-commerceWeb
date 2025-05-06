@@ -24,6 +24,7 @@ const Cart = lazy(() => import("./pages/Cart/Cart"));
 const Layout = lazy(() => import("./pages/Layout/Layout"));
 const Product = lazy(()=> import("./pages/Products/Product"));
 const Admin = lazy(()=> import("./pages/Admin/Admin"))
+const Statistic = lazy(()=> import('./pages/Admin/statistic/Statistic'))
 
 const RouteChangeHandler = () => {
   const location = useLocation();
@@ -69,6 +70,7 @@ function App() {
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/statistic" element={<Statistic />} />
 
           <Route path="/:section" element={<LayoutWraper />} />
           <Route path="/:section/:category" element={<LayoutWraper />} />

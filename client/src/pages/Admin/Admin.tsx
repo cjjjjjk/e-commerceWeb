@@ -1,370 +1,372 @@
-import { useEffect, useState } from 'react';
-import './admin.css'
-import axios from 'axios';
-import { useDispatch } from 'react-redux';
-import { addToast } from 'shared/components/toast/toastSlice';
-import {SetLoadingNaviBar} from 'shared/navi/navigateSlice'
-import adminService  from './adminService';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import axios from "axios";
+import './admin.css';
+import { useDispatch } from "react-redux";
+import { addToast } from "shared/components/toast/toastSlice";
+import adminService from "./adminService";
+import { useNavigate } from "react-router-dom";
 
-const API_URL = process.env.REACT_APP_API_URL
+// components
+import ProductModalComponent from "./components/productModal";
+import OrderModal from "./components/orderModal";
 
-const Item = ({ object, onSelect, index }: { object: any, onSelect: (obj: any) => void, index: number }) => {
-    const name = object.name ?? object.shippingAddress?.name ?? "";
-    const status: string | undefined = object.status;
-    const idText = object._id ? ` ID: ${object._id}` : "";
+import { getStatusMeta } from "./components/orderModal";
 
-    const getStatusMeta = (status: string): { label: string, style: string } => {
-        switch (status) {
-            case "pending":
-                return { label: "Chờ xử lý", style: "btn-outline-secondary" };
-            case "confirmed":
-                return { label: "Đã xác nhận", style: "btn-outline-primary" };
-            case "shipped":
-                return { label: "Đã gửi hàng", style: "btn-outline-warning" };
-            case "delivered":
-                return { label: "Đã giao", style: "btn-outline-success" };
-            case "cancelled":
-                return { label: "Đã hủy", style: "btn-outline-danger" };
-            default:
-                return { label: "Không rõ", style: "btn-outline-dark" };
-        }
-    };
+const API_URL = process.env.REACT_APP_API_URL;
 
-    return (
-        <div onClick={() => onSelect(object)} className='item d-flex justify-content-between align-items-center'>
-            <div>
-                <strong>{`${index + 1}. ${name}`}</strong>
-                <span>{idText}</span>
-            </div>
-            {
-                status && (() => {
-                    const { label, style } = getStatusMeta(status);
-                    return (
-                        <button className={`btn btn-sm fw-bold ${style}`} disabled>
-                            {label}
-                        </button>
-                    );
-                })()
-            }
-        </div>
-    );
-};
+const TABS = ["orders", "products", "categories"];
+const PAGE_LIMIT = 15;
 
-
-
-const JsonCraw = ({type, object, onClose, isCreate }: {type:string, object: any, onClose: ()=>void, isCreate: boolean }) => {
-    // Toast
-    const dispatch = useDispatch();
-    const showToast = (message: string, type: "success" | "error" | "info", link?: string) => {
-      dispatch(addToast({ message, type , link}));
-    };
-    // Json
-    const cleanedObject = { ...object };
-    delete cleanedObject._id;
-    // 
-    const [orderStatus, setOrderStatus] = useState(object.status ?? "pending");
-    const statusOptions = ["pending", "confirmed", "shipped", "delivered", "cancelled"];
-
-    const [jsonValue, setJsonValue] = useState(JSON.stringify(cleanedObject, null, 2));
-    const [tempValue, setTempValue] = useState(jsonValue);
-
-    const getStatusMeta = (status: string): { label: string, style: string } => {
-        switch (status) {
-            case "pending":
-                return { label: "Chờ xử lý", style: "btn-outline-secondary" };
-            case "confirmed":
-                return { label: "Đã xác nhận", style: "btn-outline-primary" };
-            case "shipped":
-                return { label: "Đã gửi hàng", style: "btn-outline-warning" };
-            case "delivered":
-                return { label: "Đã giao", style: "btn-outline-success" };
-            case "cancelled":
-                return { label: "Đã hủy", style: "btn-outline-danger" };
-            default:
-                return { label: "Không rõ", style: "btn-outline-dark" };
-        }
-    };
-
-
-    const handleSave = () => { // Save or Create
-        try {
-            setJsonValue(tempValue);
-            console.log("Saved JSON:", JSON.parse(tempValue));
-            if (type === "orders") {
-                adminService.updateOrderStatus(object._id, orderStatus as any)
-                    .then(() => {
-                        showToast("Cập nhật trạng thái đơn hàng thành công", "success");
-                        onClose();
-                    })
-                    .catch(() => {
-                        showToast("Cập nhật trạng thái đơn hàng thất bại", "error");
-                    });
-                return;
-            }
-
-            if(isCreate) {
-                if(type === "products") {
-                    adminService.createProduct(JSON.parse(tempValue)).then((res:any)=> {
-                        showToast("Tạo mới sản phẩm thành công", res.data.status || "info");
-                        onClose();
-                    }).catch((error) => {
-                        showToast("Tạo mới không thành công", "error");
-                    });
-                } 
-                else if(type === "categories") {
-                    adminService.createCategory(JSON.parse(tempValue)).then((res:any)=> {
-                        showToast("Tạo mới danh mục thành công", res.data.status || "info");
-                        onClose();
-                    }).catch((error) => {
-                        showToast("Tạo mới không thành công", "error");
-                    });
-                }
-            }
-
-        } catch (error) {
-            showToast("Dữ liệu không đúng định dạng", "error");
-        }
-    };
-
-    const handleExit = () => {
-        setTempValue(jsonValue);
-        onClose()
-    };
-
-    const handleDelete = () => {
-        setJsonValue("{}");
-        setTempValue("{}");
-        axios.delete(`${API_URL}/${type}/${object._id}`)
-            .then((res: any) => {
-                console.log(res)
-                if(res.data.status) showToast(res.data.statusText, res.data.status );
-                onClose();
-            })
-            .catch((error) => {
-                showToast("Xóa không thành công", "error");
-            });
-        
-    };
-
-    return (
-        <div className="position-fixed z-3 top-50 start-50 translate-middle p-4 bg-white shadow-lg rounded border d-flex flex-column" style={{ width: "1200px", height:'700px' }}>
-            <div className="mb-3">
-                <h5>
-                    {isCreate 
-                        ? "TẠO MỚI" 
-                        : type === "orders" 
-                        ? "CẬP NHẬT TRẠNG THÁI" 
-                        : "CHỈNH SỬA"}: {type.toUpperCase()}
-                    {" - "}
-                    {object.name ?? object.shippingAddress?.name ?? object._id ?? "Không rõ"}
-                </h5>
-            </div>
-            <textarea
-                className="form-control mb-3 flex-grow-1"
-                rows={6}
-                value={tempValue}
-                onChange={(e) => setTempValue(e.target.value)}
-                disabled={type === 'orders'}
-            />
-            <div className="d-flex justify-content-end gap-3">
-                {type === "orders" && 
-                    <div className="d-flex align-items-center me-auto gap-1">
-                        <button  className={"text-nowrap btn "+ getStatusMeta(orderStatus).style} disabled>Trạng thái:</button>
-                        <select
-                            className="form-select"
-                            value={orderStatus}
-                            onChange={(e) => setOrderStatus(e.target.value)}
-                        >
-                            {statusOptions.map((status) => {
-                                const { label, style } = getStatusMeta(status);
-                                return (
-                                    <option key={status} value={status}>
-                                        {label}
-                                    </option>
-                                );
-                            })}
-                        </select>
-                    </div>
-                }   
-                <button className="btn btn-danger" onClick={handleDelete}>Xóa</button>
-                <button className="btn btn-secondary" onClick={handleExit}>Hủy</button>
-                <button className="btn btn-primary" onClick={handleSave}>Lưu</button>
-            </div>
-        </div>
-    );
-};
 export default function Admin() {
-    const navigate = useNavigate();
-    const dispatch = useDispatch();
-    const showToast = (message: string, type: "success" | "error" | "info", link?: string) => {
-      dispatch(addToast({ message, type , link}));
-    };
+  const [activeTab, setActiveTab] = useState("orders");
+  const [dataList, setDataList] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
-    const [isUpdate, SetIsUpdate] = useState<boolean> (false);
- 
-    const [orderList, SetOrderList] = useState<any[]>();
-    const [cateList, SetCateList]= useState<any[]>();
-    const [productList, SetProductList] = useState<any[]>();
+  const [categoryForm, setCategoryForm] = useState({ name: "", gender: "Tất cả", des: "" });
 
-    const [crrType, SetCrrType] = useState<string>("")
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const showToast = (msg: string, type: "success" | "error" | "info") =>
+    dispatch(addToast({ message: msg, type }));
 
-    const [selectedObject, SetSelectedObject]= useState<any>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [jsonInput, setJsonInput] = useState('{\n  "name": ""\n}');
 
-    const handleSelect = (type: string,obj: any) => {
-        SetCrrType(type)
-        SetSelectedObject(obj);
-    };
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
 
-    const handleExit = ()=>{
-        SetSelectedObject(null)
-        handleUReload();
+  const handleStatusChange = async (status: "pending"|"confirmed"|"shipped"|"delivered"|"cancelled") => {
+    if (!selectedOrder) return;
+    try {
+      await adminService.updateOrderStatus(selectedOrder._id, status);
+      showToast("Cập nhật trạng thái thành công", "success");
+      setSelectedOrder({ ...selectedOrder, status: status });
+      loadData();
+    } catch {
+      showToast("Lỗi khi cập nhật trạng thái", "error");
     }
+  };
 
-    const handleCreate = (type: string)=>{
-        SetCrrType(type);
-        let emptyObject = {};
-        if(type === "categories") {
-            SetSelectedObject(emptyObject);
-            
-        } else if (type === "products") {
-            SetSelectedObject(emptyObject);
-        }
-        else {
-            showToast("Không thể tạo mới", "error");
-        }
+  const handleCreate = () => {
+    if (activeTab === "categories") {
+      setCategoryForm({ name: "", gender: "Tất cả", des: "" });
+    } else {
+      setJsonInput('{\n  "name": ""\n}');
     }
-    
-    const handleUReload = ()=>{
-        dispatch(SetLoadingNaviBar())
-        SetIsUpdate(!isUpdate);
-    }
-    useEffect(()=>{
-        const guardCheck = async ()=>{
-            if(!(await adminService.checkAdmin())){
-                showToast('Bạn không có quyền truy cập trang này', 'error')
-                navigate('/member')   
-            }
-        }
-        guardCheck();
-    },[])
+    setShowModal(true);
+  };
 
-    // FETCH DATAS ================================================================
-    const fetchData = async (url: string, setter: (data: any) => void) => {
-        try {
-            const res = await axios.get(url, { timeout: 5000 });
-            setter(res.data?.data?.products||res.data?.data?.orders || res.data);
-        } catch (err: any) {
-            handleApiError(err);
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    try {
+      let payload;
+      if (activeTab === "categories") {
+        if (!categoryForm.name.trim()) {
+          showToast("Tên danh mục là bắt buộc", "error");
+          return;
         }
-    }; 
-    const handleApiError = (err: any) => {
-        if (err.code === "ECONNABORTED") {
-            console.error("Request timeout! Server may be down.");
-        } else if (err.response) {
-            console.error(`Error: ${err.response.status} - ${err.response.statusText}`);
-        } else {
-            showToast("Server NOT WORKING !", "error");
-        }
+        payload = categoryForm;
+        await adminService.createCategory(payload);
+      } else {
+        payload = JSON.parse(jsonInput);
+        await adminService.createProduct(payload);
+      }
+
+      showToast("Tạo mới thành công", "success");
+      setShowModal(false);
+      loadData();
+    } catch (err: any) {
+      showToast("Lỗi định dạng hoặc không thể tạo mới", "error");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  useEffect(() => {
+    const guardCheck = async () => {
+      if (!(await adminService.checkAdmin())) {
+        showToast("Bạn không có quyền truy cập trang này", "error");
+        navigate("/member");
+      }
     };
-    useEffect(() => {
-        Promise.all([
-            fetchData(`${API_URL}/products?page=1&limit=15`, SetProductList),
-            fetchData(`${API_URL}/categories`, SetCateList)
-        ]).catch(() => showToast("Lỗi", "error"));
+    guardCheck();
+  }, []);
 
-        const fetchOrder= async ()=>{
-        try {
-            const orderRes = await adminService.getAllOrder({page: 1, limit: 20})
-            SetOrderList(orderRes.data.data.orders??[]);
-        } catch(err){
-            showToast("Lỗi", "error")
-        }
-        }
-        fetchOrder();
-    }, [isUpdate ]);
-    // =============================================================================
+  useEffect(() => {
+    loadData();
+  }, [activeTab, page]);
 
-    return (
-        <div className='admin-full-container w-100 h-100 d-flex justify-content-center align-items-center'>
-            {selectedObject &&crrType&& <JsonCraw type={crrType} object={selectedObject} onClose={handleExit} isCreate={Object.keys(selectedObject).length === 0}/>}
-            <div className="admin-container d-flex flex-column">
-                <div className="back-container">{"ADMIN CONTROL"    }</div>
-                <div className='control-container flex-grow-1 d-flex w-100'>
-                    <div className='list-container orders-container w-50'>
-                        <div
-                            className='header-controls'
-                        >
-                            <h4>ĐƠN HÀNG</h4>
-                            <input type="text" placeholder='Tìm kiếm' />
-                        </div>
-                        <div className='list'>
-                        {
-                            orderList && orderList.map((obj, index) => 
-                                <Item
-                                    onSelect={(obj: any)=>{handleSelect('orders', obj)}}
-                                    key={index}
-                                    object={obj}
-                                    index={index}
-                                />
-                            )
-                        }
-                        </div>
-                    </div>
-                    <div className="edit-container d-flex flex-column w-50">
-                        <div className='list-container cate-container'>
-                            <div
-                                className='header-controls'
-                            >
-                                <h4>DANH MỤC</h4>
-                                <input type="text" placeholder='Tìm kiếm' />
-                                <button 
-                                    onClick={()=>{handleCreate('categories')}}
-                                    className="btn btn-success pi pi-plus">
-                                </button>
-                            </div>
-                            <div className='list'>
-                                {
-                                    cateList && cateList.map((obj, index) => 
-                                        <Item
-                                            onSelect={(obj: any)=>{handleSelect('categories', obj)}}
-                                            key={index}
-                                            object={obj}
-                                            index={index}
-                                        />
-                                    )
-                                }
-                            </div>
-                        </div>
-                        <div className='list-container product-container flex-grow-1'>
-                            <div
-                                className='header-controls'
-                            >
-                                <h4>SẢN PHẨM</h4>
-                                <input type="text" placeholder='Tìm kiếm' />
-                                <button 
-                                    onClick={()=>{handleCreate('products')}}
-                                    className="btn btn-success pi pi-plus">
-                                </button>
-                            </div>
-                            <div className='list'>
-                                {
-                                    productList && productList.map((obj, index) => 
-                                        <Item
-                                            onSelect={(obj: any)=>{handleSelect('products', obj)}}
-                                            key={index}
-                                            object={obj}
-                                            index={index}
-                                        />
-                                    )
-                                }
-                            </div>
-                        </div>
-                    </div>
+  const loadData = async () => {
+    setIsLoading(true);
+    try {
+      let res;
+      if (activeTab === "orders") {
+        res = await adminService.getAllOrder({ page, limit: PAGE_LIMIT });
+        setDataList(res.data.data.orders || []);
+        setTotalPages(res.data.totalPages || 1);
+      } else if (activeTab === "products") {
+        res = await adminService.getAllProducts({ page, limit: PAGE_LIMIT });
+        setDataList(res.data.data.products || []);
+        setTotalPages(res.data.totalPages || 1);
+      } else {
+        const res = await axios.get(`${API_URL}/categories`);
+        setDataList(res.data || []);
+        setTotalPages(1);
+      }
+    } catch (err) {
+      showToast("Không thể tải dữ liệu", "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getPageNumbers = (totalPages: number, currentPage: number): (number | string)[] => {
+    const pages: (number | string)[] = [];
+  
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage <= 3) {
+        pages.push(1, 2, 3, '...', totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1, '...', totalPages - 2, totalPages - 1, totalPages);
+      } else {
+        pages.push(1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages);
+      }
+    }
+  
+    return pages;
+  };
+
+  const handleShowDeleteModal = (id: string) => {
+    setItemToDelete(id);
+    setShowConfirmDeleteModal(true);
+  };
+
+  const handleDelete = async () => {
+    if (itemToDelete) {
+      try {
+        if (activeTab === "products") {
+          await adminService.deleteProduct(itemToDelete);
+        } else if (activeTab === "categories") {
+          await adminService.deleteCategory(itemToDelete);
+        }
+        showToast("Xoá thành công", "success");
+        setShowConfirmDeleteModal(false);
+        loadData();
+      } catch (err: any) {
+        showToast("Lỗi khi xoá", "error");
+      }
+    }
+  };
+
+  const renderTabs = () => (
+    <ul className="nav nav-tabs flex-column">
+      {TABS.map((tab) => (
+        <li className="nav-item " key={tab}>
+          <button
+            className={`nav-link text-start w-100 ${activeTab === tab ? "active" : ""}`}
+            onClick={() => {
+              setPage(1); 
+              setActiveTab(tab);
+            }}
+          >
+            {tab.toUpperCase()}
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
+
+  const renderList = () => (
+    <div className="flex-grow-1">
+      <div className="d-flex justify-content-between align-items-center mb-2">
+        <h5 className="mb-0 text-capitalize">{activeTab}</h5>
+        {(activeTab === "products" || activeTab === "categories") && (
+          <button className="btn btn-success" onClick={handleCreate}>
+            Thêm mới
+          </button>
+        )}
+      </div>
+      {isLoading ? (
+        <div className="text-muted">Đang tải...</div>
+      ) : (
+        <ul className="list-group">
+          {dataList.map((item, idx) => (
+            <li className="list-group-item d-flex justify-content-between align-items-center gap-1" key={idx}>
+              <div
+                className="show-cursor flex-grow-1"
+                onClick={() => activeTab === "orders" && setSelectedOrder(item)}
+              >
+                <strong>{`${idx + 1}. ${item.name || item.shippingAddress?.name || "Không rõ"}`}</strong>
+                <div className="text-muted small">
+                  {item._id && `ID: ${item._id}`}
                 </div>
-                
-                
-            </div>
+              </div>
+              {item.status && (
+                <button className={"fw-bolder btn "+ getStatusMeta(item.status).style } disabled>
+                  {getStatusMeta(item.status).label}
+                </button>
+              )}
+              {(activeTab === "products" || activeTab === "categories") && <button
+                className="btn btn-link p-0 text-danger"
+                onClick={() => handleShowDeleteModal(item._id)}
+              >
+                <i className="pi pi-trash"></i>
+              </button>}
+            </li>
+          ))}
+        </ul>
+      )}
+      {totalPages > 1 && (
+        <div className="d-flex justify-content-center mt-3">
+          <nav>
+            <ul className="pagination">
+              {getPageNumbers(totalPages, page).map((p, i) => (
+                <li
+                  className={`page-item ${p === page ? "active" : ""} ${p === "..." ? "disabled" : ""}`}
+                  key={i}
+                >
+                  <button
+                    className="page-link"
+                    onClick={() => typeof p === "number" && setPage(p)}
+                    disabled={p === "..."}
+                  >
+                    {p}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
-    )
+      )}
+    </div>
+  );
+  
+  return (
+    <div className="container container-admin container-fluid mt-4">
+      <h4 className="w-100 d-flex"> 
+      <strong>ADMIN</strong>
+      <span className="btn btn-link ms-auto" 
+        onClick={() => navigate('statistic')}>THỐNG KÊ</span>
+      </h4>
+      <div className="row" style={{ minHeight: "80vh" }}>
+        <div className="col-md-2 border-end">{renderTabs()}</div>
+        <div className="col-md-10">{renderList()}</div>
+      </div>
+      {showModal && (
+      <div className="modal show d-block" tabIndex={-1}>
+        <div className="modal-dialog modal-lg">
+          <div className="modal-content shadow-lg">
+            <div className="modal-header">
+              <h5 className="modal-title">Tạo mới {activeTab}</h5>
+              <button
+                type="button"
+                className="btn-close"
+                onClick={() => setShowModal(false)}
+              ></button>
+            </div>
+            <div className="modal-body">
+            {activeTab === "categories" ? (
+              <form>
+                <div className="mb-3">
+                  <label className="form-label">Tên danh mục <span className="text-danger">*</span></label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={categoryForm.name}
+                    onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Giới tính áp dụng</label>
+                  <select
+                    className="form-select"
+                    value={categoryForm.gender}
+                    onChange={(e) => setCategoryForm({ ...categoryForm, gender: e.target.value })}
+                  >
+                    <option value="Tất cả">Tất cả</option>
+                    <option value="Nam">Nam</option>
+                    <option value="Nữ">Nữ</option>
+                  </select>
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Mô tả</label>
+                  <textarea
+                    className="form-control"
+                    value={categoryForm.des}
+                    onChange={(e) => setCategoryForm({ ...categoryForm, des: e.target.value })}
+                    rows={3}
+                  />
+                </div>
+              </form>
+            ) : (
+              <textarea
+                className="form-control"
+                rows={10}
+                value={jsonInput}
+                onChange={(e) => setJsonInput(e.target.value)}
+              ></textarea>
+            )}
+          </div>
+
+            <div className="modal-footer">
+            <button className="btn btn-secondary" onClick={() => setShowModal(false)} disabled={isSubmitting}>
+              Huỷ
+            </button>
+            <button className="btn btn-primary" onClick={handleSubmit} disabled={isSubmitting}>
+              {isSubmitting ? "Đang tạo..." : "Tạo mới"}
+            </button>
+          </div>
+          </div>
+        </div>
+      </div>
+    )}
+     {showConfirmDeleteModal && (
+        <div className="modal show d-block align-self-center" tabIndex={-1}>
+          <div className="modal-dialog">
+            <div className="modal-content shadow-lg">
+              <div className="modal-header">
+                <h5 className="modal-title">Xác nhận xóa</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowConfirmDeleteModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>Bạn có chắc chắn muốn xóa mục này?</p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setShowConfirmDeleteModal(false)}
+                >
+                  Hủy
+                </button>
+                <button
+                  className="btn btn-danger"
+                  onClick={handleDelete}
+                >
+                  Xoá
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {selectedOrder && (
+        <OrderModal
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+          onSave={handleStatusChange}
+        />
+      )}
+    </div>
+  );
 }

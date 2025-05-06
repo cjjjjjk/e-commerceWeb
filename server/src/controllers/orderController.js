@@ -14,10 +14,12 @@ exports.getAllOrders = async (req, res) => {
       .limitFields()
       .paginate();
     const orders = await features.query;
+    const totalPages = await features.getTotalPages();
 
     res.status(200).json({
       status: "success",
       numOfOrders: orders.length,
+      totalPages,
       data: {
         orders,
       },
