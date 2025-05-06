@@ -16,6 +16,7 @@ const orderRoutes = require("./routes/orderRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
 const cartRoutes = require("./routes/cartRoutes");
 const statisticRoutes = require("./routes/statisticRoutes");
+const imgurRoute = require("./routes/imgurUpload");
 
 const Product = require(`./models/productModel`);
 
@@ -49,6 +50,7 @@ app.use("/api/v1/orders", orderRoutes);
 app.use("/api/v1/reviews", reviewRoutes);
 app.use("/api/v1/carts", cartRoutes);
 app.use("/api/v1/statistics", statisticRoutes);
+app.use("/api/v1/imgur-upload",imgurRoute )
 
 function getPreloadHref(path, query) {
   var reg = new RegExp(`([A-Za-z0-9\\-\\/]+)?`);

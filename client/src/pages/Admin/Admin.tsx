@@ -3,13 +3,13 @@ import axios from "axios";
 import './admin.css';
 import { useDispatch } from "react-redux";
 import { addToast } from "shared/components/toast/toastSlice";
-import adminService from "./adminService";
+import adminService from "./services/adminService";
 import { useNavigate } from "react-router-dom";
 
-// components
 import ProductModalComponent from "./components/productModal";
 import OrderModal from "./components/orderModal";
 
+import { ProductModel } from "./components/productModal";
 import { getStatusMeta } from "./components/orderModal";
 
 const API_URL = process.env.REACT_APP_API_URL;
@@ -23,7 +23,6 @@ export default function Admin() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
@@ -34,10 +33,9 @@ export default function Admin() {
   const showToast = (msg: string, type: "success" | "error" | "info") =>
     dispatch(addToast({ message: msg, type }));
 
-  const [showModal, setShowModal] = useState(false);
-  const [jsonInput, setJsonInput] = useState('{\n  "name": ""\n}');
 
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<any|null>(null)
 
   const handleStatusChange = async (status: "pending"|"confirmed"|"shipped"|"delivered"|"cancelled") => {
     if (!selectedOrder) return;
@@ -51,50 +49,66 @@ export default function Admin() {
     }
   };
 
+  const handleProductChange = async (product: any) => {
+    try {
+      if (!selectedProduct.name) {
+      
+        const { _id, id, ...newProduct } = product;
+  
+        const createRes = await adminService.createProduct(newProduct);
+        showToast("Tạo sản phẩm thành công", "success");
+      } else {
+        const updateRes = await adminService.updateProduct(product);
+        showToast("Cập nhật sản phẩm thành công", "success");
+      }
+      loadData();
+    } catch (er: any) {
+      console.log(er);
+      showToast("Lỗi khi tạo/cập nhật sản phẩm", "error");
+    }
+  };
   const handleCreate = () => {
     if (activeTab === "categories") {
       setCategoryForm({ name: "", gender: "Tất cả", des: "" });
-    } else {
-      setJsonInput('{\n  "name": ""\n}');
-    }
-    setShowModal(true);
-  };
-
-  const handleSubmit = async () => {
-    setIsSubmitting(true);
-    try {
-      let payload;
-      if (activeTab === "categories") {
-        if (!categoryForm.name.trim()) {
-          showToast("Tên danh mục là bắt buộc", "error");
-          return;
-        }
-        payload = categoryForm;
-        await adminService.createCategory(payload);
-      } else {
-        payload = JSON.parse(jsonInput);
-        await adminService.createProduct(payload);
-      }
-
-      showToast("Tạo mới thành công", "success");
-      setShowModal(false);
-      loadData();
-    } catch (err: any) {
-      showToast("Lỗi định dạng hoặc không thể tạo mới", "error");
-    } finally {
-      setIsSubmitting(false);
+    } 
+    else if(activeTab === "products") {
+      const defaultProduct: ProductModel = {
+        _id: "",
+        id: "",
+        name: "",
+        description: "",
+        categoryId: "",
+        createdAt: new Date().toISOString(),
+        gender: "Tất cả",
+        images: [],
+        sizes: ["S", "M", "L"],     
+        colors: ["black","white"],
+        ratingsAverage: 0,
+        ratingsCount: 0,
+        priceMap: {},
+        stockMap: {},
+        soldMap: {},
+      };
+      setSelectedProduct(defaultProduct);
     }
   };
 
   useEffect(() => {
     const guardCheck = async () => {
-      if (!(await adminService.checkAdmin())) {
-        showToast("Bạn không có quyền truy cập trang này", "error");
+      try {
+        const isAdmin = await adminService.checkAdmin();
+        if (!isAdmin) {
+          showToast("Bạn không có quyền truy cập trang này", "error");
+          navigate("/member");
+        }
+      } catch (err: any) {
+        showToast("Đã xảy ra lỗi khi kiểm tra quyền truy cập", "error");
         navigate("/member");
       }
     };
     guardCheck();
   }, []);
+  
 
   useEffect(() => {
     loadData();
@@ -200,7 +214,10 @@ export default function Admin() {
             <li className="list-group-item d-flex justify-content-between align-items-center gap-1" key={idx}>
               <div
                 className="show-cursor flex-grow-1"
-                onClick={() => activeTab === "orders" && setSelectedOrder(item)}
+                onClick={() => {
+                  if(activeTab === "orders") setSelectedOrder(item);
+                  else if(activeTab ===  "products") setSelectedProduct(item)}
+                  }
               >
                 <strong>{`${idx + 1}. ${item.name || item.shippingAddress?.name || "Không rõ"}`}</strong>
                 <div className="text-muted small">
@@ -258,75 +275,6 @@ export default function Admin() {
         <div className="col-md-2 border-end">{renderTabs()}</div>
         <div className="col-md-10">{renderList()}</div>
       </div>
-      {showModal && (
-      <div className="modal show d-block" tabIndex={-1}>
-        <div className="modal-dialog modal-lg">
-          <div className="modal-content shadow-lg">
-            <div className="modal-header">
-              <h5 className="modal-title">Tạo mới {activeTab}</h5>
-              <button
-                type="button"
-                className="btn-close"
-                onClick={() => setShowModal(false)}
-              ></button>
-            </div>
-            <div className="modal-body">
-            {activeTab === "categories" ? (
-              <form>
-                <div className="mb-3">
-                  <label className="form-label">Tên danh mục <span className="text-danger">*</span></label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={categoryForm.name}
-                    onChange={(e) => setCategoryForm({ ...categoryForm, name: e.target.value })}
-                    required
-                  />
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">Giới tính áp dụng</label>
-                  <select
-                    className="form-select"
-                    value={categoryForm.gender}
-                    onChange={(e) => setCategoryForm({ ...categoryForm, gender: e.target.value })}
-                  >
-                    <option value="Tất cả">Tất cả</option>
-                    <option value="Nam">Nam</option>
-                    <option value="Nữ">Nữ</option>
-                  </select>
-                </div>
-                <div className="mb-3">
-                  <label className="form-label">Mô tả</label>
-                  <textarea
-                    className="form-control"
-                    value={categoryForm.des}
-                    onChange={(e) => setCategoryForm({ ...categoryForm, des: e.target.value })}
-                    rows={3}
-                  />
-                </div>
-              </form>
-            ) : (
-              <textarea
-                className="form-control"
-                rows={10}
-                value={jsonInput}
-                onChange={(e) => setJsonInput(e.target.value)}
-              ></textarea>
-            )}
-          </div>
-
-            <div className="modal-footer">
-            <button className="btn btn-secondary" onClick={() => setShowModal(false)} disabled={isSubmitting}>
-              Huỷ
-            </button>
-            <button className="btn btn-primary" onClick={handleSubmit} disabled={isSubmitting}>
-              {isSubmitting ? "Đang tạo..." : "Tạo mới"}
-            </button>
-          </div>
-          </div>
-        </div>
-      </div>
-    )}
      {showConfirmDeleteModal && (
         <div className="modal show d-block align-self-center" tabIndex={-1}>
           <div className="modal-dialog">
@@ -365,6 +313,13 @@ export default function Admin() {
           order={selectedOrder}
           onClose={() => setSelectedOrder(null)}
           onSave={handleStatusChange}
+        />
+      )}
+      {selectedProduct && (
+        <ProductModalComponent
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+          onSave={handleProductChange}
         />
       )}
     </div>

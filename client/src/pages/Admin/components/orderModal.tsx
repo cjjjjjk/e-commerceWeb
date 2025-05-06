@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import "./orderModal.css"
 
 interface OrderItem {
   name: string;
@@ -33,20 +34,20 @@ interface Props {
   onSave: (status: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled") => Promise<void>;
 }
 
-export const getStatusMeta = (status: string): { label: string, style: string } => {
+export const getStatusMeta = (status: string): { label: string, style: string, icon: string } => {
     switch (status) {
         case "pending":
-            return { label: "Chờ xử lý", style: "btn-outline-secondary" };
+            return { label: "Chờ xử lý", style: "btn-outline-secondary", icon: "pi pi-pencil" };
         case "confirmed":
-            return { label: "Đã xác nhận", style: "btn-outline-primary" };
+            return { label: "Đã xác nhận", style: "btn-outline-primary", icon: "pi pi-pencil"};
         case "shipped":
-            return { label: "Đã gửi hàng", style: "btn-outline-warning" };
+            return { label: "Đã gửi hàng", style: "btn-outline-warning" ,icon: "pi pi-pencil"};
         case "delivered":
-            return { label: "Đã giao", style: "btn-outline-success" };
+            return { label: "Đã giao", style: "btn-outline-success" , icon: "pi pi-check-square"};
         case "cancelled":
-            return { label: "Đã hủy", style: "btn-outline-danger" };
+            return { label: "Đã hủy", style: "btn-outline-danger" , icon: "pi pi-times-circle"};
         default:
-            return { label: "Không rõ", style: "btn-outline-dark" };
+            return { label: "Không rõ", style: "btn-outline-dark" , icon: "pi pi-pencil"};
     }
 };
 
@@ -90,25 +91,54 @@ export default function OrderModal({ order, onClose, onSave }: Props) {
             <button type="button" className="btn-close" onClick={onClose}></button>
           </div>
           <div className="modal-body">
-            <p>Tên khách hàng:<strong>  {order.shippingAddress.name}</strong></p>
-            <p>Điện thoại:<strong>  {order.shippingAddress.phone}</strong></p>
-            <p>Địa chỉ nhận hàng:<strong>  {order.shippingAddress.address}</strong></p>
-            <p>Ngày tạo:<strong>  {new Date(order.createdAt).toLocaleString()}</strong></p>
-            <p>Tổng tiền:<strong>  {order.totalPrice.toLocaleString()} đ</strong></p>
-
             <div className="mb-3">
-              <label className="form-label">Trạng thái đơn hàng: <strong className={"btn "+ getStatusMeta(targetStatus).style}>{getStatusMeta(targetStatus).label}</strong></label>
-              <select
-                className="form-select"
-                value={targetStatus}
-                onChange={(e) => {
-                  onStatusChange(e.target.value as "pending" | "confirmed" | "shipped" | "delivered" | "cancelled");
-                }}
-              >
-                {statusOptions.map((status) => (
-                   <option key={status} value={status}>{getStatusMeta(status).label}</option>
-                ))}
-              </select>
+              <label className="form-label">Tên khách hàng</label>
+              <input type="text" className="form-control" value={order.shippingAddress.name} disabled />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Điện thoại</label>
+              <input type="text" className="form-control" value={order.shippingAddress.phone} disabled />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Địa chỉ nhận hàng</label>
+              <textarea className="form-control" rows={2} value={order.shippingAddress.address} disabled />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Ngày tạo</label>
+              <input type="text" className="form-control" value={new Date(order.createdAt).toLocaleString()} disabled />
+            </div>
+            <div className="mb-3">
+              <label className="form-label">Tổng tiền</label>
+              <input type="text" className="form-control" value={`${order.totalPrice.toLocaleString()} đ`} disabled />
+            </div>
+
+            <div className="mb-2 row align-items-center">
+              <label className="col-auto col-form-label">
+                <strong>
+                {"cập nhật trạng thái đơn hàng:".toUpperCase()}
+                </strong>
+              </label>
+              <div className="col-auto">
+                <span className={`btn ${getStatusMeta(targetStatus).style} px-3 py-2`}>
+                  <i className={getStatusMeta(targetStatus).icon + " fw-bolder"}></i>
+                </span>
+              </div>
+              <div className="col-auto">
+                <select
+                  className="form-select form-select-sm"
+                  style={{ minWidth: 160 }}
+                  value={targetStatus}
+                  onChange={(e) =>
+                    onStatusChange(e.target.value as "pending" | "confirmed" | "shipped" | "delivered" | "cancelled")
+                  }
+                >
+                  {statusOptions.map((status) => (
+                    <option key={status} value={status}>
+                      {getStatusMeta(status).label}
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <hr />
@@ -122,6 +152,7 @@ export default function OrderModal({ order, onClose, onSave }: Props) {
               ))}
             </ul>
           </div>
+
           <div className="modal-footer">
             <button className="btn btn-secondary" onClick={onClose}>Đóng</button>
             <button

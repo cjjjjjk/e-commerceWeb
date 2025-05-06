@@ -88,6 +88,10 @@ const adminService = {
     return api.patch(`/orders/${orderId}`, {status});
   },
 
+  updateProduct: async(updateProduct: any)=> {
+    return api.patch(`/products/${updateProduct._id}`, updateProduct)
+  },
+
   getRevenueStats(from: string, to: string) {
     return api.get(`/statistics/revenue`, {
       params: { from, to },

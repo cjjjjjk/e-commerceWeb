@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import adminService from "../adminService";
+import adminService from "../services/adminService";
 import './statistic.css';
 
 import {
