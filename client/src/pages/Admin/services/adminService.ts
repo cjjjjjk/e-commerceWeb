@@ -92,6 +92,10 @@ const adminService = {
     return api.patch(`/products/${updateProduct._id}`, updateProduct)
   },
 
+  updateCategory: async(updateCateGoru: any) =>{
+    return api.patch(`/categories/${updateCateGoru._id}`, updateCateGoru)
+  },  
+
   getRevenueStats(from: string, to: string) {
     return api.get(`/statistics/revenue`, {
       params: { from, to },

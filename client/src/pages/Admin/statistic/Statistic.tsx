@@ -15,6 +15,7 @@ import {
 } from "chart.js";
 import { Line, Bar, Pie } from "react-chartjs-2";
 import { useNavigate } from "react-router-dom";
+import { Loading } from "shared/components";
 
 ChartJS.register(
   CategoryScale,
@@ -79,10 +80,7 @@ export default function Statistic() {
   
   if (loading) {
     return (
-      <div className="text-center mt-5">
-        <div className="spinner-border text-primary" role="status"></div>
-        <p className="mt-3">Đang tải thống kê...</p>
-      </div>
+      <Loading message="Đang tính toán dữ liệu..."/>
     );
   }
 

@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 
 import ProductModalComponent from "./components/productModal";
 import OrderModal from "./components/orderModal";
+import CategoryModal, {CategoryModel} from "./components/categoryModal";
 
 import { ProductModel } from "./components/productModal";
 import { getStatusMeta } from "./components/orderModal";
@@ -36,6 +37,7 @@ export default function Admin() {
 
   const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
   const [selectedProduct, setSelectedProduct] = useState<any|null>(null)
+  const [selectedCategory, setSelectedCategory] = useState<CategoryModel | null>(null);
 
   const handleStatusChange = async (status: "pending"|"confirmed"|"shipped"|"delivered"|"cancelled") => {
     if (!selectedOrder) return;
@@ -67,10 +69,27 @@ export default function Admin() {
       showToast("Lỗi khi tạo/cập nhật sản phẩm", "error");
     }
   };
+
+  const handleCategoryChange = async (category: CategoryModel) => {
+    try {
+      if (!category._id) {
+        await adminService.createCategory(category);
+        showToast("Tạo danh mục thành công", "success");
+      } else {
+        await adminService.updateCategory(category);
+        showToast("Cập nhật danh mục thành công", "success");
+      }
+      setSelectedCategory(null);
+      loadData();
+    } catch (e) {
+      showToast("Lỗi khi xử lý danh mục", "error");
+    }
+  };
+
   const handleCreate = () => {
     if (activeTab === "categories") {
-      setCategoryForm({ name: "", gender: "Tất cả", des: "" });
-    } 
+      setSelectedCategory({ name: "", gender: "Tất cả", des: "" });
+    }
     else if(activeTab === "products") {
       const defaultProduct: ProductModel = {
         _id: "",
@@ -215,9 +234,14 @@ export default function Admin() {
               <div
                 className="show-cursor flex-grow-1"
                 onClick={() => {
-                  if(activeTab === "orders") setSelectedOrder(item);
-                  else if(activeTab ===  "products") setSelectedProduct(item)}
+                  if (activeTab === "orders") {
+                    setSelectedOrder(item);
+                  } else if (activeTab === "products") {
+                    setSelectedProduct(item);
+                  } else if (activeTab === "categories") {
+                    setSelectedCategory(item);
                   }
+                }}
               >
                 <strong>{`${idx + 1}. ${item.name || item.shippingAddress?.name || "Không rõ"}`}</strong>
                 <div className="text-muted small">
@@ -320,6 +344,13 @@ export default function Admin() {
           product={selectedProduct}
           onClose={() => setSelectedProduct(null)}
           onSave={handleProductChange}
+        />
+      )}
+      {selectedCategory && (
+        <CategoryModal
+          category={selectedCategory}
+          onClose={() => setSelectedCategory(null)}
+          onSave={handleCategoryChange}
         />
       )}
     </div>
