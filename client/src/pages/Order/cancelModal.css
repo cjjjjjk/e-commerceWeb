@@ -1,0 +1,53 @@
+/* Modal mặc định sẽ có kích thước lớn */
+.modal-lg {
+  max-width: 800px;
+  margin: auto;
+  margin-top: 40px;
+}
+
+.fs-res {
+  font-size: 24px;
+}
+
+.fs-res-1 {
+  font-size: 28px;
+}
+
+.star-icon {
+  font-size: 32px;
+}
+
+.responsive-btn {
+  font-size: 22px;
+  padding: 8px 16px;
+}
+/* Trên màn hình nhỏ (dưới 576px), modal sẽ nhỏ lại */
+@media (max-width: 576px) {
+  .modal-lg {
+    max-width: 80%; /* Modal sẽ chiếm 90% chiều rộng màn hình */
+  }
+
+  .fs-res {
+    font-size: 18px;
+  }
+
+  .fs-res-1 {
+    font-size: 22px;
+  }
+
+  .star-icon {
+    font-size: 22px;
+  }
+
+  .responsive-btn {
+    font-size: 16px;
+    padding: 4px 8px;
+  }
+}
+
+/* Trên màn hình trung bình (576px đến 768px), modal có thể nhỏ hơn một chút */
+@media (min-width: 576px) and (max-width: 768px) {
+  .modal-lg {
+    max-width: 80%; /* Modal chiếm 80% chiều rộng */
+  }
+}

@@ -23,7 +23,8 @@ const Wishlist = lazy(() => import("./pages/Wishlist/Wishlist"));
 const Cart = lazy(() => import("./pages/Cart/Cart"));
 const Layout = lazy(() => import("./pages/Layout/Layout"));
 const Product = lazy(()=> import("./pages/Products/Product"));
-const Admin = lazy(()=> import("./pages/Admin/Admin"))
+const Order = lazy(()=> import("./pages/Order/MyOrder"));
+const Admin = lazy(()=> import("./pages/Admin/Admin"));
 const Statistic = lazy(()=> import('./pages/Admin/statistic/Statistic'))
 
 const RouteChangeHandler = () => {
@@ -69,6 +70,7 @@ function App() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/order" element={<Order />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/admin/statistic" element={<Statistic />} />
 
