@@ -30,6 +30,11 @@ const orderItemSchema = mongoose.Schema({
   totalPrice: {
     type: Number,
   },
+  status: {
+    type: String,
+    enum: ["unrated", "rated"],
+    default: "unrated",
+  },
 });
 
 orderItemSchema.pre("save", function (next) {

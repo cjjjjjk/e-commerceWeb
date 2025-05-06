@@ -54,7 +54,10 @@ exports.getOrder = async (req, res) => {
 exports.getMyOrders = async (req, res) => {
   try {
     const userId = req.user.id;
-    const orders = await Order.find({ userId: userId });
+    const orders = await Order.find({ userId: userId }).populate(
+      "items.productId",
+      "name images"
+    );
 
     res.status(200).json({
       status: "success",
