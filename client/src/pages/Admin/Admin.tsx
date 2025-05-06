@@ -15,7 +15,7 @@ import { getStatusMeta } from "./components/orderModal";
 const API_URL = process.env.REACT_APP_API_URL;
 
 const TABS = ["orders", "products", "categories"];
-const PAGE_LIMIT = 15;
+const PAGE_LIMIT = 10;
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState("orders");

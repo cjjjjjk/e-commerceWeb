@@ -102,22 +102,13 @@ function Member() {
   if (!member) return <Loading message='Đang đăng nhập' />;
   
   return (
-    <div className="member-full-container h-100 w-100 d-flex justify-content-center align-items-center">
+    <div className="member-full-container h-100 w-100 d-flex flex-column  justify-content-center align-items-center">
       <div className="member-container d-flex gap-5">
         <div className='member-token d-flex flex-column gap-2'>
           <img className='avatar rounded-circle' src={member?.avatar || "https://imgur.com/aJKfWLf"} alt="" />
           <div className='member-info d-flex flex-column gap-2'>
             <span className='member-name'>{String(member?.name ?? "guest").toUpperCase()}</span>
             <span className='member-email' data-bs-toggle="tooltip" data-bs-placement="bottom" title={member?.email}>{member?.email}</span>
-            {
-              userData?.role === "admin" && 
-              <span className='btn btn-link fw-bolder'
-                onClick={()=>{
-                  navigate('/admin');
-                }}
-              >ADMIN
-              </span>
-            }
           </div>
           <button
             className='mt-auto btn btn-danger'
@@ -126,6 +117,15 @@ function Member() {
         </div>
 
         <div className='member-detail flex-grow-1 d-flex flex-column gap-2'>
+          {
+            userData?.role === "admin" && 
+            <span className='btn btn-link align-self-start fw-bolder ps-0 text-decoration-none'
+              onClick={()=>{
+                navigate('/admin');
+              }}
+            >▶  ADMIN
+            </span>
+          }
           <div className="detail__item detail__address">
             <label className="detail__label" htmlFor="phone">SỐ ĐIỆN THOẠI LIÊN HỆ</label>
             <input
