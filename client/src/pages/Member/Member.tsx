@@ -107,7 +107,7 @@ function Member() {
         <div className='member-token d-flex flex-column gap-2'>
           <img className='avatar rounded-circle' src={member?.avatar || "https://imgur.com/aJKfWLf"} alt="" />
           <div className='member-info d-flex flex-column gap-2'>
-            <span className='member-name'>{String(member?.name).toUpperCase()}</span>
+            <span className='member-name'>{String(member?.name ?? "guest").toUpperCase()}</span>
             <span className='member-email' data-bs-toggle="tooltip" data-bs-placement="bottom" title={member?.email}>{member?.email}</span>
           </div>
           <button

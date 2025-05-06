@@ -20,7 +20,6 @@ function SignIn() {
   const [password, setPassword] = useState("");
   
   const [newEmail, setNewEmail] = useState("");
-  const [newName, setNewName] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
 
@@ -66,18 +65,13 @@ function SignIn() {
     e.preventDefault();
     try {
       const res = await axios.post(`${API_URL}/users/signup`, {
-        name: newName,
         email:newEmail,
         password:newPassword,
         passwordConfirm,
       });
       const { token, data } = res.data;
-      console.log(res.data);
-      console.log("SIGNIN RES:", res.data);
       if (res.data.status === "success") {
         localStorage.setItem("token", token);
-        showToast("Đăng nhập thành công", "success");
-        if (data.role === "admin") showToast("Bạn là ADMIN", "info", "/admin");
         navigate("/member");
       } else {
         showToast("Đăng ký thất bại", "error");
@@ -107,10 +101,6 @@ function SignIn() {
 
   const handleNewEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewEmail(e.target.value);
-  };
-
-  const handleNewNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewName(e.target.value);
   };
 
   const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -171,18 +161,7 @@ function SignIn() {
       {(!isSmallScreen || smallScreenSwitch )&&
       <form className="signin-form">
         <div className="signin-container d-flex flex-column align-items-baseline gap-4">
-          <p>Chưa có tài khoản?</p>
-          <h1 className="header head-space">ĐĂNG KÝ NGAY</h1>
-          <fieldset className="head-space">
-            <input
-              className="input name"
-              type="text"
-              placeholder=""
-              value={newName}
-              onChange={handleNewNameChange}
-            />
-            <span className="label">Tên đăng nhập</span>
-          </fieldset>
+          <h1 className="header head-space mt-3">ĐĂNG KÝ NGAY</h1>
           <fieldset className="head-space">
             <input
               className="input email"
