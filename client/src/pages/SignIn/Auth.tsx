@@ -33,7 +33,6 @@ const Auth = () => {
     if (!token) {
       token = getCookie("jwt");
     }
-    console.log(token);
 
     if (token) {
       localStorage.setItem("token", token);

@@ -52,7 +52,6 @@ export default function Statistic() {
         adminService.getMostReturned(),
       ]);
 
-      console.log(orders)
       setRevenueStats(revenue.data);
       setOrderStats(orders.data);
       setBestSellers(best.data);
@@ -108,7 +107,7 @@ export default function Statistic() {
             {
               label: "Số đơn hàng",
               data: orderStats.dailyOrders.map((d: any) => d.count),
-              backgroundColor: "rgba(255, 206, 86, 0.6)",
+              backgroundColor: "rgba(70, 162, 237, 0.8)",
             },
           ],
         }
@@ -117,7 +116,7 @@ export default function Statistic() {
       const orderStatusChart = orderStats
       ? {
           labels: [
-            "Chờ xử lý",
+            "Chờ xác nhận",
             "Đã hủy",
             "Đã xác nhận",
             "Đã giao",

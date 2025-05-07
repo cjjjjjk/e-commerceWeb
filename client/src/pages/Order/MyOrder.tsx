@@ -7,6 +7,7 @@ import orderService from "shared/services/orderService";
 import userService from "shared/services/auth/userService";
 import { addToast } from "shared/components/toast/toastSlice";
 import OrderCard from "./OrderCard";
+import { Loading } from "shared/components";
 
 interface OrderItem {
   name: string;
@@ -91,7 +92,6 @@ const UserOrders = () => {
     const fetchUser = async () => {
       try {
         const res = await userService.getMe();
-        console.log(res);
         const user = res?.data?.data?.user;
         if (user && user._id) {
           setUserData(user);
@@ -126,15 +126,17 @@ const UserOrders = () => {
     }
   };
 
-  if (loading) return <p className="text-center mt-5">Đang tải đơn hàng...</p>;
+  if (loading) return <Loading message="Đang tải đơn hàng của bạn..."/>
   if (error) return <p className="text-danger text-center mt-5">{error}</p>;
 
   const filteredOrders = orders.filter((order) => order.status === activeTab);
 
   return (
-    <div className="container py-4 my-5">
-      <h1 className="text-center my-5">Đơn hàng của tôi</h1>
-
+    <div className="container my-5 mt-0">
+      <br />
+      <br />
+      <br />
+      <span className="list-label text-start mb-3 ">{"đơn hàng của bạn".toUpperCase()}</span>
       {/* Tabs */}
       <ul className="nav nav-tabs mb-4 d-flex nav-pills nav-fill overflow-auto flex-row">
         {TABS.map((tab) => (
@@ -167,6 +169,12 @@ const UserOrders = () => {
           />
         ))
       )}
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
     </div>
   );
 };

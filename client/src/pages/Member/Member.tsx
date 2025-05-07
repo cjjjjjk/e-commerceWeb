@@ -93,13 +93,14 @@ function Member() {
   };
 
   const handleCancel = () => {
-    setPhone('');
-    setAddress('');
+    setPhone(userData.phone);
+    setAddress(userData.address);
     setIsDirty(false);
+    setIsValid(true)
   };
 
   // --------------------------------------
-  if (!member) return <Loading message='Đang đăng nhập' />;
+  if (!member) return <Loading message='Đang tải dữ liệu..' />;
   
   return (
     <div className="member-full-container h-100 w-100 d-flex flex-column  justify-content-center align-items-center">

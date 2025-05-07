@@ -145,14 +145,11 @@ const OrderCard: React.FC<OrderCardProps> = ({
 
   const handleCancel = () => {
     setShowCancelModal(true);
-    console.log("Huỷ đơn");
   };
   const handleTrack = () => {
-    console.log("Theo dõi đơn hàng");
     alert("Theo dõi đơn hàng");
   };
   const handleViewLocation = () => {
-    console.log("Xem vị trí");
     alert("Xem vị trí");
   };
   const handleReorder = async () => {
@@ -174,8 +171,6 @@ const OrderCard: React.FC<OrderCardProps> = ({
   };
 
   const handleCancelOrder = async () => {
-    console.log("Hủy");
-    // gọi API axios ở đây nếu cần
     try {
       const token = localStorage.getItem("token");
       const response = await axios.patch(
@@ -192,9 +187,7 @@ const OrderCard: React.FC<OrderCardProps> = ({
       setStatus("pending");
       setShowCancelModal(false);
 
-      console.log(response);
 
-      console.log("Review submitted:", response.data);
       showToast("Hủy đơn hàng thành công", "success");
       onStatusChange();
     } catch (error) {

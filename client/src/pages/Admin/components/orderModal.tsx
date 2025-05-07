@@ -37,11 +37,11 @@ interface Props {
 export const getStatusMeta = (status: string): { label: string, style: string, icon: string } => {
     switch (status) {
         case "pending":
-            return { label: "Chờ xử lý", style: "btn-outline-secondary", icon: "pi pi-pencil" };
+            return { label: "Chờ xác nhận", style: "btn-outline-secondary", icon: "pi pi-pencil" };
         case "confirmed":
             return { label: "Đã xác nhận", style: "btn-outline-primary", icon: "pi pi-pencil"};
         case "shipped":
-            return { label: "Đã gửi hàng", style: "btn-outline-warning" ,icon: "pi pi-pencil"};
+            return { label: "Đang giao hàng", style: "btn-outline-warning" ,icon: "pi pi-pencil"};
         case "delivered":
             return { label: "Đã giao", style: "btn-outline-success" , icon: "pi pi-check-square"};
         case "cancelled":

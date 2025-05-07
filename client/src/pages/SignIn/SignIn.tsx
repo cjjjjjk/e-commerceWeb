@@ -45,8 +45,6 @@ function SignIn() {
         password,
       });
       const { token, data } = res.data;
-      console.log(res.data);
-      console.log("SIGNIN RES:", res.data);
       if (res.data.status === "success") {
         localStorage.setItem("token", token);
         showToast("Đăng nhập thành công", "success");
@@ -84,7 +82,6 @@ function SignIn() {
 
   // SignIn with GG ====================================== author: Hai
   const GGSignIn = () => {
-    console.log("GGSignIn clicked");
     const googleLoginUrl = `${API_URL}/users/google`;
     //window.open(googleLoginUrl, "_blank");
     window.location.href = googleLoginUrl;

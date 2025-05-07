@@ -46,7 +46,6 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
   productId,
   status,
 }) => {
-  console.log(productId);
   const total = quantity * price;
 
   const [showModal, setShowModal] = useState<boolean>(false);
@@ -66,7 +65,6 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
     const fetchUser = async () => {
       try {
         const res = await userService.getMe();
-        console.log(res);
         const user = res?.data?.data?.user;
         if (user && user._id) {
           setUserData(user);
@@ -106,9 +104,6 @@ const OrderItemCard: React.FC<OrderItemCardProps> = ({
       );
       setItemStatus("rated");
 
-      console.log(response);
-
-      console.log("Review submitted:", response.data);
       showToast("Tạo đánh giá thành công", "success");
     } catch (error) {
       console.error("Lỗi khi gửi đánh giá:", error);
