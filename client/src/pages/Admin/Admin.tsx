@@ -65,7 +65,6 @@ export default function Admin() {
       }
       loadData();
     } catch (er: any) {
-      console.log(er);
       showToast("Lỗi khi tạo/cập nhật sản phẩm", "error");
     }
   };
@@ -146,7 +145,7 @@ export default function Admin() {
         setDataList(res.data.data.products || []);
         setTotalPages(res.data.totalPages || 1);
       } else {
-        const res = await axios.get(`${API_URL}/categories`);
+        const res = await adminService.getAllCategories();
         setDataList(res.data || []);
         setTotalPages(1);
       }
@@ -289,7 +288,7 @@ export default function Admin() {
   );
   
   return (
-    <div className="container container-admin container-fluid mt-4">
+    <div className="container container-admin container-fluid">
       <h4 className="w-100 d-flex"> 
       <strong>ADMIN</strong>
       <span className="btn btn-link ms-auto" 

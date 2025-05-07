@@ -83,6 +83,10 @@ const adminService = {
   getAllOrder: async(req: {page: number, limit: number})=>{
     return api.get(`/orders?page=${req.page}&limit=${req.limit}`);
   },
+
+  getAllCategories: async() =>{
+    return axios.get(process.env.REACT_APP_API_URL+"/categories");
+  },
   
   updateOrderStatus: async(orderId: string,status: "pending"|"confirmed"|"shipped"|"delivered"|"cancelled")=>{
     return api.patch(`/orders/${orderId}`, {status});

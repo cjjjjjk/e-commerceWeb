@@ -34,7 +34,7 @@ const Navigate = ()=>{
     const [categories, SetCategories] = useState<any[]>([]);
     const [items, SetItems] = useState<any[]>([]);
     const [categoriesShow, SetCategoriesShow] = useState<any[]>([]);
-    const [crrGender, SetCrrGender]= useState<string>('women');
+    const [crrGender, SetCrrGender]= useState<"Nữ"|"Nam"|"Tất cả">('Nữ');
 
     // Call API 
     useEffect(()=> {
@@ -44,7 +44,6 @@ const Navigate = ()=>{
                     SetCategories(res.data);
                     SetCategoriesShow(res.data);
                 } else {
-                    console.log('No Categories!');
                 }
             })
             .catch((err: any) => {
@@ -70,7 +69,6 @@ const Navigate = ()=>{
             setSearchValue(inputValue);
         }, 500);
         return () => {
-            console.log(delay);
             clearTimeout(timeOutId);
         }
       }, [inputValue]);
@@ -85,7 +83,6 @@ const Navigate = ()=>{
                     SetDelay(false);
                 }
                 else {
-                    console.log('No Result!');
                     SetDelay(false);
                 }
             })
@@ -136,7 +133,7 @@ const Navigate = ()=>{
         </div>
     ); 
     else return (
-        <div className="navi-full-container position-fixed z-3 bottom-0 w-100 d-flex justify-content-center align-items-center p-4 gap-5">
+        <div className="navi-full-container position-fixed z-3 bottom-0 w-100 d-flex justify-content-center align-items-center p-4 gap-5 ">
             <div 
                 className="navi-item z-2 home"
                 onClick={()=> naviHandler('')}
@@ -158,7 +155,7 @@ const Navigate = ()=>{
 
             { isShowSearchBox && 
             <div className="search-full-container h-100 w-100 z-1 top-0 left-0 position-fixed d-flex justify-content-center align-items-center">
-                <div className="search-container d-flex flex-column justify-content-center align-items-stretch">
+                <div className="search-container d-flex flex-column justify-content-center align-items-stretch shadow-lg">
                     <div className="input-container d-flex justify-content-between align-items-center gap-3" >
                         <input
                             onChange={(e) => setInputValue(e.target.value)}
@@ -175,20 +172,20 @@ const Navigate = ()=>{
                                 <h2 style={{ fontSize: "1.5rem",fontWeight:'600', color: "black" }}>DANH MỤC SẢN PHẨM</h2>
                                 <div className='flex-grow-1 d-flex flex-row gap-4 py-3'>
                                     <div className="cate-options d-flex flex-column gap-4">
-                                        <div className={`cate-option-item d-flex justify-content-start align-items-center gap-2 py-3 ${crrGender === 'women' ? 'active' : ''}`}
-                                            onClick={()=>{SetCrrGender('women')}}
+                                        <div className={`cate-option-item d-flex justify-content-start align-items-center gap-2 py-3 ${crrGender === 'Nữ' ? 'active' : ''}`}
+                                            onClick={()=>{SetCrrGender('Nữ')}}
                                             >
                                             <i className="pi pi-venus"></i>
                                             <span className='cate-option-name'>NỮ</span>
                                         </div>
-                                        <div className={`cate-option-item d-flex justify-content-start align-items-center gap-2 py-3 ${crrGender === 'men' ? 'active' : ''}`}
-                                            onClick={()=>{SetCrrGender('men')}}
+                                        <div className={`cate-option-item d-flex justify-content-start align-items-center gap-2 py-3 ${crrGender === 'Nam' ? 'active' : ''}`}
+                                            onClick={()=>{SetCrrGender('Nam')}}
                                             >
                                             <i className="pi pi-mars"></i>
                                             <span className='cate-option-name'>NAM</span>
                                         </div>
-                                        <div className={`cate-option-item d-flex justify-content-start align-items-center gap-2 py-3 ${crrGender === 'all' ? 'active' : ''}`}
-                                            onClick={()=>{SetCrrGender('all')}}
+                                        <div className={`cate-option-item d-flex justify-content-start align-items-center gap-2 py-3 ${crrGender === 'Tất cả' ? 'active' : ''}`}
+                                            onClick={()=>{SetCrrGender('Tất cả')}}
                                             >
                                             <i className="pi pi-user"></i>
                                             <span className='cate-option-name'>KHÁC</span>

@@ -7,6 +7,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import orderService from 'shared/services/orderService';
 import userService from 'shared/services/auth/userService';
+import { getStatusMeta } from 'pages/Admin/components/orderModal';
 
 export default function Cart() {
     const navigate = useNavigate();
@@ -29,7 +30,6 @@ export default function Cart() {
         const fetchOrders = async () => {
             try {
                 const orders = await orderService.getMyOrders();
-                console.log(orders)
                 setMyOrders(orders.data.orders ??[]);
             } catch (error) {
                 console.error("Không thể tải đơn hàng:", error);
@@ -157,29 +157,16 @@ export default function Cart() {
             showToast(`${error.response.data?.message??"Lỗi khi tạo đơn hàng"}`, "error");
         }
     };
-
-    const getStatusMeta = (status: string): { label: string, style: string } => {
-        switch (status) {
-            case "pending":
-                return { label: "Chờ xử lý", style: "btn-outline-secondary" };
-            case "confirmed":
-                return { label: "Đã xác nhận", style: "btn-outline-primary" };
-            case "shipped":
-                return { label: "Đã gửi hàng", style: "btn-outline-warning" };
-            case "delivered":
-                return { label: "Đã giao", style: "btn-outline-success" };
-            case "cancelled":
-                return { label: "Đã hủy", style: "btn-outline-danger" };
-            default:
-                return { label: "Không rõ", style: "btn-outline-dark" };
-        }
-    };
-
     return (
         <div className="cart-full-container w-100 h-100 d-flex flex-column justify-content-center align-items-center mb-5">
             <div className='cart-container h-100 mt-3'>
                 <div className="cart-list-container d-flex flex-column justify-content-start align-items-center">
-                    <h1 className="list-label align-self-start">{"đơn đã đặt".toUpperCase()}</h1>
+                    <h1 className="list-label align-self-start d-flex justify-content-start align-items-center gap-2">{"đơn của bạn".toUpperCase()} <span className='btn btn-outline-secondary'
+                        onClick={()=>{
+                            navigate("/order")
+                        }}
+                    >
+                        CHI TIẾT <i className='pi pi-arrow-up-right'></i></span></h1>
                     {userData && (
                         <div className="accordion w-100" id="ordersAccordion">
                             {Array.isArray(myOrders) && myOrders.length > 0 ? (

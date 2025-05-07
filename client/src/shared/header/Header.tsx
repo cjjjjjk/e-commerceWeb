@@ -36,8 +36,8 @@ const Header = () => {
                   onClick={()=> navigate('cart')}
                 ></i>
                 <i 
-                  className="header-icon p-1 wish-list pi pi-heart d-flex align-items-center"
-                  onClick={()=> navigate('wishlist')}  
+                  className="header-icon p-1 wish-list pi pi-inbox d-flex align-items-center"
+                  onClick={()=> navigate('order')}  
                 ></i>
                 <i 
                   className="header-icon p-1 user pi pi-user d-flex align-items-center"

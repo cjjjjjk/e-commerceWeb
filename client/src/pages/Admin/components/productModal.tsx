@@ -1,10 +1,11 @@
 import { uploadToImgur, deleteUploaded } from "../services/imgurService";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import './productModal.css'
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { addToast } from "shared/components/toast/toastSlice";
+import adminService from "../services/adminService";
 
 export interface ProductModel {
   _id: string;
@@ -41,6 +42,28 @@ export default function ProductModalComponent({ product, onClose, onSave }: Prop
   const [uploading, setUploading] = useState<boolean>(false);
   const [uploadedList, setUploadedList] = useState<{ link: string, deleteHash: string }[]>([]);
   const [editedProduct, setEditedProduct] = useState<ProductModel>(product!);
+  const [categories, setCategories] = useState<{ _id: string, name: string, gender: string }[]>([])
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await adminService.getAllCategories();
+        setCategories(res.data);
+  
+        // Nếu tạo mới và chưa có categoryId thì gán mặc định
+        if (!editedProduct.categoryId) {
+          setEditedProduct((prev) => ({
+            ...prev,
+            categoryId: "681abce6977590298c9dda9e",
+          }));
+        }
+      } catch (err) {
+        console.error("Lỗi khi lấy danh sách categories:", err);
+        showToast("Không thể tải danh mục sản phẩm", "error");
+      }
+    };
+  
+    fetchCategories();
+  }, []);
 
   const handleInputChange = (field: keyof ProductModel, value: any) => {
     setEditedProduct({ ...editedProduct, [field]: value });
@@ -103,6 +126,26 @@ export default function ProductModalComponent({ product, onClose, onSave }: Prop
     onClose();
   };
 
+
+  const [newColorHex, setNewColorHex] = useState<string>("#000000");
+
+  const handleAddColor = (hexColor: string) => {
+    const formatted = `Custom-${hexColor.toUpperCase()}`;
+    if (!editedProduct.colors.includes(formatted)) {
+      setEditedProduct({
+        ...editedProduct,
+        colors: [...editedProduct.colors, formatted],
+      });
+    }
+  };
+  
+  const handleRemoveColor = (colorToRemove: string) => {
+    setEditedProduct({
+      ...editedProduct,
+      colors: editedProduct.colors.filter((color) => color !== colorToRemove),
+    });
+  };
+
   if (!product) return null;
 
   return (
@@ -148,14 +191,18 @@ export default function ProductModalComponent({ product, onClose, onSave }: Prop
                 </select>
               </div>
               <div className="col">
-                <label className="form-label">Mã danh mục</label>
-                <input
-                  placeholder="ID danh mục sản phẩm"
-                  type="text"
-                  className="form-control"
-                  value={editedProduct.categoryId}
+                <label className="form-label">Danh mục</label>
+                <select
+                  className="form-select"
+                  value={editedProduct.categoryId ?? "681abce6977590298c9dda9e"}
                   onChange={(e) => handleInputChange("categoryId", e.target.value)}
-                />
+                >
+                  {categories.map((cat) => (
+                    <option key={cat._id} value={cat._id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
 
@@ -176,7 +223,7 @@ export default function ProductModalComponent({ product, onClose, onSave }: Prop
                         <td>{size}</td>
                         <td>
                           <input
-                            type="number"
+                            type="string"
                             className="form-control"
                             value={editedProduct.stockMap[size] || 0}
                             onChange={(e) =>
@@ -186,7 +233,7 @@ export default function ProductModalComponent({ product, onClose, onSave }: Prop
                         </td>
                         <td>
                           <input
-                            type="number"
+                            type="string"
                             className="form-control"
                             value={editedProduct.priceMap[size] || 0}
                             onChange={(e) =>
@@ -198,6 +245,49 @@ export default function ProductModalComponent({ product, onClose, onSave }: Prop
                     ))}
                   </tbody>
                 </table>
+              </div>
+            </div>
+
+            <div className="mb-3">
+              <label className="form-label">Màu sắc</label>
+              <div className="d-flex flex-wrap gap-2 mb-2">
+                {editedProduct.colors.map((color, idx) => (
+                  <span
+                    key={idx}
+                    className="badge d-flex align-items-center border"
+                    style={{
+                      padding: "0.5rem",
+                      backgroundColor: color.split("-")[1] || "#ccc",
+                      color: "#fff"
+                    }}
+                  >
+                    {color}
+                    <button
+                      type="button"
+                      className="btn-close btn-close-white ms-2"
+                      style={{ fontSize: "0.6rem" }}
+                      onClick={() => handleRemoveColor(color)}
+                    ></button>
+                  </span>
+                ))}
+              </div>
+
+              <div className="d-flex justify-content-start gap-3">
+                <input
+                  type="color"
+                  className="form-control form-control-color"
+                  style={{ width: '3rem', height: '3rem' }}
+                  value={newColorHex}
+                  onChange={(e) => setNewColorHex(e.target.value)}
+                  title="Chọn màu"
+                />
+                <button
+                  className="btn btn-outline-primary fw-bolder"
+                  type="button"
+                  onClick={() => handleAddColor(newColorHex)}
+                >
+                  Thêm  
+                </button>
               </div>
             </div>
 
