@@ -60,6 +60,8 @@ function isLoggedIn(): boolean {
 }
 
 export interface CartItem {
+  _id?: string,
+  productId: string,
   id: string;
   name: string;
   price: number;
@@ -122,8 +124,9 @@ export async function removeFromCart(item: CartItem): Promise<void> {
 }
 
 export async function updateQuantity(item: CartItem): Promise<void> {
+  console.log(item)
   if (isLoggedIn()) {
-    await api.patch("/carts/updateItem", item);
+    await api.patch("/carts/updateItem", {...item, id: item._id});
   } else {
     const cart = getLocalCart();
     const targetItem = cart.find(

@@ -12,6 +12,7 @@ import CategoryModal, {CategoryModel} from "./components/categoryModal";
 
 import { ProductModel } from "./components/productModal";
 import { getStatusMeta } from "./components/orderModal";
+import { setHideNavBar } from "shared/navi/navigateSlice";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -112,6 +113,7 @@ export default function Admin() {
   };
 
   useEffect(() => {
+    dispatch(setHideNavBar(true));
     const guardCheck = async () => {
       try {
         const isAdmin = await adminService.checkAdmin();

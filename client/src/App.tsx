@@ -4,8 +4,9 @@ import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, useParam
 
 // Redux Toolkit
 import { useDispatch } from "react-redux";
-import { setHeaderTheme } from "shared/header/headerSlice";
+import { setHeaderTheme, setIsTransference } from "shared/header/headerSlice";
 import { setNaviToBackHome } from "shared/navi/navigateSlice";
+import { setHideNavBar } from "shared/navi/navigateSlice";
 
 // Components
 import Header from "./shared/header/Header";
@@ -41,7 +42,8 @@ const RouteChangeHandler = () => {
       default:
         dispatch(setHeaderTheme("light"));
         dispatch(setNaviToBackHome(false));
-
+        dispatch(setHideNavBar(false));
+        dispatch(setIsTransference(true))
     }
   }, [location, dispatch]);
 

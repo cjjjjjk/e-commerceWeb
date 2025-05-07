@@ -1,107 +1,55 @@
 .signin-full-container {
-    background-color: whitesmoke !important;
-}
+    background-color: #f8f9fa;
+    min-height: 100vh;
+  }
+  
+  .signin-container {
+    width: 50%;
+    max-width: 400px;
+    padding: 2rem;
+  }
 
-.signin-container {
-    width: 40rem;
-    max-width: 100vw;
-    
-    height: 40rem;
-    max-height: 60vh;
-
+  .container-outer {
+    margin-top: -200px !important;
+    width: 75rem;
+    max-width: 90vw;
     background-color: white;
-    border: solid 1px lightgray;
-    padding: 1rem;
-
-
-    h1 {
-        font-weight: bold;
-    }
-}
-
-.header {
-    color: #d0c937;
-}
-
-.signin {
-    margin-top: -1.5rem;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  .form-control {
+    border-radius: 5px;
+    padding: 10px;
+  }
+  
+  .btn {
     font-weight: bold;
     transition: all 0.3s ease-in-out;
+  }
 
-    &:hover {
-        background-color: white;
-        color: gray;
-        box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
-    }
-}
-
-.head-space {
-    margin-top: -1rem;
-}
-
-.extra-head-space {
-    margin-top: -2.5rem;
-}
-
-fieldset {
-    position: relative;
-    margin: 10px 0;
-    
-    .label {
-        position: absolute;
-        pointer-events:none;
-        left: 0;
-        top: 0;
-        padding: 5px;
-        margin: 0;
-        margin-top: 10px;
-        margin-left: 5px;
-        background: pink;
-        white-space: nowrap;
-        transform: translate(0, 0);
-        transform-origin: 0 0;
-        background: white;
-        transition: transform 120ms ease-in;
-        font-weight: bold;
-        line-height: 1.2;
-    }   
-    .input {
-        line-height: 2.4rem;
-        width: 25rem;
-        box-sizing: border-box;
-        display: block;
-        border: 3px solid black;
-        padding: 5px;
-        color: black;
-        background: transparent;
-        border-radius: 2px;
-        
-        &:focus,
-        &:not(:placeholder-shown) {
-            & + .label {
-              transform: translate(.25rem, -75%) scale(.8);
-              color: #fab700;
-            }
-        }
-    }
-}
-
-.switch-button {
-    position: relative;
-    align-self:first baseline;
-    display:inline-block;
-    background-color:transparent;
-    padding:0.35em 1.2em;
-    border:0.1em solid #000000;
-    margin:0 0.3em 0.3em 0;
-    border-radius:0.12em;
-    box-sizing: border-box;
-    color:#000000;
-    text-align:center;
-    transition: all 0.2s;
-}   
-.switch-button:hover{
-color:#000000;
-background-color:#FFFFFF;
-}
   
+
+  @media (max-width: 992px) {
+
+    .container-outer {
+      margin-top: unset !important;
+      display: flex;
+      justify-content: center;
+    }
+    .signin-container {
+      width: 100%;
+      padding: 1.5rem;
+      max-width: 100%;
+    }
+    .content-container {
+      display: none !important;
+    }
+  }
+  
+.form-label {
+  font-weight: bolder;
+  margin-bottom: 0 !important;
+}
+.form-text {
+  font-size: 12px !important;
+}

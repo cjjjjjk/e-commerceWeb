@@ -124,7 +124,7 @@ function Member() {
               onClick={()=>{
                 navigate('/admin');
               }}
-            >▶  ADMIN
+            >▶  ADMIN: Đến trang quản lý
             </span>
           }
           <div className="detail__item detail__address">

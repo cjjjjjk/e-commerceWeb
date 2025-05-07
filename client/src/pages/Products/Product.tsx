@@ -54,6 +54,7 @@ const Product: React.FC = function() {
 
     const handlerAddToCart = function(){
         const cartItem: CartItem = {
+            productId: String(productId),
             id: String(productId),
             name: productInfo.name,
             price: productInfo.priceMap?.[Object.keys(productInfo.priceMap || {})[activeSizeIndex]], 

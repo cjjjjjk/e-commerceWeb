@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 
 type CartItemProps = {
     item: {
-        _id?: string;
+        _id?: string ;
         id: string;
         productId: string;
         name: string;
@@ -16,38 +16,43 @@ type CartItemProps = {
         color: string;
     };
     handleRemove: (item: any) => void;
-    handleUpdateQuantity: (id: string, quantity: number) => void;
+    handleUpdateQuantity: (id: string |undefined, quantity: number) => void;
+    isLoading: boolean;
 };
 
-const CartItem: React.FC<CartItemProps> = ({ item, handleRemove, handleUpdateQuantity }) => {
+const CartItem: React.FC<CartItemProps> = ({ item, handleRemove, handleUpdateQuantity, isLoading }) => {
     const navigate = useNavigate();
     return (
-        <div className="cart-item w-100 d-flex align-items-start gap-3" >
-            <img 
-            src={item.image} 
-            alt={item.name} 
-            className="cart-item-image" 
-            />
-            <div className="item-details"
-                onClick={()=>{
-                    navigate(`/product/${item.productId ?? item.id}`)
-                }}
-            >
-            <h4>{item.name}</h4>
-            <p> 
-                <button className='btn btn-danger' disabled>
-                    <strong>{item.price.toLocaleString()} VND</strong>
-                    </button>
-            </p>
-            <p>Số lượng: {item.quantity}</p>
-            <p>Size: {item.size ?? "S"}</p>
-             <p>Color: {item.color ?? "L"}</p>
+        <div className="cart-item d-flex flex-row flex-md-row align-items-start gap-3 p-3 border rounded shadow-sm bg-white">
+        <img
+            src={item.image}
+            alt={item.name}
+            className="cart-item-image rounded"
+        />
+
+        <div
+            className="item-details flex-grow-1"
+            onClick={() => navigate(`/product/${item.productId ?? item.id}`)}
+            style={{ cursor: 'pointer' }}
+        >
+            <h5 className="mb-1">{item.name}</h5>
+            <div className="mb-2">
+            <span className="badge bg-danger">{item.price.toLocaleString()} VND</span>
             </div>
-            <div className="item-actions d-flex gap-2 ms-auto">
-            <button className="quantity-btn" onClick={() => handleUpdateQuantity(item.id, item.quantity + 1)}>+</button>
-            <button className="quantity-btn" onClick={() => handleUpdateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1}>-</button>
-            <button className="remove-btn btn btn-danger" onClick={() => handleRemove(item)}>Xóa</button>
+            <div className="text-muted small">
+            <div>Số lượng: {item.quantity}</div>
+            <div>Size: {item.size ?? "S"}</div>
+            <div>Color: {item.color ?? "L"}</div>
             </div>
+        </div>
+
+        <div className="h-100 item-actions d-flex flex-column flex-md-row justify-content-center align-items-center align-items-md-center gap-2 ms-md-auto">
+            <div className='d-flex flex-row gap-1'>
+            <button className="btn btn-outline-secondary btn-sm" onClick={() => handleUpdateQuantity(item._id, item.quantity + 1)} disabled={isLoading}>+</button>
+            <button className="btn btn-outline-secondary btn-sm" onClick={() => handleUpdateQuantity(item._id, item.quantity - 1)} disabled={item.quantity <= 1 || isLoading}>-</button>
+            </div>
+            <button className="btn btn-danger btn-sm mt-auto" onClick={() => handleRemove(item)} disabled={isLoading}>Xóa</button>
+        </div>
         </div>
     );
 };

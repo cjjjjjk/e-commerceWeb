@@ -8,6 +8,7 @@ import userService from "shared/services/auth/userService";
 import { addToast } from "shared/components/toast/toastSlice";
 import OrderCard from "./OrderCard";
 import { Loading } from "shared/components";
+import { setIsTransference } from "shared/header/headerSlice";
 
 interface OrderItem {
   name: string;
@@ -89,6 +90,7 @@ const UserOrders = () => {
 
   // Lấy thông tin người dùng
   useEffect(() => {
+    dispatch(setIsTransference(false))
     const fetchUser = async () => {
       try {
         const res = await userService.getMe();

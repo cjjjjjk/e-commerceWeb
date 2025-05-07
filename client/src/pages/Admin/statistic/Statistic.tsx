@@ -16,6 +16,8 @@ import {
 import { Line, Bar, Pie } from "react-chartjs-2";
 import { useNavigate } from "react-router-dom";
 import { Loading } from "shared/components";
+import { useDispatch } from "react-redux";
+import { setHideNavBar } from "shared/navi/navigateSlice";
 
 ChartJS.register(
   CategoryScale,
@@ -29,6 +31,7 @@ ChartJS.register(
 );
 
 export default function Statistic() {
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const [revenueStats, setRevenueStats] = useState<any>(null);
   const [orderStats, setOrderStats] = useState<any>(null);
@@ -65,6 +68,7 @@ export default function Statistic() {
   };
 
   useEffect(() => {
+    dispatch(setHideNavBar(true));
     const formatDate = (d: Date) => d.toISOString().split("T")[0];
   
     const today = new Date();

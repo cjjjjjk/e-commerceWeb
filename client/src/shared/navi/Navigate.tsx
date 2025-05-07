@@ -12,7 +12,7 @@ const API_URL = process.env.REACT_APP_API_URL
 const Navigate = ()=>{
     const navigate = useNavigate();
 
-    const {isBackHome, isReload} = useSelector((state: RootState) => state.navicom);
+    const {isBackHome, isReload, isHide} = useSelector((state: RootState) => state.navicom);
     
     // Search container handler --------------
     const [isShowSearchBox, setIsShowSearchBox] = useState(false);
@@ -123,7 +123,10 @@ const Navigate = ()=>{
         return href;
     }
 
-    if(isBackHome) return (
+    if(isHide) {
+        return null;
+    }
+    else if(isBackHome) return (
         <div className="position-fixed z-2 bottom-0 w-100 d-flex justify-content-center align-items-center p-4 gap-5">
             <div
                 onClick={()=> navigate('')} 

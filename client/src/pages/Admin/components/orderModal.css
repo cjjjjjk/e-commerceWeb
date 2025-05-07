@@ -2,3 +2,7 @@ select.form-select {
     max-width: 200px;
 }
   
+.order-list-group {
+    max-height: 200px !important;
+    overflow: auto;
+}
