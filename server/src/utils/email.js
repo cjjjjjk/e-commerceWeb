@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const nodemailMailgun = require("nodemailer-mailgun-transport");
 const pug = require("pug");
 const htmlToText = require("html-to-text");
 
@@ -7,11 +8,10 @@ module.exports = class Email {
     this.to = user.email;
     this.firstName = user.displayName;
     this.url = url;
-    this.from = `E-commerce web`;
+    this.from = `E-commerce web <${process.env.EMAIL_FROM}>`;
   }
 
   newTransport() {
-    console.log("Hello");
     if (process.env.NODE_ENV === "production") {
       // Product mode
       return nodemailer.createTransport({
@@ -21,6 +21,22 @@ module.exports = class Email {
           pass: process.env.GMAIL_APP_PASS,
         },
       });
+      // return nodemailer.createTransport(
+      //   nodemailMailgun({
+      //     auth: {
+      //       api_key: process.env.MAILGUN_API,
+      //       domain: process.env.MAILGUN_DOMAIN,
+      //     },
+      //   })
+      // );
+
+      // return nodemailer.createTransport({
+      //   service: "SendGrid",
+      //   auth: {
+      //     user: process.env.SENDGRID_USERNAME,
+      //     pass: process.env.SENDGRID_PASSWORD,
+      //   },
+      // });
     }
 
     // Dev mode
