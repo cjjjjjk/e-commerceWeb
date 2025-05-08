@@ -83,7 +83,7 @@ export default function OrderModal({ order, onClose, onSave }: Props) {
   if (!order) return null;
 
   return (
-    <div className="modal show d-block mt-xl-5" tabIndex={-1}>
+    <div className="modal show d-block" tabIndex={-1}>
       <div className="modal-dialog modal-lg mt-xl-5">
         <div className="modal-content shadow">
           <div className="modal-header">
@@ -143,7 +143,7 @@ export default function OrderModal({ order, onClose, onSave }: Props) {
 
             <hr />
             <h6>Sản phẩm:</h6>
-            <ul className="list-group">
+            <ul className="list-group order-list-group">
               {order.items.map((item, idx) => (
                 <li className="list-group-item" key={idx}>
                   <strong>{item.name}</strong> - {item.color}, Size: {item.size} <strong>&nbsp;ID:{item.productId}</strong><br />

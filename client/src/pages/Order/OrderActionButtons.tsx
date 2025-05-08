@@ -21,8 +21,8 @@ export const TrackOrderButton: React.FC<ButtonProps> = ({ onClick }) => {
 };
 
 export const ViewLocationButton: React.FC<ButtonProps> = ({ onClick }) => (
-  <button className="btn btn-info btn-lg" onClick={onClick}>
-    Xem vị trí
+  <button className="btn btn-outline-info btn-lg" onClick={onClick} disabled>
+    Đơn hàng đang được vận chuyển đến bạn
   </button>
 );
 

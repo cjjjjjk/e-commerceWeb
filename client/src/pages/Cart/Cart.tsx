@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import orderService from 'shared/services/orderService';
 import userService from 'shared/services/auth/userService';
 import { getStatusMeta } from 'pages/Admin/components/orderModal';
+import { setIsTransference } from 'shared/header/headerSlice';
 
 export default function Cart() {
     const navigate = useNavigate();
@@ -20,6 +21,8 @@ export default function Cart() {
     const [name, setName]= useState<string>('');
     const [address, setAddress] = useState('');
     const [phone, setPhone] = useState('');
+
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const showToast = (message: string, type: "success" | "error" | "info", link?: string) => {
         dispatch(addToast({ message, type, link }));
@@ -42,6 +45,7 @@ export default function Cart() {
     }, [userData,cartItems]);
 
     useEffect(()=>{
+        dispatch(setIsTransference(false))
         const fetchUser = async() =>{
             try {
                 const user = await userService.getMe();
@@ -62,6 +66,7 @@ export default function Cart() {
     useEffect(() => {
         const fetchCart = async () => {
             try {
+                setIsLoading(true);
                 const cart = await getCart();
                 const cartshow = Array.isArray(cart) ? cart : cart.items;
                 if (cart) {
@@ -70,9 +75,11 @@ export default function Cart() {
                 } else {
                     setCartItems([]);
                 }
+                setIsLoading(false);
             } catch (err) {
                 console.error("Failed to load cart:", err);
                 showToast("Không thể tải giỏ hàng", "error");
+                setIsLoading(false);
             }
         };
         fetchCart();
@@ -87,6 +94,7 @@ export default function Cart() {
 
     const handleRemove = async (item: any) => {
         try {
+            setIsLoading(true);
             await removeFromCart(item);
             const cart = await getCart();
             const cartshow = Array.isArray(cart) ? cart : cart.items;
@@ -94,26 +102,32 @@ export default function Cart() {
                 setCartItems(cartshow);
             } else {
                 setCartItems([]);
-            }
-        } catch (err) {
+            setIsLoading(false);
+        }
+    } catch (err) {
+            setIsLoading(false);
             showToast("Lỗi khi xóa sản phẩm", "error");
         }
     };
 
-    const handleUpdateQuantity = async (id: string, quantity: number) => {
+    const handleUpdateQuantity = async (id: string |undefined, quantity: number) => {
+        setIsLoading(true);
         const updated = cartItems.map(item =>
-            item.id === id ? { ...item, quantity: Math.max(1, quantity) } : item
+            item._id === id ? { ...item, quantity: Math.max(1, quantity) } : item
         );
         setCartItems(updated);
 
         const token = localStorage.getItem("token");
         if (token) {
-            const target = updated.find(i => i.id === id);
+            const target = updated.find(i => i._id === id);
             if (target) {
                 try {
                     await updateQuantity(target);
-                } catch (err) {
-                    showToast("Không thể cập nhật số lượng", "error");
+                    showToast("Cập nhật thành công", "success")
+                    setIsLoading(false);
+            } catch (err) {
+                showToast("Không thể cập nhật số lượng", "error");
+                setIsLoading(false);
                 }
             }
         }
@@ -160,13 +174,55 @@ export default function Cart() {
     return (
         <div className="cart-full-container w-100 h-100 d-flex flex-column justify-content-center align-items-center mb-5">
             <div className='cart-container h-100 mt-3'>
-                <div className="cart-list-container d-flex flex-column justify-content-start align-items-center">
-                    <h1 className="list-label align-self-start d-flex justify-content-start align-items-center gap-2">{"đơn của bạn".toUpperCase()} <span className='btn btn-outline-secondary'
-                        onClick={()=>{
-                            navigate("/order")
-                        }}
-                    >
-                        CHI TIẾT <i className='pi pi-arrow-up-right'></i></span></h1>
+            <div className="container cart-list-container">
+                <span className="list-label text-start mb-3 ">{"giỏ hàng".toUpperCase()}</span>
+                {Array.isArray(cartItems) && cartItems.length > 0 ? (
+                    <div className="d-flex flex-column gap-3">
+                    {cartItems.map((item) => (
+                        <CartItem
+                        item={item}
+                        handleRemove={handleRemove}
+                        handleUpdateQuantity={handleUpdateQuantity}
+                        isLoading={isLoading} 
+                        />
+                    ))}
+                    </div>
+                ) : (
+                    <div className="alert alert-info">Giỏ hàng của bạn đang trống</div>
+                )}
+                </div>
+                {
+                    cartItems.length > 0 &&
+                    <div className="cart-action container d-flex flex-column flex-md-row justify-content-between align-items-center mt-4 p-4 border-top">
+                    <div className="cart-action-left text-center text-md-start mb-3 mb-md-0">
+                        <h4 className="mb-0">
+                        TỔNG THANH TOÁN:&nbsp;
+                        <strong className="text-danger">{calculateTotal().toLocaleString()} VND</strong>
+                        </h4>
+                    </div>
+                    <div className="cart-action-right text-center">
+                        <button
+                            className="btn btn-danger btn-lg px-4 fw-bold"
+                            onClick={handleCheckout}
+                            disabled={isLoading}
+                        >
+                        Thanh toán
+                        </button>
+                    </div>
+                    </div>
+                }
+                <hr />
+                {userData && (
+                    <div className="cart-list-container d-flex flex-column justify-content-start align-items-center">
+                    <div className='d-flex w-100 px-2 align-items-center mb-3'>
+                        <span className="list-label text-start ">{"đơn hàng của bạn".toUpperCase()}</span>
+                        <span className='btn btn-outline-dark ms-auto fw-bolder'
+                            onClick={()=>{
+                                navigate("/order")
+                            }}
+                        >
+                        Xem Toàn BỘ <i className='pi pi-arrow-up-right'></i></span>
+                    </div>
                     {userData && (
                         <div className="accordion w-100" id="ordersAccordion">
                             {Array.isArray(myOrders) && myOrders.length > 0 ? (
@@ -228,89 +284,69 @@ export default function Cart() {
                             )}
                         </div>
                         )}
-                </div>
-                <div className="mt-3 cart-list-container d-flex flex-column justify-content-start align-items-center">
-                    <h1 className="list-label align-self-start">{"giỏ hàng".toUpperCase()}</h1>
-                    {
-                        Array.isArray(cartItems) && cartItems.length > 0 ? (
-                            cartItems.map((item) => (
-                                <CartItem
-                                    key={`${item.id}-${item.size}-${item.color}`}
-                                    item={item}
-                                    handleRemove={handleRemove}
-                                    handleUpdateQuantity={handleUpdateQuantity}
-                                />
-                            ))
-                        ) : (
-                            <div className="empty-cart align-self-start">
-                                <span>Giỏ hàng của bạn đang trống</span>
-                            </div>
-                        )
-                    }
-                </div>
-                {
-                    cartItems.length > 0 &&
-                    <div className="cart-action d-flex flex-column align-items-start mt-3 border-top-3 mb-5 py-5">
-                        <div className="cart-action-left d-flex justify-content-start align-items-center">
-                            <h2>Tổng cộng:&nbsp;<strong>{calculateTotal()} VND</strong></h2>
-                        </div>
-                        <div className="cart-action-right">
-                            <button className="btn btn-danger" onClick={handleCheckout}>
-                                Thanh toán
-                            </button>
-                        </div>
-                    </div>
-                }
+                </div> )}
             </div>
 
-            {/* Modal */}
             {showModal &&
-                <div className="modal d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-                    <div className="modal-dialog">
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h5 className="modal-title">Xác nhận đơn hàng</h5>
-                                <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
-                            </div>
-                            <div className="modal-body">
-                                <div className="mb-3">
-                                    <label className="form-label">Tên</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        placeholder="Nhập tên của bạn"
-                                    />
-                                </div>
-                                <div className="mb-3">
-                                    <label className="form-label">Địa chỉ</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        value={address}
-                                        onChange={(e) => setAddress(e.target.value)}
-                                        placeholder="Nhập địa chỉ giao hàng"
-                                    />
-                                </div>
-                                <div className="mb-3">
-                                    <label className="form-label">Số điện thoại</label>
-                                    <input
-                                        type="text"
-                                        className="form-control"
-                                        value={phone}
-                                        onChange={(e) => setPhone(e.target.value)}
-                                        placeholder="Nhập số điện thoại"
-                                    />
-                                </div>
-                            </div>
-                            <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" onClick={() => setShowModal(false)}>Đóng</button>
-                                <button type="button" className="btn btn-primary" onClick={handleConfirmOrder}>Xác nhận</button>
-                            </div>
-                        </div>
+            <div className="modal d-block" tabIndex={-1} style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+                <div className="modal-dialog modal-dialog-centered modal-lg">
+                <div className="modal-content">
+                    <div className="modal-header bg-dark text-white">
+                    <h5 className="modal-title">Xác nhận đơn hàng</h5>
+                    <button type="button" className="btn-close btn-close-white" onClick={() => setShowModal(false)}></button>
+                    </div>
+
+                    <div className="modal-body">
+                    <div className="mb-3">
+                        <label className="form-label">Tên người nhận</label>
+                        <input
+                        type="text"
+                        className="form-control"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="Nhập họ tên"
+                        />
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="form-label">Địa chỉ giao hàng</label>
+                        <textarea
+                        className="form-control"
+                        rows={2}
+                        value={address}
+                        onChange={(e) => setAddress(e.target.value)}
+                        placeholder="Nhập địa chỉ cụ thể"
+                        />
+                    </div>
+
+                    <div className="mb-3">
+                        <label className="form-label">Số điện thoại</label>
+                        <input
+                        type="tel"
+                        className="form-control"
+                        value={phone}
+                        onChange={(e) => setPhone(e.target.value)}
+                        placeholder="Nhập số điện thoại liên hệ"
+                        />
+                    </div>
+
+                    <div className="alert alert-light border d-flex justify-content-between align-items-center mt-4">
+                        <strong className="fs-5">Tổng thanh toán:</strong>
+                        <span className="fs-4 text-danger fw-bold">{calculateTotal()} VND</span>
+                    </div>
+                    </div>
+
+                    <div className="modal-footer d-flex justify-content-between">
+                    <button type="button" className="btn btn-outline-secondary" onClick={() => setShowModal(false)}>
+                        Hủy
+                    </button>
+                    <button type="button" className="btn btn-dark px-4 fw-bold" onClick={handleConfirmOrder}>
+                        Xác nhận đặt hàng
+                    </button>
                     </div>
                 </div>
+                </div>
+            </div>
             }
 
             <div className='w-100 bg-dark'>

@@ -9,9 +9,9 @@
     height: 40rem;
     max-height: 60vh;
 
-    background-color: whitesmoke;
-
-    border: solid 1px lightgray;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     padding: 1rem;
 
 }

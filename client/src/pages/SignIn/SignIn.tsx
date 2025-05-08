@@ -1,49 +1,36 @@
 import "./signin.css";
-
-import { useState } from 'react';
-import {  useNavigate } from 'react-router-dom';
-import { useMediaQuery } from 'react-responsive'
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useDispatch } from 'react-redux';
 import { addToast } from 'shared/components/toast/toastSlice';
+import { setHideNavBar } from "shared/navi/navigateSlice";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
-
 function SignIn() {
-  const isSmallScreen = useMediaQuery({ query: '(max-width: 992px)' });
-  const [smallScreenSwitch, setSmallScreenSwitch] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);  // State to toggle between login and signup forms
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [passwordConfirm, setPasswordConfirm] = useState("");
 
-  const showToast = (
-    message: string,
-    type: "success" | "error" | "info",
-    link?: string
-  ) => {
+  useEffect(() => {
+    dispatch(setHideNavBar(true));
+  }, [dispatch]);
+
+  const showToast = (message: string, type: "success" | "error" | "info", link?: string) => {
     dispatch(addToast({ message, type, link }));
   };
 
-  const handleSwitch = (e: { preventDefault: () => void }) => {
-    e.preventDefault();
-    if (!smallScreenSwitch) setSmallScreenSwitch(true);
-    else setSmallScreenSwitch(false);
-  }
- 
   const handleLogin = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${API_URL}/users/login`, {
-        email,
-        password,
-      });
+      const res = await axios.post(`${API_URL}/users/login`, { email, password });
       const { token, data } = res.data;
       if (res.data.status === "success") {
         localStorage.setItem("token", token);
@@ -62,12 +49,8 @@ function SignIn() {
   const handleSignup = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${API_URL}/users/signup`, {
-        email:newEmail,
-        password:newPassword,
-        passwordConfirm,
-      });
-      const { token, data } = res.data;
+      const res = await axios.post(`${API_URL}/users/signup`, { email: newEmail, password: newPassword, passwordConfirm });
+      const { token } = res.data;
       if (res.data.status === "success") {
         localStorage.setItem("token", token);
         navigate("/member");
@@ -80,133 +63,98 @@ function SignIn() {
     }
   };
 
-  // SignIn with GG ====================================== author: Hai
   const GGSignIn = () => {
     const googleLoginUrl = `${API_URL}/users/google`;
-    //window.open(googleLoginUrl, "_blank");
     window.location.href = googleLoginUrl;
-  };
-  // ================================================================
-
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPassword(e.target.value);
-  };
-
-  const handleNewEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewEmail(e.target.value);
-  };
-
-  const handleNewPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewPassword(e.target.value);
-  };
-
-  const handlePasswordConfirmChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setPasswordConfirm(e.target.value);
   };
 
   return (
-    <div className="signin-full-container h-100 w-100 p-5 d-flex flex-wrap justify-content-center align-items-center">
-      {(!isSmallScreen || !smallScreenSwitch )&&
-      <form className="signin-form">
-        <div className="signin-container d-flex flex-column align-items-baseline gap-4">
-          <h1 className="header mt-4">ĐĂNG NHẬP</h1>
-          <fieldset>
-            <input
-              className="input email"
-              type="text"
-              placeholder=""
-              value={email}
-              onChange={handleEmailChange}
-            />
-            <span className="label">Email/Số điện thoại</span>
-          </fieldset>
-          <fieldset>
-            <input
-              className="input password"
-              type="password"
-              placeholder=""
-              value={password}
-              onChange={handlePasswordChange}
-            />
-            <span className="label">Mật khẩu</span>
-            <p className="mt-4">
-              Mật khẩu phải có từ 8 đến 20 kí tự bao gồm cả chữ và số.
-            </p>
-          </fieldset>
+    <div className="signin-full-container d-flex flex-row justify-content-center align-items-center">
+      <div className="container-outer d-flex flex-row">
+        <div className="signin-container p-4">
+          {!isSignUp ? (
+            <form onSubmit={handleLogin}>
+              <h1 className="text-start mb-4 fw-bolder">ĐĂNG NHẬP</h1>
+              <div className="mb-3">
+                <label htmlFor="email" className="form-label">Email/Số điện thoại</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="password" className="form-label">Mật khẩu</label>
+                <input
+                  type="password"
+                  className="form-control"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+                <small className="form-text text-muted">Mật khẩu phải có từ 8 đến 20 ký tự bao gồm cả chữ và số.</small>
+              </div>
+              <button type="submit" className="btn w-100 mb-3 btn-dark">ĐĂNG NHẬP</button>
+              <button type="button" className="btn btn-outline-danger w-100 mb-3" onClick={GGSignIn}>
+                <i className="pi pi-google"></i> Đăng nhập với Google
+              </button>
+            </form>
+          ) : (
+            <form onSubmit={handleSignup}>
+              <h1 className="text-start mb-4 fw-bolder">ĐĂNG KÝ</h1>
+              <div className="mb-3">
+                <label htmlFor="newEmail" className="form-label">Email/Số điện thoại</label>
+                <input
+                  type="email"
+                  className="form-control"
+                  id="newEmail"
+                  value={newEmail}
+                  onChange={(e) => setNewEmail(e.target.value)}
+                />
+              </div>
+              <div className="mb-3">
+                <label htmlFor="newPassword" className="form-label">Mật khẩu</label>
+                <input
+                  type="password"
+                  className="form-control"
+                  id="newPassword"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+                <small className="form-text text-muted">Mật khẩu phải có từ 8 đến 20 ký tự bao gồm cả chữ và số.</small>
+              </div>
+              <div className="mb-3">
+                <label htmlFor="passwordConfirm" className="form-label">Nhập lại mật khẩu</label>
+                <input
+                  type="password"
+                  className="form-control"
+                  id="passwordConfirm"
+                  value={passwordConfirm}
+                  onChange={(e) => setPasswordConfirm(e.target.value)}
+                />
+              </div>
+              <button type="submit" className="btn btn-dark w-100">ĐĂNG KÝ</button>
+            </form>
+          )}
+
           <button
-            className="signin p-4 d-flex gap-3 justify-content-center align-items-center border-0"
-            onClick={handleLogin}
+            className="btn btn-link d-block mx-auto mt-3 text-decoration-none"
+            onClick={() => setIsSignUp(!isSignUp)}
           >
-            Đăng nhập
-          </button>
-          <button
-            type="button"
-            className="signin mt-1 p-4 d-flex gap-3 justify-content-center align-items-center border-0"
-            onClick={GGSignIn}
-          >
-            <i className="pi pi-google"></i>
-            Đăng nhập với Google
-          </button>
-        </div>
-      </form>
-      }
-      {/*  */}
-      {(!isSmallScreen || smallScreenSwitch )&&
-      <form className="signin-form">
-        <div className="signin-container d-flex flex-column align-items-baseline gap-4">
-          <h1 className="header head-space mt-3">ĐĂNG KÝ NGAY</h1>
-          <fieldset className="head-space">
-            <input
-              className="input email"
-              type="text"
-              placeholder=""
-              value={newEmail}
-              onChange={handleNewEmailChange}
-            />
-            <span className="label">Email/Số điện thoại</span>
-          </fieldset>
-          <fieldset className="head-space">
-            <input
-              className="input password"
-              type="password"
-              placeholder=""
-              value={newPassword}
-              onChange={handleNewPasswordChange}
-            />
-            <span className="label">Mật khẩu</span>
-            <p className="mt-4">
-              Mật khẩu phải có từ 8 đến 20 kí tự bao gồm cả chữ và số.
-            </p>
-          </fieldset>
-          <fieldset className="extra-head-space">
-            <input
-              className="input password"
-              type="password"
-              placeholder=""
-              value={passwordConfirm}
-              onChange={handlePasswordConfirmChange}
-            />
-            <span className="label">Nhập lại mật khẩu</span>
-          </fieldset>
-          <button
-            className="signin p-4 d-flex gap-3 justify-content-center align-items-center border-0"
-            onClick={handleSignup}
-          >
-            Đăng ký
+            {isSignUp ? 'Quay lại đăng nhập' : 'Chưa có tài khoản? Đăng ký ngay'}
           </button>
         </div>
-      </form>
-      }
-      {(isSmallScreen && !smallScreenSwitch )&&
-        <button className="switch-button p-1 extra-head-space" onClick={handleSwitch}>Chưa có tài khoản?<br></br> Đăng ký ngay</button>
-      }
-      {(isSmallScreen && smallScreenSwitch )&&
-        <button className="switch-button p-1 extra-head-space" onClick={handleSwitch}>Quay lại đăng nhập</button>
-      }
+        <div className="content-container d-flex gap-3 flex-column justify-content-center align-items-center">
+          <h3 className="fw-bolder d-flex justify-content-center align-items-center gap-3">E-COMERCE <button className="btn btn-dark fs-4 text-decoration-none" disabled>SHOP</button></h3>
+          <div className="d-flex flex-row gap-3 justify-content-center align-items-center mb-5">
+            <img src="/logo-512-e.png" className="img-fluid w-25" />
+            <img src="/logo-512-c.png" className="img-fluid w-25" />
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }
