@@ -19,6 +19,29 @@ exports.getAllReviews = async (req, res) => {
   }
 };
 
+exports.getReviews = async (req, res) => {
+  try {
+    const product = req.body.product;
+    const reviews = await Review.find({ product }).populate({
+      path: "user",
+      select: "displayName photoUrl",
+    });
+
+    res.status(200).json({
+      status: "success",
+      result: reviews.length,
+      data: {
+        reviews,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "fail",
+      message: err.message,
+    });
+  }
+};
+
 exports.createReview = async (req, res) => {
   try {
     if (!req.body.user) req.body.user = req.user.id;

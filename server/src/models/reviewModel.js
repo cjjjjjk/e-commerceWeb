@@ -35,7 +35,7 @@ const reviewSchema = mongoose.Schema(
 reviewSchema.pre(/^find/, function (next) {
   this.populate({
     path: "user",
-    select: "displayName",
+    select: "displayName photoUrl",
   });
 
   next();

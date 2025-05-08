@@ -2,7 +2,6 @@ const nodemailer = require("nodemailer");
 const nodemailMailgun = require("nodemailer-mailgun-transport");
 const pug = require("pug");
 const htmlToText = require("html-to-text");
-console.log(process.env.GMAIL_EMAIL);
 
 module.exports = class Email {
   constructor(user, url) {
