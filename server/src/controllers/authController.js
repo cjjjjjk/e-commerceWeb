@@ -4,6 +4,7 @@ const User = require("./../models/userModel");
 const Cart = require("./../models/cartModel");
 const Email = require("./../utils/email");
 const crypto = require("crypto");
+const USER_URL = process.env.FRONTEND_URL;
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -13,13 +14,13 @@ const signToken = (id) => {
 
 const signRefreshToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '7d', 
+    expiresIn: "7d",
   });
 };
 
 const createSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
-  const refreshToken = signRefreshToken(user._id)
+  const refreshToken = signRefreshToken(user._id);
 
   const cookieOptions = {
     expires: new Date(
@@ -32,15 +33,17 @@ const createSendToken = (user, statusCode, res) => {
 
   res.cookie("jwt", token, cookieOptions);
   res.cookie("refresh_token", refreshToken, {
-    expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000),
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production"
+    secure: process.env.NODE_ENV === "production",
   });
 
   user.refreshToken = refreshToken;
-  user.save({ validateBeforeSave: false })
+  user.save({ validateBeforeSave: false });
 
-  const {password, ...userData}= user;
+  const { password, ...userData } = user;
 
   // const clientUrl = process.env.CLIENT_URL || "http://localhost:3000";
   // const authClient = `${clientUrl}/auth?token=${token}`;
@@ -50,7 +53,7 @@ const createSendToken = (user, statusCode, res) => {
     token,
     refreshToken,
     data: {
-      ...userData
+      ...userData,
     },
   });
 };
@@ -63,7 +66,7 @@ exports.signup = async (req, res, next) => {
       "https://i.imgur.com/aJKfWLf.png",
       "https://i.imgur.com/padyuTG.png",
       "https://i.imgur.com/Sb3bqmw.png",
-      "https://i.imgur.com/Aoja6dx.png"
+      "https://i.imgur.com/Aoja6dx.png",
     ];
     const randomAvatar = avatars[Math.floor(Math.random() * avatars.length)];
 
@@ -72,7 +75,7 @@ exports.signup = async (req, res, next) => {
       email: req.body.email,
       password: req.body.password,
       passwordConfirm: req.body.passwordConfirm,
-      photoUrl: randomAvatar
+      photoUrl: randomAvatar,
     });
     // console.log(newUser);
 
@@ -202,9 +205,7 @@ exports.forgotPassword = async (req, res, next) => {
     await user.save({ validateBeforeSave: false });
 
     try {
-      const resetURL = `${req.protocol}://${req.get(
-        "host"
-      )}/api/v1/users/resetPassword/${resetToken}`;
+      const resetURL = `${USER_URL}/resetPassword/${resetToken}`;
 
       await new Email(user, resetURL).sendPasswordReset();
 
@@ -355,7 +356,7 @@ exports.refreshToken = async (req, res) => {
     const newAccessToken = jwt.sign(
       { id: currentUser._id },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN } 
+      { expiresIn: process.env.JWT_EXPIRES_IN }
     );
 
     res.status(200).json({
@@ -363,7 +364,7 @@ exports.refreshToken = async (req, res) => {
       token: newAccessToken,
     });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return res.status(401).json({
       status: "fail",
       message: "Invalid refresh token. Please log in again.",
