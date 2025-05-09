@@ -12,10 +12,12 @@ exports.getAllProducts = async (req, res) => {
       .limitFields()
       .paginate();
     const products = await features.query;
+    const totalPages = await features.getTotalPages();
 
     res.status(200).json({
       status: "success",
       numOfProducts: products.length,
+      totalPages,
       data: {
         products,
       },
@@ -31,9 +33,11 @@ exports.getAllProducts = async (req, res) => {
 exports.getProduct = async (req, res) => {
   try {
     const id = req.params.id;
-    const product = await Product.findById(id);
+    const product = await Product.findById(id)
+      .populate("reviews")
+      .populate("categoryId");
 
-    // HaiHv: return product only 
+    // HaiHv: return product only
     res.status(200).json(product);
   } catch (err) {
     res.status(404).json({
@@ -96,7 +100,7 @@ exports.deleteProduct = async (req, res) => {
   try {
     await Product.findByIdAndDelete(req.params.id);
 
-    res.status(1).json({
+    res.status(201).json({
       status: "success",
       data: null,
     });

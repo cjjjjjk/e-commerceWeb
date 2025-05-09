@@ -1,0 +1,43 @@
+.custom-responsive-img {
+  width: 100px;
+  height: 125px;
+}
+
+.fs-responsive {
+  font-size: 15px;
+}
+
+.fs-lg-responsive {
+  font-size: 18px;
+}
+
+.responsive-btn {
+  font-size: 16px;
+  padding: 4px 8px;
+}
+
+@media (min-width: 576px) {
+  .custom-responsive-img {
+    width: 150px;
+    height: 175px;
+  }
+
+  .fs-responsive {
+    font-size: 18px;
+  }
+
+  .fs-lg-responsive {
+    font-size: 22px;
+  }
+
+  .responsive-btn {
+    font-size: 22px;
+    padding: 8px 16px;
+  }
+}
+
+/* @media (min-width: 992px) {
+  .custom-responsive-img {
+    max-width: 250px;
+  }
+} */

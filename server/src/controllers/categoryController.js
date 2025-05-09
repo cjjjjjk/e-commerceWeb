@@ -1,7 +1,6 @@
 const Category = require(`../models/categoryModel`);
 
 exports.getAllCategories = async (req, res) => {
-  // console.log("hi");
   try {
     const categories = await Category.find();
 
@@ -71,14 +70,16 @@ exports.deleteCategory = async (req, res) => {
   try {
     await Category.findByIdAndDelete(req.params.id);
 
-    res.status(1).json({
+    res.status(200).json({
       status: "success",
+      statusText: "Xóa thành công",
       data: null,
     });
   } catch (err) {
-    res.status(404).json({
-      status: "fail",
-      message: err,
+    res.status(500).json({
+      status: "error",
+      statusText: "Xóa không thành công",
+      message: err.message || "Internal Server Error",
     });
   }
 };

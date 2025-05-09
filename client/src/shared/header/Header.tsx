@@ -6,10 +6,10 @@ import { RootState } from 'app/store';
 
 const Header = () => {
   const navigate = useNavigate();
-  const {theme} = useSelector((state: RootState) => state.header);
+  const {theme, isTransference} = useSelector((state: RootState) => state.header);
 
     return (
-      <div className='header-full-container position-fixed w-100 d-flex justify-content-center z-3'>
+      <div className={`header-full-container position-fixed w-100 d-flex justify-content-center z-3 ${theme=="light" && !isTransference ? "bg-white" : ""}`}>
         <div className={`${theme}-theme header-container py-3 px-2 d-flex justify-content-between`}>
           <div 
             className={` header-container-left d-flex align-items-center gap-1`}
@@ -36,8 +36,8 @@ const Header = () => {
                   onClick={()=> navigate('cart')}
                 ></i>
                 <i 
-                  className="header-icon p-1 wish-list pi pi-heart d-flex align-items-center"
-                  onClick={()=> navigate('wishlist')}  
+                  className="header-icon p-1 wish-list pi pi-inbox d-flex align-items-center"
+                  onClick={()=> navigate('order')}  
                 ></i>
                 <i 
                   className="header-icon p-1 user pi pi-user d-flex align-items-center"

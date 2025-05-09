@@ -4,13 +4,16 @@ import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, useParam
 
 // Redux Toolkit
 import { useDispatch } from "react-redux";
-import { setHeaderTheme } from "shared/header/headerSlice";
+import { setHeaderTheme, setIsTransference } from "shared/header/headerSlice";
 import { setNaviToBackHome } from "shared/navi/navigateSlice";
+import { setHideNavBar } from "shared/navi/navigateSlice";
 
 // Components
 import Header from "./shared/header/Header";
 import Navigation from "./shared/navi/Navigate";
 import { Loading } from "./shared/components";
+import Toast from "shared/components/toast/Toast";
+import Auth from "pages/SignIn/Auth";
 
 // Pages - lazy loading.
 const Women = lazy(() => import("./pages/AD/Women/Women"));
@@ -21,6 +24,9 @@ const Wishlist = lazy(() => import("./pages/Wishlist/Wishlist"));
 const Cart = lazy(() => import("./pages/Cart/Cart"));
 const Layout = lazy(() => import("./pages/Layout/Layout"));
 const Product = lazy(()=> import("./pages/Products/Product"));
+const Order = lazy(()=> import("./pages/Order/MyOrder"));
+const Admin = lazy(()=> import("./pages/Admin/Admin"));
+const Statistic = lazy(()=> import('./pages/Admin/statistic/Statistic'))
 
 const RouteChangeHandler = () => {
   const location = useLocation();
@@ -36,7 +42,8 @@ const RouteChangeHandler = () => {
       default:
         dispatch(setHeaderTheme("light"));
         dispatch(setNaviToBackHome(false));
-
+        dispatch(setHideNavBar(false));
+        dispatch(setIsTransference(true))
     }
   }, [location, dispatch]);
 
@@ -56,6 +63,7 @@ function App() {
   return (
     <Router>
       <Header />
+      <Toast />
       <RouteChangeHandler />
       <Suspense fallback={<Loading />}>
         <Routes>
@@ -64,11 +72,15 @@ function App() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/cart" element={<Cart />} />
+          <Route path="/order" element={<Order />} />
+          <Route path="/admin" element={<Admin />} />
+          <Route path="/admin/statistic" element={<Statistic />} />
 
           <Route path="/:section" element={<LayoutWraper />} />
           <Route path="/:section/:category" element={<LayoutWraper />} />
 
           <Route path="/product/:productId" element={<Product/>} />
+          <Route path="/auth" element={<Auth />} /> 
 
           <Route path="*" element={<Navigate to="/women" />} />
         </Routes>

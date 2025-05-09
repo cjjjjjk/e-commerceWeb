@@ -3,7 +3,7 @@ import './layout.css'
 import React, { useEffect, useState } from 'react';
 
 import { useLocation } from 'react-router-dom';
-
+import productService from 'pages/Products/services/productService';
 // Components
 import { Loading } from 'shared/components';
 import {ProductCard, ProductCardProps} from 'shared/components/product-card/ProductCard';
@@ -21,6 +21,9 @@ const Layout: React.FC = function() {
     const [crrCate,SetCrrCate] = useState<any>({}); 
     // Products crrCate
     const [products, SetProducts] = useState<any[]>([])
+    
+    const [bestSellers, SetBestSellers] = useState<any[]>([])
+    const [bestSellersLoading, SetBestSellersLoading] = useState<boolean>(false)
 
 
     useEffect(()=>{
@@ -39,6 +42,16 @@ const Layout: React.FC = function() {
                     alert('Server NOT WORKING !')
                 }
             });
+        const fetchBestSellers = async () => {
+            try {
+                const response = await productService.getBestSellers();
+                SetBestSellers(response.data);
+                SetBestSellersLoading(false);
+            } catch (error) {
+                console.error("Error fetching best sellers:", error);
+            }
+        }
+        fetchBestSellers();
     }, [location.pathname])
     useEffect(()=>{
         axios
@@ -79,7 +92,32 @@ const Layout: React.FC = function() {
                                     colors: product.colors || [],
                                     isWishlist: false || false,
                                     name: product.name || "NAMENAME",
-                                    price: String(product.price) || "999,999",
+                                    price: String(product.priceMap?.[Object.keys(product.priceMap || {})[0]]?.toLocaleString()) || "999,999",
+                                    id: product._id || "NOTFOUND",
+                                }
+
+                                return (
+                                    <ProductCard key={index} {...productCard} />
+                                )
+                            })
+                        }
+                    </div>
+                </div>
+
+            </div>
+            {/* Sản phẩm bán chạy */}
+            <div className="layout-container d-flex flex-column justify-content-start align-items-center flex-grow-1">
+                <div className='list-container w-100 d-flex flex-column'>
+                    <span className="list-label">{String("Sản phẩm bán chạy").toUpperCase() }</span>
+                    <div className='products-container flex-grow-1'>
+                        {  
+                            bestSellersLoading ? <Loading message="Loading Best Sellers" /> : bestSellers.slice(0,10).map((product: any, index: number)=> {
+                                const productCard: ProductCardProps = {
+                                    imageUrl: product.images[0] || "https://image.uniqlo.com/UQ/ST3/vn/imagesgoods/477903/item/vngoods_50_477903_3x4.jpg?width=294",
+                                    colors: product.colors || [],
+                                    isWishlist: false || false,
+                                    name: product.name || "NAMENAME",
+                                    price: String(product.priceMap?.[Object.keys(product.priceMap || {})[0]]?.toLocaleString()) || "999,999",
                                     id: product._id || "NOTFOUND",
                                 }
 

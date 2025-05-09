@@ -1,4 +1,6 @@
 const Order = require(`../models/orderModel`);
+const Product = require("../models/productModel");
+const Cart = require("./../models/cartModel");
 const Category = require(`../models/categoryModel`);
 const APIFeatures = require("../utils/apiFeatures");
 
@@ -12,10 +14,12 @@ exports.getAllOrders = async (req, res) => {
       .limitFields()
       .paginate();
     const orders = await features.query;
+    const totalPages = await features.getTotalPages();
 
     res.status(200).json({
       status: "success",
       numOfOrders: orders.length,
+      totalPages,
       data: {
         orders,
       },
@@ -47,15 +51,81 @@ exports.getOrder = async (req, res) => {
   }
 };
 
+exports.getMyOrders = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const orders = await Order.find({ userId: userId }).populate(
+      "items.productId",
+      "name images"
+    );
+
+    res.status(200).json({
+      status: "success",
+      results: orders.length,
+      data: { orders },
+    });
+  } catch (err) {
+    res.status(500).json({
+      status: "fail",
+      message: "Không thể lấy danh sách đơn hàng của bạn.",
+    });
+  }
+};
+
 exports.createOrder = async (req, res) => {
   try {
-    const { userId, items, discountPrice } = req.body;
+    const { items, shippingAddress, discountPrice } = req.body;
+
+    const userId = req.user._id;
+
+    const cart = await Cart.findOne({ userId });
+    if (!cart) {
+      return res
+        .status(404)
+        .json({ status: "fail", message: "Cart not found" });
+    }
+
+    if (!items)
+      return res.status(404).json({
+        status: "fail",
+        message: "No items found!",
+      });
+
+    // Cập nhật số lượng sản phẩm trong kho
+    for (let item of items) {
+      const product = await Product.findById(item.productId);
+
+      if (!product) {
+        return res
+          .status(404)
+          .json({ message: `Product ${item.productId} not found` });
+      }
+
+      // Kiểm tra số lượng trong kho
+      if (product.stockMap[item.size] < item.quantity) {
+        return res
+          .status(400)
+          .json({ message: `Not enough stock for ${product.name}` });
+      }
+
+      // Giảm số lượng sản phẩm trong kho
+      product.stockMap[item.size] -= item.quantity;
+      await product.save();
+    }
+
+    // Tạo đơn
     const newOrder = await Order.create({
       userId,
       items,
-
+      shippingAddress,
       discountPrice: discountPrice || 0,
     });
+
+    // Xóa các mặt hàng đã đặt khỏi giỏ
+    cart.items = cart.items.filter(
+      (cartItem) => !items.some((item) => item._id === cartItem._id.toString())
+    );
+    await cart.save();
 
     res.status(201).json({
       status: "success",
@@ -110,6 +180,7 @@ exports.deleteOrder = async (req, res) => {
 
 exports.getAllOrdersByUser = async (req, res) => {
   try {
+    console.log(req.params.userId);
     const orders = await Order.find({ userId: req.params.userId }).sort(
       "-createdAt"
     );
@@ -123,6 +194,51 @@ exports.getAllOrdersByUser = async (req, res) => {
     res.status(404).json({
       status: "fail",
       message: err,
+    });
+  }
+};
+
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    const allowedStatuses = [
+      "pending",
+      "confirmed",
+      "shipped",
+      "delivered",
+      "cancelled",
+    ];
+    const newStatus = req.body.status;
+
+    if (!newStatus || !allowedStatuses.includes(newStatus)) {
+      return res.status(400).json({
+        status: "fail",
+        message:
+          "Invalid status value. Allowed values are: pending, confirmed, shipped, delivered, cancelled.",
+      });
+    }
+
+    const order = await Order.findById(req.params.id);
+
+    if (!order) {
+      return res.status(404).json({
+        status: "fail",
+        message: `No order found with ID: ${req.params.id}`,
+      });
+    }
+
+    order.status = newStatus;
+    await order.save();
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        order,
+      },
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: "fail",
+      message: `Error updating order status: ${err.message}`,
     });
   }
 };

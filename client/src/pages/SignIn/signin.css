@@ -1,31 +1,55 @@
-.sigin-full-container {
-    background-color: whitesmoke !important;
-}
+.signin-full-container {
+    background-color: #f8f9fa;
+    min-height: 100vh;
+  }
+  
+  .signin-container {
+    width: 50%;
+    max-width: 400px;
+    padding: 2rem;
+  }
 
-.sigin-container {
+  .container-outer {
+    margin-top: -200px !important;
     width: 75rem;
-    max-width: 100vw;
-    
-    height: 40rem;
-    max-height: 60vh;
-
+    max-width: 90vw;
     background-color: white;
-    border: solid 1px lightgray;
-    padding: 1rem;
-
-
-    h1 {
-        font-weight: bold;
-    }
-}
-
-.gg-signin {
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  .form-control {
+    border-radius: 5px;
+    padding: 10px;
+  }
+  
+  .btn {
     font-weight: bold;
     transition: all 0.3s ease-in-out;
+  }
 
-    &:hover {
-        background-color: white;
-        color: gray;
-        box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+  
+
+  @media (max-width: 992px) {
+
+    .container-outer {
+      margin-top: unset !important;
+      display: flex;
+      justify-content: center;
     }
+    .signin-container {
+      width: 100%;
+      padding: 1.5rem;
+      max-width: 100%;
+    }
+    .content-container {
+      display: none !important;
+    }
+  }
+  
+.form-label {
+  font-weight: bolder;
+  margin-bottom: 0 !important;
+}
+.form-text {
+  font-size: 12px !important;
 }

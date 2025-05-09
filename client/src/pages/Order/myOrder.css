@@ -1,0 +1,14 @@
+.fs-lg-responsive {
+  font-size: 18px;
+}
+
+@media (min-width: 576px) {
+  .fs-lg-responsive {
+    font-size: 22px;
+  }
+}
+
+.list-label {
+  font-size: 1.5rem;
+  font-weight: bold;
+}

@@ -10,3 +10,8 @@
 html, body, #root {
     height: 100%;
 }
+
+.list-label {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
