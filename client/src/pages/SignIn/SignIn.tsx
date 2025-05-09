@@ -20,6 +20,7 @@ function SignIn() {
   const [passwordConfirm, setPasswordConfirm] = useState("");
 
   useEffect(() => {
+    document.title = "E-COMMERCE | ĐĂNH NHẬP";
     dispatch(setHideNavBar(true));
   }, [dispatch]);
 

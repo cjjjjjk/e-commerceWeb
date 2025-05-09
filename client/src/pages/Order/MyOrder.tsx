@@ -112,6 +112,7 @@ const UserOrders = () => {
 
   // Lấy đơn hàng khi đã có userData
   useEffect(() => {
+        document.title = "E-COMMERCE | ĐƠN HÀNG ĐÃ ĐẶT";
     fetchOrders();
   }, [userData]);
 

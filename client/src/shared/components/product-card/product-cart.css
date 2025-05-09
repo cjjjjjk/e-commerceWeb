@@ -9,7 +9,7 @@
     }
 
     .product-name {
-        overflow: hidden;
+        overflow: hidden !important;
         font-weight: 500;
     }
     .product-price {
@@ -23,4 +23,13 @@
     .rounded-circle {
         border: solid 1px gray;
     }
+}
+.product-name {
+    width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}
+.item-container.rounded-3 {
+    overflow: hidden;
 }

@@ -8,6 +8,9 @@ const api = axios.create({
 const productService = {
     getBestSellers: async () => {
             return api.get("/statistics/best-sellers");
+    },
+    getByCategoryId: async (categoryId: string) => {
+        return (await api.get(`/products?categoryId=${categoryId}`));
     }
 }
 export default productService;

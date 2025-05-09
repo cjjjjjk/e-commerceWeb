@@ -45,6 +45,7 @@ export default function Cart() {
     }, [userData,cartItems]);
 
     useEffect(()=>{
+        document.title = "E-COMMERCE | GIỎ HÀNG";
         dispatch(setIsTransference(false))
         const fetchUser = async() =>{
             try {

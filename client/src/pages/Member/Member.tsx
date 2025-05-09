@@ -21,6 +21,7 @@ function Member() {
   const [isValid, setIsValid] = useState(true);
 
   useEffect(() => {
+    document.title = "E-COMMERCE"
     const token = localStorage.getItem("token");
   
     if (!token) {
