@@ -128,7 +128,7 @@ const UserOrders = () => {
     }
   };
 
-  if (loading) return <Loading message="Đang tải đơn hàng của bạn..."/>
+  if (loading) return <Loading message="Đang tải ..."/>
   if (error) return <p className="text-danger text-center mt-5">{error}</p>;
 
   const filteredOrders = orders.filter((order) => order.status === activeTab);

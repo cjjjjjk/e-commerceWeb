@@ -33,7 +33,7 @@ export default function Cart() {
         const fetchOrders = async () => {
             try {
                 const orders = await orderService.getMyOrders();
-                setMyOrders(orders.data.orders ??[]);
+                setMyOrders([...(orders.data.orders ?? [])].reverse());
             } catch (error) {
                 console.error("Không thể tải đơn hàng:", error);
             }
@@ -100,6 +100,8 @@ export default function Cart() {
             const cartshow = Array.isArray(cart) ? cart : cart.items;
             if (cart) {
                 setCartItems(cartshow);
+                showToast("Xóa sản phẩm thành công", "success");
+                setIsLoading(false);
             } else {
                 setCartItems([]);
             setIsLoading(false);
@@ -131,6 +133,7 @@ export default function Cart() {
                 }
             }
         }
+        setIsLoading(false);
     };
 
     const calculateTotal = () => {
@@ -232,7 +235,7 @@ export default function Cart() {
                                 <div className="accordion-item" key={order._id || index}>
                                     <h2 className="accordion-header" id={`heading-${index}`}>
                                     <button
-                                        className="accordion-button collapsed d-flex justify-content-between align-items-center"
+                                        className="accordion-button collapsed d-flex justify-content-between gap-2 align-items-center"
                                         type="button"
                                         data-bs-toggle="collapse"
                                         data-bs-target={`#collapse-${index}`}

@@ -28,6 +28,7 @@ const Product: React.FC = function() {
     };
 
     useEffect(()=>{
+        if (!productId) return;
         SetIsLoading(true);
             axios
             .get(`${API_URL}/products/${productId}`, { timeout: 5000 })
@@ -44,7 +45,7 @@ const Product: React.FC = function() {
                     alert('Server NOT WORKING !')
                 }
             });
-    }, [])
+    }, [productId ])
 
     useEffect(() => {
         if (productInfo.name) {
@@ -159,7 +160,7 @@ const Product: React.FC = function() {
                 </div>
             </div>
             <br />
-            <span className='out-label'>HÌNH ẢNH SẢN PHẨM</span>
+            <span className='out-label fs-14 fw-bolder'>HÌNH ẢNH SẢN PHẨM</span>
             <div className="all-images-container">
                 {
                     productInfo.images?.slice(0,10)
@@ -167,6 +168,58 @@ const Product: React.FC = function() {
                         (<img key={index} src={url} alt={`Product Image ${index + 1}`} />)
                 )
             }
+            </div>
+            <hr />
+            <span className='out-label fs-14 fw-bolder'>ĐÁNH GIÁ SẢN PHẨM </span>
+            <div className='product-review-container d-flex flex-column justify-content-start align-items-center'>  
+            {Array.isArray(productInfo.reviews) && productInfo.reviews.length > 0 ? (
+                <div className="container mt-3">
+                {productInfo.reviews.map((review: any, index: number) => {
+                  const user = review.user || {};
+                  const displayName = typeof user === 'object'
+                    ? user.displayName || `Ẩn danh (${user._id?.slice(-5) || "???"})`
+                    : `Ẩn danh`;
+                  const photoUrl = typeof user === 'object' ? user.photoUrl : null;
+              
+                  return (
+                    <div key={index} className="card mb-3 shadow-sm">
+                      <div className="card-body">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <div className="d-flex align-items-center gap-2">
+                            {photoUrl && (
+                              <img
+                                src={photoUrl}
+                                alt={displayName}
+                                className="rounded-circle"
+                                style={{ width: '32px', height: '32px', objectFit: 'cover' }}
+                              />
+                            )}
+                            <h6 className="mb-0 text-dark fw-bolder">{displayName}</h6>
+                          </div>
+                          <small className="text-muted">
+                            {new Date(review.createAt).toLocaleDateString()}
+                          </small>
+                        </div>
+                        <p className="mt-2 mb-1">
+                          {Array(review.rating).fill(0).map((_, i) => (
+                            <span key={i} className="text-warning">&#9733;</span>
+                          ))}
+                          {Array(5 - review.rating).fill(0).map((_, i) => (
+                            <span key={i} className="text-secondary">&#9733;</span>
+                          ))}
+                        </p>
+                        <p className="mb-0">{review.review}</p>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>              
+                ) : (
+                <div className="alert alert-secondary mt-3 w-100" role="alert">
+                    Chưa có đánh giá nào cho sản phẩm này.
+                </div>
+                )}
+
             </div>
             <div className='w-100 bg-dark'>
                 <br /><br /><br />

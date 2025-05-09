@@ -166,6 +166,9 @@
     float: left;
 }
 
+.cate-list-container {
+    gap: 1.5rem !important;
+}
 @media (max-width: 768px) {
     .navi-full-container {
         z-index: 50 !important;
@@ -173,6 +176,8 @@
 
     .search-full-container {
         z-index: 50 !important;
+        height: 100vh !important;
+        width: 100vw !important;
     }
     .search-container {
         z-index: 50 !important;
@@ -184,5 +189,9 @@
         *{
             z-index: 50 !important;
         }
+    }
+
+    .cate-list-container {
+        gap: 0.5rem !important;
     }
 }

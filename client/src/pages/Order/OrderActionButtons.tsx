@@ -14,8 +14,8 @@ export const CancelOrderButton: React.FC<ButtonProps> = ({ onClick }) => {
 
 export const TrackOrderButton: React.FC<ButtonProps> = ({ onClick }) => {
   return (
-    <button className="btn btn-primary btn-lg" onClick={onClick}>
-      Theo dõi đơn hàng
+    <button className="btn btn-outline-primary btn-lg" disabled onClick={onClick}>
+      Đơn hàng đã được đóng gói
     </button>
   );
 };

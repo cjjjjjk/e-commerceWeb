@@ -1,7 +1,7 @@
 import { useSelector } from 'react-redux';
 import './navigate.css'
 
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { RootState } from 'app/store';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -123,6 +123,14 @@ const Navigate = ()=>{
         return href;
     }
 
+    const navitoProductHandler = (toproductId: string)=> {
+        const preloadHref = getPreloadHref(toproductId);
+        window.sessionStorage.setItem('crrCateId', toproductId || "");
+        setIsShowSearchBox(false);
+        navigate(preloadHref);
+    }
+        
+
     if(isHide) {
         return null;
     }
@@ -173,7 +181,7 @@ const Navigate = ()=>{
                         {!isSearching &&
                             <div className="categories h-100 w-100 d-flex flex-column">
                                 <h2 style={{ fontSize: "1.5rem",fontWeight:'600', color: "black" }}>DANH MỤC SẢN PHẨM</h2>
-                                <div className='flex-grow-1 d-flex flex-row gap-4 py-3'>
+                                <div className='cate-list-container flex-grow-1 d-flex flex-row py-3'>
                                     <div className="cate-options d-flex flex-column gap-4">
                                         <div className={`cate-option-item d-flex justify-content-start align-items-center gap-2 py-3 ${crrGender === 'Nữ' ? 'active' : ''}`}
                                             onClick={()=>{SetCrrGender('Nữ')}}
@@ -207,31 +215,50 @@ const Navigate = ()=>{
                                 </div>
                             </div>
                         }
-                        { isSearching && 
-                            <div className='result-container d-flex flex-row flex-wrap gap-4 justify-content-between overflow-auto'>
-                                <div className="w-100">{ delay && (
-                                    <div>
-                                        <i className="pi pi-spin pi-spinner"></i>
-                                        Searching
-                                    </div>
-                                )
-                                }</div>
-                                {items.length > 0 ? (
-                                    items.map((item, index) => (
-                                        <div className="product-item m-0" key={index}>
-                                            <a className="text-dark text-decoration-none" href={getPreloadHref(item._id)} >
-                                                <img className="product-item-img" src={item.images[0]} alt="No Image" />
-                                                <div className="product-item-name">{item.name}</div>
-                                                <div className="product-item-price btn btn-danger">{item.priceMap.S}đ</div>
-                                                <div className="product-item-rating">{item.ratingsAverage}⭐</div>
-                                            </a>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="p-1 text-gray-500">No results found</div>
-                                )}
+                        {isSearching && (
+                        <div className='result-container d-flex flex-column gap-3 overflow-auto'>
+                            {delay && (
+                            <div>
+                                <i className="pi pi-spin pi-spinner"></i> &nbsp; Đang tìm kiếm sản phẩm...
                             </div>
-                        }  
+                            )}
+                            {items.length > 0  ? (
+                            items.map((item, index) => (
+                                <Link
+                                    to={getPreloadHref(item._id)}
+                                    onClick={() => {
+                                        window.sessionStorage.setItem('crrCateId', item._id || "");
+                                        setIsShowSearchBox(false);
+                                    }}
+                                    key={index}
+                                    className="d-flex flex-row align-items-start gap-3 p-3 border rounded shadow-sm bg-white text-decoration-none text-dark"
+                                    style={{ cursor: "pointer" }}
+                                >
+                                <img
+                                    src={item.images?.[0] || "/no-image.png"}
+                                    alt={item.name}
+                                    className="rounded"
+                                    style={{ width: "80px", height: "80px", objectFit: "cover" }}
+                                />
+
+                                <div className="flex-grow-1">
+                                    <h5 className="mb-1">{item.name}</h5>
+                                    <div className="mb-2">
+                                    <span className="badge bg-danger">
+                                        {item.priceMap?.S?.toLocaleString() || "0"} VND
+                                    </span>
+                                    </div>
+                                    <div className="text-muted small">
+                                    <div>Đánh giá: {item.ratingsAverage ?? 0} ⭐</div>
+                                    </div>
+                                </div>
+                                </Link>
+                            ))
+                            ) : (
+                            <div className="text-muted">Không có sản phẩm</div>
+                            )}
+                        </div>
+                        )}
                     </div>
                 </div>
             </div>}
